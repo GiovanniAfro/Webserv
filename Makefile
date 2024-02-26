@@ -8,7 +8,8 @@ SRC_DIR	= src
 OBJ_DIR	= .build
 INC_DIR	= include
 
-SRC		= main.cpp
+SRC		= main.cpp Server.cpp
+
 SRCS	= $(SRC:%=$(SRC_DIR)/%)
 
 OBJS	= $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
