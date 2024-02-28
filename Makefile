@@ -8,7 +8,7 @@ SRC_DIR	= src
 OBJ_DIR	= .build
 INC_DIR	= include
 
-SRC		= main.cpp Server.cpp
+SRC		= main.cpp Server.cpp Error.cpp
 
 SRCS	= $(SRC:%=$(SRC_DIR)/%)
 

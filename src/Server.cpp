@@ -14,22 +14,27 @@
 	- sin_addr: The IPv4 address of the server, not bound to any specific address, will listen to all available interfaces, using the INADDR_ANY macro from the netinet/in.h library.
 	- sin_port: The port number of the server, converted to network byte order using the htons() function from the netinet/in.h library.
 */
-Server::Server()
+Server::Server() : _port(PORT)
 {
-	_socket = socket(AF_INET, SOCK_STREAM, 0);
-	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = INADDR_ANY;
-	_address.sin_port = htons(PORT);
+	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	_serverAddress.sin_family = AF_INET;
+	_serverAddress.sin_addr.s_addr = INADDR_ANY;
+	_serverAddress.sin_port = htons(_port);
+}
+
+Server::Server(uint16_t port) : _port(port)
+{
+	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	_serverAddress.sin_family = AF_INET;
+	_serverAddress.sin_addr.s_addr = INADDR_ANY;
+	_serverAddress.sin_port = htons(_port);
 }
 
 /*!
 * @brief Delete a Server object
 * @details This destructor deletes a Server object, and closes the socket using the close() function from the unistd.h library.
 */
-Server::~Server()
-{
-	::close(_socket);
-}
+Server::~Server() { }
 
 /*!
 * @brief Bind the socket to the address
@@ -41,7 +46,8 @@ Server::~Server()
 */
 int Server::bind()
 {
-	return (::bind(_socket, (struct sockaddr *)&_address, sizeof(_address)));
+	memset(_serverAddress.sin_zero, '\0', sizeof _serverAddress.sin_zero);
+	return (::bind(_serverSocket, (struct sockaddr *)&_serverAddress, sizeof(_serverAddress)));
 }
 
 /*!
@@ -50,9 +56,9 @@ int Server::bind()
 	- The first argument is the file descriptor of the socket.
 	- The second argument is the maximum length of the queue of pending connections.
 */
-void Server::listen()
+int Server::listen()
 {
-	::listen(_socket, 10);
+	return (::listen(_serverSocket, 10));
 }
 
 /*!
@@ -62,9 +68,12 @@ void Server::listen()
 	- The second argument is the ad dress information of the client.
 	- The third argument is the size of the address information of the client.
 */
-void Server::accept()
+int Server::accept()
 {
-	_clientSocket = ::accept(_socket, (sockaddr *)&_address, (socklen_t *)sizeof(_address));
+	struct sockaddr_in clientAddr;
+	socklen_t clientAddrLen = sizeof(clientAddr);
+	_clientSocket = ::accept(_serverSocket, (sockaddr *)&clientAddr, &clientAddrLen);
+	return (_clientSocket);
 }
 
 /*!
@@ -95,7 +104,16 @@ void Server::close()
 */
 int Server::getSocket() const
 {
-	return (_socket);
+	return (_serverSocket);
+}
+
+/*!
+* @brief Get the port number of the server
+* @return The port number of the server
+*/
+uint16_t Server::getPort() const
+{
+	return (_port);
 }
 
 /*!
@@ -104,5 +122,5 @@ int Server::getSocket() const
 */
 sockaddr_in Server::getAddress() const
 {
-	return (_address);
+	return (_serverAddress);
 }

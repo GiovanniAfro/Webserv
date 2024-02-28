@@ -15,21 +15,25 @@
 */
 class Server {
 	private:
-		int _socket;
+		int _port;
+		int _serverSocket;
+		sockaddr_in _serverAddress;
 		int _clientSocket;
-		sockaddr_in _address;
+		sockaddr_in _clientAddress;
 
 		Server(const Server &src);
 		Server &operator=(const Server &src);
 	public:
 		Server();
+		Server(uint16_t port);
 		~Server();
 
 		int bind();
-		void listen();
-		void accept();
+		int listen();
+		int accept();
 		void answer();
 		void close();
 		int getSocket() const;
+		uint16_t getPort() const;
 		sockaddr_in getAddress() const;
 };
