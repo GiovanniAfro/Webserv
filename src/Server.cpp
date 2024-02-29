@@ -34,7 +34,10 @@ Server::Server(uint16_t port) : _port(port)
 * @brief Delete a Server object
 * @details This destructor deletes a Server object, and closes the socket using the close() function from the unistd.h library.
 */
-Server::~Server() { }
+Server::~Server()
+{
+	close();
+}
 
 /*!
 * @brief Bind the socket to the address
@@ -46,19 +49,21 @@ Server::~Server() { }
 */
 int Server::bind()
 {
-	memset(_serverAddress.sin_zero, '\0', sizeof _serverAddress.sin_zero);
+	// memset(_serverAddress.sin_zero, '\0', sizeof _serverAddress.sin_zero);
 	return (::bind(_serverSocket, (struct sockaddr *)&_serverAddress, sizeof(_serverAddress)));
 }
 
 /*!
 * @brief Listen for incoming connections
+* @param connections The maximum length of the queue of pending connections
 * @details This function listens for incoming connections using the listen() function from the sys/socket.h library.
 	- The first argument is the file descriptor of the socket.
 	- The second argument is the maximum length of the queue of pending connections.
+* @return The result of the listen() function
 */
-int Server::listen()
+int Server::listen(int connections)
 {
-	return (::listen(_serverSocket, 10));
+	return (::listen(_serverSocket, connections));
 }
 
 /*!
@@ -95,7 +100,8 @@ void Server::answer()
 */
 void Server::close()
 {
-	::close(_clientSocket);
+	if (_clientSocket > 0)
+		::close(_clientSocket);
 }
 
 /*!
@@ -114,6 +120,13 @@ int Server::getSocket() const
 uint16_t Server::getPort() const
 {
 	return (_port);
+}
+
+std::string Server::getPortString() const
+{
+	std::stringstream ss;
+	ss << _port;
+	return (ss.str());
 }
 
 /*!
