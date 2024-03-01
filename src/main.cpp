@@ -3,7 +3,7 @@
 int main(int ac, char **av)
 {
 	// Create a new Server object
-	Server server(8080);
+	Server server(8080, 10, (timeval){5, 0});
 
 	// Bind the socket to the address
 	if (Error::checkError(server.bind(), FAILED_BIND))
@@ -13,23 +13,14 @@ int main(int ac, char **av)
 	if (Error::checkError(server.listen(), FAILED_LISTEN))
 		return (Error::exit(FAILED_LISTEN, server));
 
+	// Set the socket to non-blocking
+	if (Error::checkError(server.nonBlocking(), FAILED_NON_BLOCKING))
+		return (Error::exit(FAILED_NON_BLOCKING, server));
+
 	Log::info("Server is running on port " + server.getPortString());
 
-	while (1)
-	{
-		// Accept a new connection
-		if (Error::checkError(server.accept(), FAILED_ACCEPT))
-			continue;
-		Log::request(GET, "/");
-
-		// Answer the client
-		server.answer();
-
-		// Close the client socket
-		server.close();
-	}
-
-	return (0);
+	// The main loop of the server
+	return (server.run());
 	(void)ac;
 	(void)av;
 }

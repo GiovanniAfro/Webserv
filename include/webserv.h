@@ -8,10 +8,11 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <sys/select.h>
 #include <netinet/in.h>
+#include <unistd.h>
 #include <string.h>
-#include <sys/epoll.h>
+#include <fcntl.h>
 #include <stdio.h>
 
 enum HTTP_METHOD {

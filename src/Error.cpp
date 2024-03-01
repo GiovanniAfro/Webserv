@@ -14,6 +14,8 @@ ErrorCodes Error::checkError(int ret, ErrorCodes exit)
 	{
 		if (exit == FAILED_ACCEPT)
 			error = "Failed to accept connection";
+		if (exit == TIMEOUT)
+			error = "Connection timed out";
 		else
 			error = strerror(ret);
 		Log::error(error);
