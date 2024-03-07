@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 14:46:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/06 16:38:17 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:34:47 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,4 +90,16 @@ void ConfigFile::_parsing(const char *config_file) {
     }
     file.close();
     remove(config_file);
+}
+
+int ConfigFile::getServerPort() const
+{
+    for (size_t i = 0; i < _config.size(); i++)
+    {
+        const Listen* listenDirective = dynamic_cast<const Listen *>(_config[i]);
+        if (listenDirective)
+        {
+            std::vector<std::string>& portStr = listenDirective->get_value_inline();
+        }
+    }
 }

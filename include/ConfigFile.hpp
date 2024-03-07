@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 14:46:15 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/06 15:51:23 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/07 15:31:25 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ class ConfigFile {
         ConfigFile(const char *filename);
         ~ConfigFile(void);
 
-        std::string getConfigurationValue(std::string const &key) const;
+        int getServerPort() const;
+        long getMaxConnection() const;
 
         // vector<Directive> get_config_file(void);
 };
