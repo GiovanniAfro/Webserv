@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 09:32:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 15:07:04 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 16:43:12 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,12 @@ Socket::Socket(int client_socket) : _socket(client_socket) {
     this->_type = "client";
     this->_sock_addr_len = sizeof(this->_sock_addr);
 
+    // Print client port
+    if (getpeername(this->_socket, (struct sockaddr *)&this->_sock_addr, 
+                    &this->_sock_addr_len) == -1) {
+        perror("getpeername failed");
+        return;
+    }
     cout << endl << "Client connected from port: " <<
         ntohs(this->_sock_addr.sin_port) << endl << endl;
 }
@@ -66,7 +72,7 @@ void Socket::_listening(void) {
         close(this->_socket);
         exit(1);
     }
-    cout << "Server listening on port " << ntohs(this->_sock_addr.sin_port) << 
+    cout << "Server listening on port " << ntohs(this->_sock_addr.sin_port) <<
         endl;
 }
 
@@ -83,7 +89,7 @@ Socket *Socket::create_client_socket(void) {
 
 void Socket::close_socket(void) {
     close(this->_socket);
-    cout << "socket fd: " << this->_socket << " - type: " << this->_type << 
+    cout << "socket fd: " << this->_socket << " - type: " << this->_type <<
         " closed" << endl;
 }
 
