@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 12:30:38 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:48:26 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,17 +38,20 @@ Http::~Http() {
 
 vector<int> Http::_get_ports(void) {
     vector<int> ports;
+    size_t num_servers = this->_value_block.size();
+    size_t num_directives;
+    size_t num_ports;
+    int port;
 
-    size_t number_of_servers = this->_value_block.size();
-    for (size_t i = 0; i < number_of_servers; i++) {
-        size_t number_of_directives = this->_value_block[i]->get_block_size();
-        for (size_t j = 0; j < number_of_directives; j++) {
+    for (size_t i = 0; i < num_servers; i++) {
+        num_directives = this->_value_block[i]->get_block_size();
+        for (size_t j = 0; j < num_directives; j++) {
             if (this->_value_block[i]->get_value_block()[j]->get_type()
                 == "listen") {
-                size_t num_ports = this->_value_block[i]->get_value_block()[j]->get_inline_size();
+                num_ports = this->_value_block[i]->get_value_block()[j]->get_inline_size();
                 for (size_t k = 0; k < num_ports; k++) {
                     if (this->_value_block[i]->get_value_block()[j]->get_value_inline()[k] != "default_server") {
-                        int port = atoi(this->_value_block[i]->get_value_block()[j]->get_value_inline()[k].c_str());
+                        port = atoi(this->_value_block[i]->get_value_block()[j]->get_value_inline()[k].c_str());
                         if (!int_in_vec(ports, port))
                             ports.push_back(port);
                     }

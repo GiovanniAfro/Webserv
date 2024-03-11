@@ -6,32 +6,28 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 09:32:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 12:30:52 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:56:10 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 
 Socket::Socket(uint16_t port) : _port(port) {
+    this->_type = "server";
     this->_socket = this->_init_socket();
     this->_sock_addr.sin_family = AF_INET;
     this->_sock_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     this->_sock_addr.sin_port = htons(this->_port);
     this->_sock_addr_len = sizeof(this->_sock_addr);
-    this->_type = "server";
     this->_binding();
     this->_listening();
 }
 
 Socket::Socket(int client_socket) : _socket(client_socket) {
-
-    // this->_sock_addr.sin_family = AF_INET;
-    // this->_sock_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    // this->_sock_addr.sin_port = htons(this->_port);
-    this->_sock_addr_len = sizeof(this->_sock_addr);
     this->_type = "client";
-    getpeername(client_socket, (struct sockaddr *)&this->_sock_addr, &this->_sock_addr_len);
-    printf("Client connected from port %d\n", ntohs(this->_sock_addr.sin_port));
+    this->_sock_addr_len = sizeof(this->_sock_addr);
+
+    cout << "Client connected from port: " << ntohs(this->_sock_addr.sin_port) << endl;
 }
 
 Socket::~Socket() {
