@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 09:31:03 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 12:44:38 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:13:10 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,13 @@ class Socket {
         socklen_t          _sock_addr_len;
         string             _type;
 
-        int _init_socket(void);
+        int  _init_socket(void);
         void _binding(void);
         void _listening(void);
 
     public:
 
-        Socket(uint16_t port); // for server socket
+        Socket(uint16_t port);     // for server socket
         Socket(int client_socket); // for client socket
         ~Socket(void);
 
@@ -41,5 +41,5 @@ class Socket {
         string             get_type(void);
 
         Socket *create_client_socket(void);
-        void close_socket(void);
+        void    close_socket(void);
 };

@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:16:59 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 19:09:06 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:12:25 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 * @return The error code if an error occurred, or NO_ERROR if no error occurred
 */
 ErrorCodes Error::checkError(int ret, ErrorCodes exit) {
-	std::string error;
+	string error;
 	if (ret < 0) {
 		if (exit == FAILED_ACCEPT)
 			error = "Failed to accept connection";

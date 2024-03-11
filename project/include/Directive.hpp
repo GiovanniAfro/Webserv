@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:59:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 15:57:34 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:47:04 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,6 @@ using std::vector;
 using std::getline;
 using std::streampos;
 using std::exception;
-
-// Defines -------------------------------------------------------------------->
-
-#define PORT 4242
-#define MAX_CONNECTIONS 10
-#define TIMEOUT_SEC 5
-#define TIMEOUT_USEC 0
-#define BUFFER_SIZE 1024
 
 // Class ---------------------------------------------------------------------->
 

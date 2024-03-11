@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 12:24:44 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:09:25 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,21 +69,5 @@ enum HTTP_METHOD {
 // Classes -------------------------------------------------------------------->
 
 #include "Directive.hpp"
-
-// #include "Autoindex.hpp"
-// #include "ClientMaxBodySize.hpp"
-// #include "ErrorPage.hpp"
-// #include "Http.hpp"
-// #include "Include.hpp"
-// #include "Index.hpp"
-// // #include "LimitExcept.hpp"
-// #include "Listen.hpp"
-// // #include "Location.hpp"
-// #include "Rewrite.hpp"
-// #include "Root.hpp"
-// #include "Server.hpp"
-// class Server;
-// #include "ServerName.hpp"
-
 #include "Log.h"
 #include "Error.h"

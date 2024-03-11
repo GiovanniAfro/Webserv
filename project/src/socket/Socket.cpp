@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 09:32:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 12:56:10 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:07:04 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,15 @@ Socket::Socket(int client_socket) : _socket(client_socket) {
     this->_type = "client";
     this->_sock_addr_len = sizeof(this->_sock_addr);
 
-    cout << "Client connected from port: " << ntohs(this->_sock_addr.sin_port) << endl;
+    cout << endl << "Client connected from port: " <<
+        ntohs(this->_sock_addr.sin_port) << endl << endl;
 }
 
-Socket::~Socket() {
+Socket::~Socket(void) {
     this->close_socket();
 }
 
-int Socket::_init_socket() {
+int Socket::_init_socket(void) {
     int sock;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -45,7 +46,12 @@ int Socket::_init_socket() {
     return sock;
 }
 
-void Socket::_binding() {
+void Socket::_binding(void) {
+    int opt_v = 1;
+
+    // tells the socket to also use addresses that are in the TIME_WAIT state.
+    setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &opt_v, sizeof(opt_v));
+
     if (bind(this->_socket, (struct sockaddr *)&this->_sock_addr,
              sizeof(this->_sock_addr)) == -1) {
         perror("Binding failed");
@@ -54,16 +60,17 @@ void Socket::_binding() {
     }
 }
 
-void Socket::_listening() {
+void Socket::_listening(void) {
     if (listen(this->_socket, SOMAXCONN) == -1) {
         perror("Listening failed");
         close(this->_socket);
         exit(1);
     }
-    cout << "Server listening on port " << ntohs(this->_sock_addr.sin_port) << endl;
+    cout << "Server listening on port " << ntohs(this->_sock_addr.sin_port) << 
+        endl;
 }
 
-Socket *Socket::create_client_socket() {
+Socket *Socket::create_client_socket(void) {
     int client_socket = accept(this->_socket, NULL, NULL);
 
     if (client_socket == -1) {
@@ -74,27 +81,28 @@ Socket *Socket::create_client_socket() {
     return new Socket(client_socket);
 }
 
-void Socket::close_socket() {
+void Socket::close_socket(void) {
     close(this->_socket);
-    cout << "socket " << this->_socket << " closed" << endl;
+    cout << "socket fd: " << this->_socket << " - type: " << this->_type << 
+        " closed" << endl;
 }
 
-uint16_t Socket::get_port() {
+uint16_t Socket::get_port(void) {
     return this->_port;
 }
 
-int Socket::get_socket() {
+int Socket::get_socket(void) {
     return this->_socket;
 }
 
-struct sockaddr_in Socket::get_sock_addr() {
+struct sockaddr_in Socket::get_sock_addr(void) {
     return this->_sock_addr;
 }
 
-socklen_t Socket::get_sock_addr_len() {
+socklen_t Socket::get_sock_addr_len(void) {
     return this->_sock_addr_len;
 }
 
-string Socket::get_type() {
+string Socket::get_type(void) {
     return this->_type;
 }

@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:08 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 12:17:09 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:12:06 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,16 @@
 #define BLUE "\033[34m"
 #define WHITE "\033[37m"
 
-class Log
-{
+class Log {
 	private:
 		Log();
 		Log(const Log &src);
 		Log &operator=(const Log &src);
 		~Log();
 
-		static std::string _timeStamp();
+		static string _timeStamp();
 	public:
-		static void info(const std::string &message);
-		static void error(const std::string &message);
-		static void request(HTTP_METHOD method, const std::string &uri);
+		static void info(const string &message);
+		static void error(const string &message);
+		static void request(HTTP_METHOD method, const string &uri);
 };
