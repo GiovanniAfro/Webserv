@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:48:03 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 16:08:00 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:31:05 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,3 @@ Listen::Listen(string raw_value, string context) {
 }
 
 Listen::~Listen() {}
-
-// vector<int> Listen::get_ports(void) const {
-    
-// }

@@ -6,7 +6,7 @@
 #    By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/12 14:53:55 by kichkiro          #+#    #+#              #
-#    Updated: 2024/03/10 19:09:24 by kichkiro         ###   ########.fr        #
+#    Updated: 2024/03/11 10:07:06 by kichkiro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,8 @@ SRCS        := \
 				directives/Server.cpp \
 				directives/ServerName.cpp \
 				directives/Directive.cpp \
+				\
+				socket/Socket.cpp \
 				\
 				config/ConfigFile.cpp \
 				\

@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 14:19:26 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:24:44 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <signal.h>
 
 #include "utils.hpp"
 

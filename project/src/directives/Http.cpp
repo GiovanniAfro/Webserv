@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 19:03:07 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/11 12:30:38 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,123 +59,77 @@ vector<int> Http::_get_ports(void) {
     return ports;
 }
 
-/*!
- * @brief
-    Function to initialize sockets and pollfd structures for each port
-    desired.
- * @param server_sockets
- * @param fds
- * @param num_fds
- */
-void Http::_init_sockets(int server_sockets[], struct pollfd fds[], int &num_fds, int num_ports, vector<int> ports) {
-    for (int i = 0; i < num_ports; ++i) {
-        server_sockets[i] = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_sockets[i] == -1) {
-            perror("Socket creation failed");
-            exit(1);
-        }
+string Http::_read_requests(Socket *client_socket) {
+    char buffer[1024];
+    ssize_t bytes_read = read(client_socket->get_socket(), buffer, sizeof(buffer));
 
-        // Setting the server address
-        struct sockaddr_in server_addr;
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-        server_addr.sin_port = htons(ports[i]);
-        if (bind(server_sockets[i], (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
-            perror("Binding failed");
-            close(server_sockets[i]);
-            exit(1);
-        }
+    if (bytes_read == -1) {
+        perror("Reading failed");
+        client_socket->close_socket();
+    }
+    return string(buffer, bytes_read);
+}
 
-        // Print that the server is listening on the port
-        cout << "Server listening on port " << ntohs(server_addr.sin_port) << endl;
+const char *Http::_process_requests(string request) {
 
-        // Put the socket listening
-        if (listen(server_sockets[i], SOMAXCONN) == -1) {
-            perror("Listening failed");
-            close(server_sockets[i]);
-            exit(1);
-        }
+    // Individuare il virtual server corretto ed inviargli la richiesta, 
+    // quest'ultimo provvedera' a restituire la risposta
 
-        // Add the socket to the pollfd structure
-        fds[num_fds].fd = server_sockets[i];
-        fds[num_fds].events = POLLIN;
-        num_fds++;
+    // TMP
+    cout << "HTTP request received: " << request << endl;
+    return "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html>";
+}
+
+void Http::_send_response(const char *response, Socket *client_socket) {
+    ssize_t bytes_sent = send(client_socket->get_socket(), response, strlen(response), 0);
+
+    if (bytes_sent == -1) {
+        perror("Sending the response failed");
+        client_socket->close_socket();
     }
 }
 
-/*!
- * @brief
-    Function to handle polling cycle and events on sockets.
- * @param fds
- * @param num_fds
- * @param server_sockets
- */
-void Http::_handle_polling(int server_sockets[], struct pollfd fds[], int num_fds) {
+void Http::start_servers() {
+    vector<int> ports = this->_get_ports();
+    int num_ports = ports.size();
+    vector<Socket *> sockets;
+    struct pollfd fds[num_ports];
+    int num_fds = 0;
+
+    // Creates sockets and adds them to the pollfd structure ------------------>
+    for (int i = 0; i < num_ports; i++) {
+        sockets.push_back(new Socket(static_cast<uint16_t>(ports[i])));
+        cout << sockets[i]->get_socket() << endl;
+        fds[num_fds].fd = sockets[i]->get_socket();
+        fds[num_fds].events = POLLIN;
+        num_fds++;
+    }
+
+    // Polling ---------------------------------------------------------------->
     while (true) {
         int poll_status = poll(fds, num_fds, -1);
         if (poll_status == -1) {
             perror("Poll failed");
             exit(1);
         }
-        cout << poll_status << endl;
-        // Handle events on sockets
+        // Handle events on sockets ------------------------------------------->
         for (int i = 0; i < num_fds; ++i) {
             if (fds[i].revents & POLLIN) {
 
-                int client_socket = accept(server_sockets[i], NULL, NULL);
-                if (client_socket == -1) {
-                    perror("Acceptance failed");
-                    close(server_sockets[i]);
-                    exit(1);
-                }
+                // Accept connection and create new socket for client---------->
+                Socket *client_socket = sockets[i]->create_client_socket();
 
-                // Accept the connection and handle the request
-                struct sockaddr_in client_addr;
-                socklen_t client_addr_len = sizeof(client_addr);
-                getpeername(client_socket, (struct sockaddr *)&client_addr, &client_addr_len);
-                printf("Client connected from port %d\n", ntohs(client_addr.sin_port));
+                // Read the request ------------------------------------------->
+                string request = this->_read_requests(client_socket);
 
-                // Print the socket port
-                char buffer[1024];
-                ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer));
-                if (bytes_read == -1) {
-                    perror("Reading failed");
-                    close(client_socket);
-                    continue;
-                }
+                // Process the requests --------------------------------------->
+                const char *response = this->_process_requests(request);
 
-                // Print the HTTP request
-                printf("HTTP request received: %.*s\n", static_cast<int>(bytes_read), buffer);
+                // Send the request ------------------------------------------->
+                this->_send_response(response, client_socket);
 
-                // PROCESSARE QUI LA RICHIESTA E TORNARE LA RISPOSTA ***********
-
-                const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html>";
-
-                // *************************************************************
-
-                ssize_t bytes_sent = send(client_socket, response, strlen(response), 0);
-                if (bytes_sent == -1) {
-                    perror("Sending the response failed");
-                    close(client_socket);
-                    continue;
-                }
-
-                close(client_socket);
+                client_socket->close_socket();
             }
         }
     }
-}
-
-void Http::start_servers(void) {
-    vector<int> ports = this->_get_ports();
-    int num_ports = ports.size();
-    int server_sockets[num_ports];
-    struct pollfd fds[num_ports];
-    int num_fds = 0;
-
-    this->_init_sockets(server_sockets, fds, num_fds, num_ports, ports);
-    this->_handle_polling(server_sockets, fds, num_fds);
-
-    for (int i = 0; i < num_fds; ++i)
-        close(server_sockets[i]);
 }
