@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 09:32:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 16:43:12 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 09:58:45 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,6 @@ Socket::Socket(uint16_t port) : _port(port) {
 Socket::Socket(int client_socket) : _socket(client_socket) {
     this->_type = "client";
     this->_sock_addr_len = sizeof(this->_sock_addr);
-
-    // Print client port
-    if (getpeername(this->_socket, (struct sockaddr *)&this->_sock_addr, 
-                    &this->_sock_addr_len) == -1) {
-        perror("getpeername failed");
-        return;
-    }
-    cout << endl << "Client connected from port: " <<
-        ntohs(this->_sock_addr.sin_port) << endl << endl;
 }
 
 Socket::~Socket(void) {
@@ -46,7 +37,7 @@ int Socket::_init_socket(void) {
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1) {
-        perror("Socket creation failed");
+        Log::error("Socket creation failed");
         exit(1);
     }
     return sock;
@@ -60,7 +51,7 @@ void Socket::_binding(void) {
 
     if (bind(this->_socket, (struct sockaddr *)&this->_sock_addr,
              sizeof(this->_sock_addr)) == -1) {
-        perror("Binding failed");
+        Log::error("Binding failed");
         close(this->_socket);
         exit(1);
     }
@@ -68,19 +59,20 @@ void Socket::_binding(void) {
 
 void Socket::_listening(void) {
     if (listen(this->_socket, SOMAXCONN) == -1) {
-        perror("Listening failed");
+        Log::error("Listening failed");
         close(this->_socket);
         exit(1);
     }
-    cout << "Server listening on port " << ntohs(this->_sock_addr.sin_port) <<
-        endl;
+    stringstream ss;
+    ss << ntohs(this->_sock_addr.sin_port);
+    Log::info("Server listening on port " + ss.str());
 }
 
 Socket *Socket::create_client_socket(void) {
     int client_socket = accept(this->_socket, NULL, NULL);
 
     if (client_socket == -1) {
-        perror("Acceptance failed");
+        Log::error("Acceptance failed");
         close(this->_socket);
         exit(1);
     }
@@ -89,8 +81,6 @@ Socket *Socket::create_client_socket(void) {
 
 void Socket::close_socket(void) {
     close(this->_socket);
-    cout << "socket fd: " << this->_socket << " - type: " << this->_type <<
-        " closed" << endl;
 }
 
 uint16_t Socket::get_port(void) {

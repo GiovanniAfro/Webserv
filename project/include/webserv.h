@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 15:09:25 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 10:03:14 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,12 @@ using std::stringstream;
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::setw;
+using std::setfill;
+using std::time_t;
+using std::time;
+using std::tm;
+using std::localtime;
 using std::ifstream;
 using std::vector;
 using std::getline;
@@ -69,5 +75,4 @@ enum HTTP_METHOD {
 // Classes -------------------------------------------------------------------->
 
 #include "Directive.hpp"
-#include "Log.h"
-#include "Error.h"
+#include "Log.hpp"

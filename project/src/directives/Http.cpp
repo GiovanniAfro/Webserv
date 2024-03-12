@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 15:07:56 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 09:54:57 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ string Http::_read_requests(Socket *client_socket) {
     ssize_t bytes_read = read(client_socket->get_socket(), buf, sizeof(buf));
 
     if (bytes_read == -1) {
-        perror("Reading failed");
+        Log::error("Reading failed");
         client_socket->close_socket();
     }
     return string(buf, bytes_read);
@@ -79,7 +79,7 @@ const char *Http::_process_requests(string request) {
     // quest'ultimo provvedera' a restituire la risposta
 
     // TMP
-    cout << "HTTP request received: " << request << endl;
+    Log::request(request);
     return "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html>";
 }
 
@@ -88,7 +88,7 @@ void Http::_send_response(const char *response, Socket *client_socket) {
                               strlen(response), 0);
 
     if (bytes_sent == -1) {
-        perror("Sending the response failed");
+        Log::error("Sending the response failed");
         client_socket->close_socket();
     }
 }
@@ -112,7 +112,7 @@ void Http::start_servers(void) {
     while (true) {
         int poll_status = poll(fds, num_fds, -1);
         if (poll_status == -1) {
-            perror("Poll failed");
+            Log::error("Poll failed");
             exit(1);
         }
         // Handle events on sockets ------------------------------------------->
@@ -131,6 +131,7 @@ void Http::start_servers(void) {
                 // Send the response ------------------------------------------>
                 this->_send_response(response, client_socket);
 
+                // Close the client socket ------------------------------------>
                 client_socket->close_socket();
             }
         }
