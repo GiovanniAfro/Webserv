@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:02 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/12 10:04:06 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:35:39 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,5 @@ void Log::error(const string &msg) {
 }
 
 void Log::request(const string &request) {
-	cout << GREEN << _timeStamp() << " [REQUEST]\t" << WHITE << request;
+	cout << GREEN << _timeStamp() << " [REQUEST]\t" << WHITE << request << endl;
 }

@@ -6,13 +6,13 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 10:41:56 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 16:25:59 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 13:54:37 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
-bool int_in_vec(const vector<int> &vec, int target) {
+bool uint16_t_in_vec(const vector<uint16_t> &vec, int target) {
     for (size_t i = 0; i < vec.size(); ++i) {
         if (vec[i] == target)
             return true;

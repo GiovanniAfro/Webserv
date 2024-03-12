@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/12 09:54:57 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:31:46 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,23 +36,27 @@ Http::~Http(void) {
         delete *it;
 }
 
-vector<int> Http::_get_ports(void) {
-    vector<int> ports;
+vector<uint16_t> Http::_get_ports(void) {
+    vector<uint16_t> ports;
     size_t num_servers = this->_value_block.size();
     size_t num_directives;
     size_t num_ports;
-    int port;
+    uint16_t port;
 
     for (size_t i = 0; i < num_servers; i++) {
         num_directives = this->_value_block[i]->get_block_size();
         for (size_t j = 0; j < num_directives; j++) {
             if (this->_value_block[i]->get_value_block()[j]->get_type()
                 == "listen") {
-                num_ports = this->_value_block[i]->get_value_block()[j]->get_inline_size();
+                num_ports = this->_value_block[i]->get_value_block()[j]
+                    ->get_inline_size();
                 for (size_t k = 0; k < num_ports; k++) {
-                    if (this->_value_block[i]->get_value_block()[j]->get_value_inline()[k] != "default_server") {
-                        port = atoi(this->_value_block[i]->get_value_block()[j]->get_value_inline()[k].c_str());
-                        if (!int_in_vec(ports, port))
+                    if (this->_value_block[i]->get_value_block()[j]
+                        ->get_value_inline()[k] != "default_server") {
+                        port = static_cast<uint16_t>(atoi(
+                            this->_value_block[i]->get_value_block()[j]
+                            ->get_value_inline()[k].c_str()));
+                        if (!uint16_t_in_vec(ports, port))
                             ports.push_back(port);
                     }
                 }
@@ -62,15 +66,26 @@ vector<int> Http::_get_ports(void) {
     return ports;
 }
 
+
+// DA SISTEMARE
 string Http::_read_requests(Socket *client_socket) {
     char buf[1024];
-    ssize_t bytes_read = read(client_socket->get_socket(), buf, sizeof(buf));
+    ssize_t bytes_read;
+    string request = "";
 
-    if (bytes_read == -1) {
-        Log::error("Reading failed");
-        client_socket->close_socket();
+    while ((bytes_read = recv(client_socket->get_socket(), buf,
+                              sizeof(buf), MSG_DONTWAIT)) > 0) {
+        buf[bytes_read] = 0;
+        request.append(buf);
+        bzero(buf, 1024);
     }
-    return string(buf, bytes_read);
+    if (!bytes_read)
+        Log::info("Connection closed by remote host");
+    // else if (bytes_read == -1) {
+    //     Log::warning("No data available to read");
+    //     // client_socket->close_socket();
+    // }
+    return request;
 }
 
 const char *Http::_process_requests(string request) {
@@ -87,6 +102,10 @@ void Http::_send_response(const char *response, Socket *client_socket) {
     ssize_t bytes_sent = send(client_socket->get_socket(), response,
                               strlen(response), 0);
 
+    // TODO:
+    // Se non si riesce ad inviare tutti i dati, impostare POLLOUT ed inviare 
+    // i dati rimanenti appena e' possibile scrivere.
+
     if (bytes_sent == -1) {
         Log::error("Sending the response failed");
         client_socket->close_socket();
@@ -94,15 +113,18 @@ void Http::_send_response(const char *response, Socket *client_socket) {
 }
 
 void Http::start_servers(void) {
-    vector<int> ports = this->_get_ports();
-    int num_ports = ports.size();
+    vector<uint16_t> ports = this->_get_ports();
     vector<Socket *> sockets;
+    int num_ports = ports.size();
     struct pollfd fds[num_ports];
     int num_fds = 0;
+    Socket *client_socket;
+    string request;
+    const char *response;
 
     // Creates sockets and adds them to the pollfd structure ------------------>
     for (int i = 0; i < num_ports; i++) {
-        sockets.push_back(new Socket(static_cast<uint16_t>(ports[i])));
+        sockets.push_back(new Socket(ports[i]));
         fds[num_fds].fd = sockets[i]->get_socket();
         fds[num_fds].events = POLLIN;
         num_fds++;
@@ -120,13 +142,13 @@ void Http::start_servers(void) {
             if (fds[i].revents & POLLIN) {
 
                 // Accept connection and create new socket for client---------->
-                Socket *client_socket = sockets[i]->create_client_socket();
+                client_socket = sockets[i]->create_client_socket();
 
                 // Read the request ------------------------------------------->
-                string request = this->_read_requests(client_socket);
+                request = this->_read_requests(client_socket);
 
                 // Process the requests --------------------------------------->
-                const char *response = this->_process_requests(request);
+                response = this->_process_requests(request);
 
                 // Send the response ------------------------------------------>
                 this->_send_response(response, client_socket);
@@ -134,6 +156,7 @@ void Http::start_servers(void) {
                 // Close the client socket ------------------------------------>
                 client_socket->close_socket();
             }
+
         }
     }
 }

@@ -73,6 +73,8 @@
   - [9110 - HTTP Semantics](https://www.rfc-editor.org/info/rfc9110)
   - [9111 - HTTP Caching](https://www.rfc-editor.org/info/rfc9111)
   - [9112 - HTTP/1.1](https://www.rfc-editor.org/info/rfc9112)
+- Socket Programming
+  - [POLLIN/POLLOUT](https://stackoverflow.com/questions/12170037/when-to-use-the-pollout-event-of-the-poll-c-function)
 - Guides
   - [HTTP server from scratch](https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa)
   - [Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
