@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Include.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:46:47 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 16:46:57 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/13 15:33:59 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Include.hpp"
 
 Include::Include(string raw_value, vector<string> &parsed_content) {
-    this->_type == "include";
+    this->_type = "include";
     this->_is_context = false;
     this->_parsing(raw_value, parsed_content);
 }

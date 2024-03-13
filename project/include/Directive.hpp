@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Directive.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:59:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/10 15:57:34 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/13 15:33:51 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ class Directive {
 
         class WrongContextExc : public exception {
             private:
-                virtual const char *what(void) throw() {return "err";}
+                virtual const char *what(void) const throw() {return "err";}
             public :
                 WrongContextExc(string directive, string allow, string wrong) {
                     cerr << "webserv: " << directive << ": this directive " << 
