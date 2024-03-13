@@ -6,51 +6,41 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:02 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 12:45:34 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:35:39 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Log.h"
+#include "Log.hpp"
 
-std::string Log::_timeStamp() {
-	std::time_t t = std::time(0);
-	std::tm *now = std::localtime(&t);
-	std::stringstream ss;
+string Log::_timeStamp() {
+	time_t t = time(0);
+	tm *now = localtime(&t);
+	stringstream ss;
 	ss << "[" << (now->tm_year + 1900)
-		<< "-" << std::setw(2) << std::setfill('0') << (now->tm_mon + 1)
-		<< "-" << std::setw(2) << std::setfill('0') << now->tm_mday
-		<< " " << std::setw(2) << std::setfill('0') << now->tm_hour
-		<< ":" << std::setw(2) << std::setfill('0') << now->tm_min
-		<< ":" << std::setw(2) << std::setfill('0') << now->tm_sec << "]";
+		<< "-" << setw(2) << setfill('0') << (now->tm_mon + 1)
+		<< "-" << setw(2) << setfill('0') << now->tm_mday
+		<< " " << setw(2) << setfill('0') << now->tm_hour
+		<< ":" << setw(2) << setfill('0') << now->tm_min
+		<< ":" << setw(2) << setfill('0') << now->tm_sec << "]";
 	return (ss.str());
 }
 
-void Log::info(const std::string &message) {
-	std::cout << BLUE << _timeStamp() << " [INFO]\t"
-		<< WHITE << message << std::endl;
+void Log::debug(const string &msg) {
+	cout << WHITE << _timeStamp() << " [DEBUG]\t" << msg << endl;
 }
 
-void Log::error(const std::string &message) {
-	std::cout << RED << _timeStamp() << " [ERROR]\t"
-		<< WHITE << message << std::endl;
+void Log::info(const string &msg) {
+	cout << BLUE << _timeStamp() << " [INFO]\t" << WHITE << msg << endl;
 }
 
-void Log::request(HTTP_METHOD method, const std::string &uri) {
-	std::string methodString;
-	switch (method) {
-		case GET:
-			methodString = "GET";
-			break;
-		case POST:
-			methodString = "POST";
-			break;
-		case DELETE:
-			methodString = "DELETE";
-			break;
-		default:
-			methodString = "UNKNOWN";
-			break;
-	}
-	std::cout << GREEN << _timeStamp() << " [" << methodString << "]\t"
-		<< WHITE << uri << std::endl;
+void Log::warning(const string &msg) {
+	cout << YELLOW << _timeStamp() << " [WARNING]\t" << WHITE << msg << endl;
+}
+
+void Log::error(const string &msg) {
+	cerr << RED << _timeStamp() << " [ERROR]\t" << WHITE << msg << endl;
+}
+
+void Log::request(const string &request) {
+	cout << GREEN << _timeStamp() << " [REQUEST]\t" << WHITE << request << endl;
 }

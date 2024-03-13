@@ -1,5 +1,5 @@
 server {
-	listen 1111 4242 default_server;
+	listen 1111 8585 default_server;
 
 	root /var/www/html;
 
