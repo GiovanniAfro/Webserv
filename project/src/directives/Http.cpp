@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/12 17:31:46 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:58:07 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ string Http::_read_requests(Socket *client_socket) {
                               sizeof(buf), MSG_DONTWAIT)) > 0) {
         buf[bytes_read] = 0;
         request.append(buf);
-        bzero(buf, 1024);
+        // bzero(buf, 1024);
     }
     if (!bytes_read)
         Log::info("Connection closed by remote host");

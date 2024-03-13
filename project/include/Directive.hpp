@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:59:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 15:47:04 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/13 12:57:30 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ class Directive {
 
         class WrongContextExc : public exception {
             private:
-                virtual const char *what(void) throw() {return "err";}
+                virtual const char *what(void) const throw() {return "err";}
             public :
                 WrongContextExc(string directive, string allow, string wrong) {
                     cerr << "webserv: " << directive << ": this directive " << 

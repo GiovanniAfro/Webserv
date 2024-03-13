@@ -6,7 +6,7 @@
 #    By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/12 14:53:55 by kichkiro          #+#    #+#              #
-#    Updated: 2024/03/12 09:29:32 by kichkiro         ###   ########.fr        #
+#    Updated: 2024/03/13 13:03:44 by kichkiro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -67,6 +67,9 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	${info ${BOLD}Compiling -> ${WHITE}$@${NO_COLOR}}
 
 -include $(DEPS)
+
+tidy:
+	clang-tidy -header-filter=.* -system-headers $(SRCS) -- $(CFLAGS) $(CPPFLAGS) 
 
 clean:
 	$(RM) $(BUILD_DIR)
