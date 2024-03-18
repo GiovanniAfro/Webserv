@@ -35,7 +35,7 @@ SRCS        := \
 				config/ConfigFile.cpp \
 				\
 				main/main.cpp \
-				main/utils.cpp 
+				main/utils.cpp
 SRC_DIR     := src
 SRCS        := $(SRCS:%=$(SRC_DIR)/%)
 BUILD_DIR   := .build
@@ -69,7 +69,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 -include $(DEPS)
 
 tidy:
-	clang-tidy -header-filter=.* -system-headers $(SRCS) -- $(CFLAGS) $(CPPFLAGS) 
+	clang-tidy -header-filter=.* -system-headers $(SRCS) -- $(CFLAGS) $(CPPFLAGS)
 
 clean:
 	$(RM) $(BUILD_DIR)
@@ -96,7 +96,7 @@ banner:
 	${info ██║ █╗ ██║█████╗  ██████╔╝███████╗█████╗  ██████╔╝██║   ██║ }
 	${info ██║███╗██║██╔══╝  ██╔══██╗╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝ }
 	${info ╚███╔███╔╝███████╗██████╔╝███████║███████╗██║  ██║ ╚████╔╝  }
-	${info  ╚══╝╚══╝ ╚══════╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝   }
+	${info ${} ╚══╝╚══╝ ╚══════╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝   }
 	${info ${NO_COLOR} }
 
 # ------------------------------------------------------------------------------
