@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/18 16:37:26 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/18 16:51:30 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,7 @@ string Http::_read_requests(Socket *client_socket)
             break;
         }
     }
+    std::cout << "Richiesta ricevuta:\n" << request << std::endl;
     return request;
 }
 
