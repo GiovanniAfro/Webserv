@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/13 12:58:07 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/18 09:43:48 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,23 +68,61 @@ vector<uint16_t> Http::_get_ports(void) {
 
 
 // DA SISTEMARE
-string Http::_read_requests(Socket *client_socket) {
-    char buf[1024];
-    ssize_t bytes_read;
+string Http::_read_requests(Socket *client_socket)
+{
+    char buf[4096]; // Buffer più grande per gestire la maggior parte delle richieste in un solo ciclo
     string request = "";
+    ssize_t bytes_read;
+    const string request_end = "\r\n\r\n";
+    size_t found_end;
 
-    while ((bytes_read = recv(client_socket->get_socket(), buf,
-                              sizeof(buf), MSG_DONTWAIT)) > 0) {
-        buf[bytes_read] = 0;
-        request.append(buf);
-        // bzero(buf, 1024);
+    while (true)
+    {
+        bytes_read = recv(client_socket->get_socket(), buf, sizeof(buf) - 1, 0);
+        
+        if (bytes_read > 0)
+        {
+            buf[bytes_read] = '\0'; // Assicurati che la stringa sia terminata correttamente
+            request.append(buf);
+
+            // Controlla se hai ricevuto l'intero header della richiesta
+            found_end = request.find(request_end);
+            if (found_end != string::npos)
+            {
+                // Se esiste un "Content-Length", devi leggere anche il corpo della richiesta
+                size_t content_length_pos = request.find("Content-Length: ");
+                if (content_length_pos != string::npos)
+                {
+                    content_length_pos += strlen("Content-Length: ");
+                    size_t content_length_end = request.find("\r\n", content_length_pos);
+                    int content_length = atoi(request.substr(content_length_pos, content_length_end - content_length_pos).c_str());
+                    size_t headers_length = found_end + 4; // +4 per la sequenza \r\n\r\n
+
+                    // Leggi il corpo della richiesta se non è stato già completamente ricevuto
+                    while (request.size() < headers_length + content_length)
+                    {
+                        bytes_read = recv(client_socket->get_socket(), buf, sizeof(buf) - 1, 0);
+                        if (bytes_read <= 0) break; // Gestisci errori o chiusura connessione
+                        buf[bytes_read] = '\0';
+                        request.append(buf);
+                    }
+                }
+                break; // Hai trovato la fine dell'header e letto il corpo se necessario
+            }
+        }
+        else if (bytes_read == 0)
+        {
+            // La connessione è stata chiusa dal client
+            Log::info("Connection closed by remote host");
+            break;
+        }
+        else
+        {
+            // Gestisci errori di lettura
+            Log::error("Error reading from socket");
+            break;
+        }
     }
-    if (!bytes_read)
-        Log::info("Connection closed by remote host");
-    // else if (bytes_read == -1) {
-    //     Log::warning("No data available to read");
-    //     // client_socket->close_socket();
-    // }
     return request;
 }
 
