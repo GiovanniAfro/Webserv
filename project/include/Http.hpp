@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:24:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/12 13:53:35 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/03/20 18:12:36 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,13 @@ class Socket;
  */
 class Http : public Directive {
     private:
+        std::map<string, string> _requestHeaders;
+        string _requestBody;
+        string _method, _uri, _httpVersion; 
+
         vector<uint16_t> _get_ports(void);
         string      _read_requests(Socket *client_socket);
+        void        _parse_request(const string& request);
         const char *_process_requests(string request);
         void        _send_response(const char * response, Socket *client_socket);
 

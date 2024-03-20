@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/18 16:51:30 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/20 18:27:48 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,11 @@ string Http::_read_requests(Socket *client_socket)
                 {
                     content_length_pos += strlen("Content-Length: ");
                     size_t content_length_end = request.find("\r\n", content_length_pos);
+                    if (content_length_end != string::npos)
+                    {
+                        Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
+                        return "";
+                    }
                     int content_length = atoi(request.substr(content_length_pos, content_length_end - content_length_pos).c_str());
                     size_t headers_length = found_end + 4; // +4 per la sequenza \r\n\r\n
 
@@ -114,19 +119,52 @@ string Http::_read_requests(Socket *client_socket)
         {
             // La connessione è stata chiusa dal client
             Log::info("Connection closed by remote host");
-            break;
+            return "";
         }
         else
         {
             // Gestisci errori di lettura
             Log::error("Error reading from socket");
-            break;
+            return "";
         }
+    }
+    if (found_end == string::npos)
+    {
+        Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
+        return "";
     }
     std::cout << "Richiesta ricevuta:\n" << request << std::endl;
     return request;
 }
 
+void Http::_parse_request(const string& request)
+{
+    std::istringstream requestStream(request);
+    std::string line;
+    getline(requestStream, line);
+    std::istringstream firstLineStream(line);
+    firstLineStream >> _method >> _uri >> _httpVersion; // Estrai la prima linea
+    
+    while (getline(requestStream, line) && !line.empty()) { // Estrai gli header
+        std::string::size_type colonPos = line.find(": ");
+        if (colonPos != std::string::npos) {
+            std::string headerName = line.substr(0, colonPos);
+            std::string headerValue = line.substr(colonPos + 2);
+            _requestHeaders[headerName] = headerValue;
+        }
+    }
+
+    // Estrai il corpo della richiesta se specificato da Content-Length
+    std::map<std::string, std::string>::iterator it = _requestHeaders.find("Content-Length");
+    if (it != _requestHeaders.end()) {
+        int contentLength = atoi(it->second.c_str());
+        _requestBody.reserve(contentLength);
+        while (contentLength > 0 && getline(requestStream, line)) {
+            _requestBody.append(line + "\n");
+            contentLength -= line.length() + 1; // +1 per il carattere di nuova linea che getline consuma
+        }
+    }
+}
 const char *Http::_process_requests(string request) {
 
     // Individuare il virtual server corretto ed inviargli la richiesta, 
