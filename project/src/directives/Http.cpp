@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/20 18:27:48 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/21 11:43:41 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,7 +203,7 @@ void Http::start_servers(void) {
     for (int i = 0; i < num_ports; i++) {
         sockets.push_back(new Socket(ports[i]));
         fds[num_fds].fd = sockets[i]->get_socket();
-        fds[num_fds].events = POLLIN;
+        fds[num_fds].events = POLLIN | POLLOUT; //monitora sia per lettura che per scrittura 
         num_fds++;
     }
 
