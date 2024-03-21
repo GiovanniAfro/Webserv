@@ -65,14 +65,6 @@ using std::remove;
 using std::ofstream;
 using std::runtime_error;
 
-// Enum ----------------------------------------------------------------------->
-
-enum HTTP_METHOD {
-	GET,
-	POST,
-	DELETE
-};
-
 // Classes -------------------------------------------------------------------->
 
 #include "Directive.hpp"

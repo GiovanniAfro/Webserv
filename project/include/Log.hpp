@@ -33,9 +33,7 @@ class Log {
 
 		static string _timeStamp(void);
 	public:
-		static void debug(const string &msg);
 		static void info(const string &msg);
-		static void warning(const string &msg);
 		static void error(const string &msg);
-		static void request(const string &request);
+		static void response(int method, std::string httpVersion, std::string uri, int status);
 };

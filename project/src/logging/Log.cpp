@@ -25,22 +25,48 @@ string Log::_timeStamp() {
 	return (ss.str());
 }
 
-void Log::debug(const string &msg) {
-	cout << WHITE << _timeStamp() << " [DEBUG]\t" << msg << endl;
-}
-
-void Log::info(const string &msg) {
+void Log::info(const string &msg)
+{
 	cout << BLUE << _timeStamp() << " [INFO]\t" << WHITE << msg << endl;
 }
 
-void Log::warning(const string &msg) {
-	cout << YELLOW << _timeStamp() << " [WARNING]\t" << WHITE << msg << endl;
+void Log::error(const string &msg)
+{
+	cout << RED << _timeStamp() << " [ERROR]\t" << WHITE << msg << endl;
 }
 
-void Log::error(const string &msg) {
-	cerr << RED << _timeStamp() << " [ERROR]\t" << WHITE << msg << endl;
-}
+void Log::response(int method, std::string httpVersion, std::string uri, int status)
+{
+	switch (status)
+	{
+		case 200:
+			cout << GREEN;
+			break;
+		case 400:
+			cout << YELLOW;
+			break;
+		default:
+			cout << RED;
+			break;
+	}
 
-void Log::request(const string &request) {
-	cout << GREEN << _timeStamp() << " [REQUEST]\t" << WHITE << request << endl;
+	cout << _timeStamp();
+
+	switch (method)
+	{
+		case GET:
+			cout << " [GET]\t";
+			break;
+		case POST:
+			cout << " [POST]\t";
+			break;
+		case DELETE:
+			cout << " [DELETE]\t";
+			break;
+		default:
+			cout << " [UNKNOWN]\t";
+			break;
+	}
+
+	cout << WHITE << status << " " << httpVersion << " " << uri << endl;
 }
