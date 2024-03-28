@@ -132,6 +132,7 @@ string Http::_read_requests(Socket *client_socket)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
+    cout << request << endl;
 	return request;
 }
 
@@ -153,6 +154,7 @@ void Http::_parse_request(const string& request)
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			_requestHeaders[headerName] = headerValue;
+			cout << _requestHeaders[headerName] << endl;
 		}
 	}
 
@@ -168,12 +170,27 @@ void Http::_parse_request(const string& request)
 	}
 }
 
-void Http::_process_requests()
+void Http::_process_requests(vector<uint16_t> ports, vector<Socket *> sockets)
 {
 	// Individuare il virtual server corretto ed inviargli la richiesta,
 	// quest'ultimo provvedera' a restituire la risposta
 	// TMP
-	_responseStatus = INTERNAL_SERVER_ERROR;
+	// cout << ports.size() << " | " << sockets.size() << endl;
+	// _responseStatus = INTERNAL_SERVER_ERROR;
+
+	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[0] << endl;
+	// 
+	// cout << _requestHeaders["Host"] << endl;
+
+	string		requestHost = _requestHeaders["Host"];
+	uint16_t	requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+
+	for (vector<Socket *>::iterator it = sockets.begin(); it != sockets.end(); ++it)
+	{
+		if ((*it)->get_port() == requestPort)
+			cout << "Port matched : " << requestPort << endl;
+	}
+
 }
 
 void Http::_send_response(Socket *client_socket)
@@ -263,7 +280,7 @@ void Http::start_servers(void) {
 					_parse_request(request);
 
 					// Process the requests --------------------------------------->
-					_process_requests();
+					_process_requests(ports, sockets);
 
 					// Send the response ------------------------------------------>
 					_send_response(client_socket);

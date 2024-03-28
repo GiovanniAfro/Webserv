@@ -52,7 +52,7 @@ class Http : public Directive {
 		// Functionality -------------------------------------------------------->
 		string _read_requests(Socket *client_socket);
 		void _parse_request(const string& request);
-		void _process_requests();
+		void _process_requests(vector<uint16_t> ports, vector<Socket *> sockets);
 		void _send_response(Socket *client_socket);
 
 		// Utils ---------------------------------------------------------------->
