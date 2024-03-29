@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/21 11:43:41 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/29 17:41:08 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,26 +170,48 @@ void Http::_parse_request(const string& request)
 	}
 }
 
-void Http::_process_requests(vector<uint16_t> ports, vector<Socket *> sockets)
+void Http::_process_requests()
 {
 	// Individuare il virtual server corretto ed inviargli la richiesta,
 	// quest'ultimo provvedera' a restituire la risposta
 	// TMP
-	// cout << ports.size() << " | " << sockets.size() << endl;
 	// _responseStatus = INTERNAL_SERVER_ERROR;
+	// cout << ports.size() << " | " << sockets.size() << endl;
+	// cout << _requestHeaders["Host"] << endl;					no socket servers
 
-	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[0] << endl;
-	// 
-	// cout << _requestHeaders["Host"] << endl;
+	// string				requestHost = _requestHeaders["Host"];
+	// uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+	// vector<uint16_t>	matchedPortsIndex;
+	// int					numServer = 0;
 
-	string		requestHost = _requestHeaders["Host"];
-	uint16_t	requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+	//					server					listen					port
+	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[2] << endl;
 
-	for (vector<Socket *>::iterator it = sockets.begin(); it != sockets.end(); ++it)
+	std::vector<Directive *>	serverValueBlock = this->get_value_block(); // server blocks
+
+	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer)
 	{
-		if ((*it)->get_port() == requestPort)
-			cout << "Port matched : " << requestPort << endl;
+		cout << (*itServer)->get_type() << endl; // => server
+		// cout << (*itServer)->get_value_block()[0]->get_value_inline()[0] << endl; // => ports[0]
+
+		std::vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
+		// cout << listenValueBlock[0]->get_value_inline()[1] << endl; // => ports[1]
+
+		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++)
+		{
+			cout << listenValueBlock[0]->get_value_inline()[i] << endl;
+		}
+
+		// int i = 0;
+		// for (vector<Directive *>::iterator itListen = listenValueBlock.begin(); itListen != listenValueBlock.end(); ++itListen)
+		// {
+		// 	cout << (*itListen)->get_type() << endl;
+		// }
+
 	}
+
+
+	// cout << this->get_value_block()[0] << endl; // = 2
 
 }
 
@@ -280,7 +302,7 @@ void Http::start_servers(void) {
 					_parse_request(request);
 
 					// Process the requests --------------------------------------->
-					_process_requests(ports, sockets);
+					_process_requests();
 
 					// Send the response ------------------------------------------>
 					_send_response(client_socket);

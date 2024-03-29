@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:24:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/20 18:12:36 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/03/29 16:55:48 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class Http : public Directive {
 		// Functionality -------------------------------------------------------->
 		string _read_requests(Socket *client_socket);
 		void _parse_request(const string& request);
-		void _process_requests(vector<uint16_t> ports, vector<Socket *> sockets);
+		void _process_requests();
 		void _send_response(Socket *client_socket);
 
 		// Utils ---------------------------------------------------------------->
