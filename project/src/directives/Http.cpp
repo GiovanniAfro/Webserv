@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/29 17:41:08 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/03/29 18:14:46 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,42 +176,38 @@ void Http::_process_requests()
 	// quest'ultimo provvedera' a restituire la risposta
 	// TMP
 	// _responseStatus = INTERNAL_SERVER_ERROR;
-	// cout << ports.size() << " | " << sockets.size() << endl;
-	// cout << _requestHeaders["Host"] << endl;					no socket servers
+	// cout << ports.size() << " | " << sockets.size() << endl; // Error check?
 
-	// string				requestHost = _requestHeaders["Host"];
-	// uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	// vector<uint16_t>	matchedPortsIndex;
-	// int					numServer = 0;
+	// int				numServer = 0;
 
 	//					server					listen					port
 	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[2] << endl;
 
-	std::vector<Directive *>	serverValueBlock = this->get_value_block(); // server blocks
+	string				requestHost = _requestHeaders["Host"];
+	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+	vector<Directive *>	serverValueBlock = this->get_value_block();
 
-	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer)
+	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer)	// Iterate through server blocks
 	{
-		cout << (*itServer)->get_type() << endl; // => server
-		// cout << (*itServer)->get_value_block()[0]->get_value_inline()[0] << endl; // => ports[0]
-
-		std::vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
-		// cout << listenValueBlock[0]->get_value_inline()[1] << endl; // => ports[1]
-
-		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++)
+		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
+		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++)	// Iterate through listen directive inside server block
 		{
 			cout << listenValueBlock[0]->get_value_inline()[i] << endl;
+
+			string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
+			uint16_t	serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
+
+			if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
+			{
+				cout << "Matched : " << serverPort << endl;
+
+			}
+			
+
 		}
 
-		// int i = 0;
-		// for (vector<Directive *>::iterator itListen = listenValueBlock.begin(); itListen != listenValueBlock.end(); ++itListen)
-		// {
-		// 	cout << (*itListen)->get_type() << endl;
-		// }
-
 	}
-
-
-	// cout << this->get_value_block()[0] << endl; // = 2
 
 }
 
