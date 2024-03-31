@@ -178,19 +178,19 @@ void Http::_process_requests()
 	// _responseStatus = INTERNAL_SERVER_ERROR;
 	// cout << ports.size() << " | " << sockets.size() << endl; // Error check?
 
-	// vector<uint16_t>	matchedPortsIndex;
-	// int				numServer = 0;
-
 	//					server					listen					port
 	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[2] << endl;
 
 	string				requestHost = _requestHeaders["Host"];
+	string				requestServerName = requestHost.substr(0, requestHost.find(":")).c_str();
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	vector<Directive *>	serverValueBlock = this->get_value_block();
+	vector<Directive *>	matchingServers;
 
 	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer)	// Iterate through server blocks
 	{
 		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
+
 		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++)	// Iterate through listen directive inside server block
 		{
 			cout << listenValueBlock[0]->get_value_inline()[i] << endl;
@@ -200,15 +200,39 @@ void Http::_process_requests()
 
 			if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
 			{
-				cout << "Matched : " << serverPort << endl;
+				cout << "port " << i << " matched : " << serverPort << endl;
+				matchingServers.push_back(*itServer);
+			}
+		}
+	}
+	// cout << "matchingServers' server_name : " << matchingServers[1]->get_value_block()[3]->get_value_inline()[0] << endl;
+	if (matchingServers.size() == 0)
+	{
+		cout << "Match not found" << endl;
+
+	}
+	else if (matchingServers.size() == 1)
+	{
+		cout << "Match found" << endl;
+
+	}
+	else //if (matchingServers.size() > 1)
+	{
+		cout << "Checking server_names" << endl;
+		cout << "matchingServers : " << matchingServers.size() << endl;
+
+		for (size_t i = 0; i < matchingServers.size(); ++i)
+		{
+			string	serverName = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
+
+			if (requestServerName == serverName)
+			{
+				cout << "server_name " << i << " matched : " << serverName << endl;
 
 			}
-			
-
 		}
 
 	}
-
 }
 
 void Http::_send_response(Socket *client_socket)
