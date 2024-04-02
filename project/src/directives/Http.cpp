@@ -182,7 +182,7 @@ void Http::_process_requests()
 	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[2] << endl;
 
 	string				requestHost = _requestHeaders["Host"];
-	string				requestServerName = requestHost.substr(0, requestHost.find(":")).c_str();
+	string				requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	vector<Directive *>	serverValueBlock = this->get_value_block();
 	vector<Directive *>	matchingServers;
@@ -218,18 +218,29 @@ void Http::_process_requests()
 	}
 	else //if (matchingServers.size() > 1)
 	{
-		cout << "Checking server_names" << endl;
+		cout << "Checking IP" << endl;
 		cout << "matchingServers : " << matchingServers.size() << endl;
+
+		// for (size_t i = 0; i < matchingServers.size(); ++i)
+		// {
+		// 	if (requestIP)
+		// }
 
 		for (size_t i = 0; i < matchingServers.size(); ++i)
 		{
-			string	serverName = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
+			string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
+			string	serverIP;
 
-			if (requestServerName == serverName)
+			if (serverHost.find(":") != string::npos)
+				serverIP = serverHost.substr(0, serverHost.find(":"));
+
+			if (serverIP == requestIP)
 			{
-				cout << "server_name " << i << " matched : " << serverName << endl;
-
+				cout << "server_name " << i << " matched : " << serverIP << endl;
+				break;
 			}
+
+
 		}
 
 	}
