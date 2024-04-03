@@ -124,3 +124,6 @@
     nel frattempo
 
 [ ] i commenti all'interno delle righe non vengono individuati
+
+[ ] es. 	listen 1111  8585 default_server; se spazi consecutivi => 0
+
