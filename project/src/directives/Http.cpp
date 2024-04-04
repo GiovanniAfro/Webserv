@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/29 18:14:46 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/04 01:30:14 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,15 @@ vector<uint16_t> Http::_get_ports(void) {
 				num_ports = this->_value_block[i]->get_value_block()[j]
 					->get_inline_size();
 				for (size_t k = 0; k < num_ports; k++) {
-					if (this->_value_block[i]->get_value_block()[j]
-						->get_value_inline()[k] != "default_server") {
-						port = static_cast<uint16_t>(atoi(
-							this->_value_block[i]->get_value_block()[j]
-							->get_value_inline()[k].c_str()));
+					string	tmpPort = this->_value_block[i]->get_value_block()[j]
+						->get_value_inline()[k];
+					if (tmpPort != "default_server") {
+						if (tmpPort.find(':') != string::npos)
+						{
+							tmpPort = tmpPort.substr(tmpPort.find(':') + 1, tmpPort.length() - 1);
+							cout << "get_port() tmpPort : " << tmpPort << endl;							
+						}
+						port = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 						if (!uint16_t_in_vec(ports, port))
 							ports.push_back(port);
 					}
@@ -154,7 +158,7 @@ void Http::_parse_request(const string& request)
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			_requestHeaders[headerName] = headerValue;
-			cout << _requestHeaders[headerName] << endl;
+			cout << headerName << " -> " << headerValue << endl;
 		}
 	}
 
@@ -196,8 +200,11 @@ void Http::_process_requests()
 			cout << listenValueBlock[0]->get_value_inline()[i] << endl;
 
 			string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
-			uint16_t	serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
+			uint16_t	serverPort;
 
+			if (tmpPort.find(':'))
+				tmpPort = tmpPort.substr(tmpPort.find(':') + 1, tmpPort.length() - 1).c_str();
+			serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 			if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
 			{
 				cout << "port " << i << " matched : " << serverPort << endl;
@@ -218,18 +225,19 @@ void Http::_process_requests()
 	}
 	else //if (matchingServers.size() > 1)
 	{
-		cout << "Checking IP" << endl;
 		cout << "matchingServers : " << matchingServers.size() << endl;
+		// cout << "Checking server_name" << endl;
 
 		// for (size_t i = 0; i < matchingServers.size(); ++i)
 		// {
-		// 	if (requestIP)
+
 		// }
 
+		cout << "Checking IP" << endl;
 		for (size_t i = 0; i < matchingServers.size(); ++i)
 		{
 			string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
-			string	serverIP;
+			string	serverIP = "";
 
 			if (serverHost.find(":") != string::npos)
 				serverIP = serverHost.substr(0, serverHost.find(":"));
@@ -237,9 +245,12 @@ void Http::_process_requests()
 			if (serverIP == requestIP)
 			{
 				cout << "server_name " << i << " matched : " << serverIP << endl;
-				break;
+				// break;
 			}
+			else
+			{
 
+			}
 
 		}
 
