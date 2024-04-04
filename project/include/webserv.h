@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/29 14:57:33 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/04 16:35:31 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,27 @@
 
 #include "utils.hpp"
 
+// Classes -------------------------------------------------------------------->
+
+class Listen;
+class ServerName;
+class Root;
+class ServerName;
+class ErrorPage;
+class ClientMaxBodySize;
+class Alias;
+class Index;
+class Autoindex;
+class Rewrite;
+// class Location;
+// class LimitExcept;
+
 // Using ---------------------------------------------------------------------->
 
 using std::string;
 using std::stringstream;
+using std::istringstream;
+using std::map;
 using std::cerr;
 using std::cout;
 using std::endl;

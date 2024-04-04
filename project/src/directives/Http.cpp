@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 01:30:14 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/04 16:26:33 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ Http::~Http(void) {
 		delete *it;
 }
 
-vector<uint16_t> Http::_get_ports(void) {
+vector<uint16_t> Http::_extract_listen_ports(void) {
 	vector<uint16_t> ports;
 	size_t num_servers = this->_value_block.size();
 	size_t num_directives;
@@ -51,13 +51,13 @@ vector<uint16_t> Http::_get_ports(void) {
 				num_ports = this->_value_block[i]->get_value_block()[j]
 					->get_inline_size();
 				for (size_t k = 0; k < num_ports; k++) {
-					string	tmpPort = this->_value_block[i]->get_value_block()[j]
-						->get_value_inline()[k];
+					string	tmpPort = this->_value_block[i]
+						->get_value_block()[j]->get_value_inline()[k];
 					if (tmpPort != "default_server") {
-						if (tmpPort.find(':') != string::npos)
-						{
-							tmpPort = tmpPort.substr(tmpPort.find(':') + 1, tmpPort.length() - 1);
-							cout << "get_port() tmpPort : " << tmpPort << endl;							
+						if (tmpPort.find(':') != string::npos) {
+							tmpPort = tmpPort.substr(
+								tmpPort.find(':') + 1, tmpPort.length() - 1);
+							// cout << "get_port() tmpPort : " << tmpPort << endl;
 						}
 						port = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 						if (!uint16_t_in_vec(ports, port))
@@ -71,35 +71,29 @@ vector<uint16_t> Http::_get_ports(void) {
 }
 
 // DA SISTEMARE
-string Http::_read_requests(Socket *client_socket)
-{
+string Http::_read_requests(Socket *client_socket) {
 	char buf[4096]; // Buffer più grande per gestire la maggior parte delle richieste in un solo ciclo
 	string request = "";
 	ssize_t bytes_read;
 	const string request_end = "\r\n\r\n";
 	size_t found_end;
 
-	while (true)
-	{
+	while (true) {
 		bytes_read = recv(client_socket->get_socket(), buf, sizeof(buf) - 1, 0); //La funzione recv può essere utilizzata anche per ricevere dati in modo non bloccante, utilizzando la flag MSG_DONTWAIT. Inoltre, la funzione recv può essere utilizzata per ricevere dati da più socket contemporaneamente, utilizzando la funzione select.
 
-		if (bytes_read > 0)
-		{
+		if (bytes_read > 0) {
 			buf[bytes_read] = '\0'; // Assicurati che la stringa sia terminata correttamente
 			request.append(buf);
 
 			// Controlla se hai ricevuto l'intero header della richiesta
 			found_end = request.find(request_end);
-			if (found_end != string::npos)
-			{
+			if (found_end != string::npos) {
 				// Se esiste un "Content-Length", devi leggere anche il corpo della richiesta
 				size_t content_length_pos = request.find("Content-Length: ");
-				if (content_length_pos != string::npos)
-				{
+				if (content_length_pos != string::npos) {
 					content_length_pos += strlen("Content-Length: ");
 					size_t content_length_end = request.find("\r\n", content_length_pos);
-					if (content_length_end != string::npos)
-					{
+					if (content_length_end != string::npos) {
 						Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 						return "";
 					}
@@ -107,8 +101,7 @@ string Http::_read_requests(Socket *client_socket)
 					size_t headers_length = found_end + 4; // +4 per la sequenza \r\n\r\n
 
 					// Leggi il corpo della richiesta se non è stato già completamente ricevuto
-					while (request.size() < headers_length + content_length)
-					{
+					while (request.size() < headers_length + content_length) {
 						bytes_read = recv(client_socket->get_socket(), buf, sizeof(buf) - 1, 0);
 						if (bytes_read <= 0) break; // Gestisci errori o chiusura connessione
 						buf[bytes_read] = '\0';
@@ -118,85 +111,69 @@ string Http::_read_requests(Socket *client_socket)
 				break; // Hai trovato la fine dell'header e letto il corpo se necessario
 			}
 		}
-		else if (bytes_read == 0)
-		{
+		else if (bytes_read == 0) {
 			// La connessione è stata chiusa dal client
 			Log::info("Connection closed by remote host");
 			return "";
 		}
-		else
-		{
+		else {
 			// Gestisci errori di lettura
 			Log::error("Error reading from socket");
 			return "";
 		}
 	}
-	if (found_end == string::npos)
-	{
+	if (found_end == string::npos) {
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-    cout << request << endl;
+	cout << request << endl;
 	return request;
 }
 
-void Http::_parse_request(const string& request)
-{
-	std::istringstream requestStream(request);
-	std::string line;
+void Http::_parse_request(const string &request) {
+	istringstream requestStream(request);
+	string line;
 	getline(requestStream, line);
-	std::istringstream firstLineStream(line);
+	istringstream firstLineStream(line);
 
 	// Extract the request method, URI and HTTP version
-	firstLineStream >> _request["method"] >> _request["uri"] >> _request["httpVersion"];
-	_requestMethod = _methodToEnum(_request["method"]);
+	firstLineStream >> this->_request["method"] >> this->_request["uri"] >> this->_request["httpVersion"];
+	this->_requestMethod = _methodToEnum(this->_request["method"]);
 
 	// Extract the request headers
 	while (getline(requestStream, line) && !line.empty()) {
-		std::string::size_type colonPos = line.find(": ");
-		if (colonPos != std::string::npos) {
-			std::string headerName = line.substr(0, colonPos);
-			std::string headerValue = line.substr(colonPos + 2);
-			_requestHeaders[headerName] = headerValue;
+		string::size_type colonPos = line.find(": ");
+		if (colonPos != string::npos) {
+			string headerName = line.substr(0, colonPos);
+			string headerValue = line.substr(colonPos + 2);
+			this->_requestHeaders[headerName] = headerValue;
 			cout << headerName << " -> " << headerValue << endl;
 		}
 	}
 
 	// Extract the request body specified by the Content-Length header
-	std::map<std::string, std::string>::iterator it = _requestHeaders.find("Content-Length");
-	if (it != _requestHeaders.end()) {
+	map<string, string>::iterator it = this->_requestHeaders.find("Content-Length");
+	if (it != this->_requestHeaders.end()) {
 		int contentLength = atoi(it->second.c_str());
-		_requestBody.reserve(contentLength);
+		this->_requestBody.reserve(contentLength);
 		while (contentLength > 0 && getline(requestStream, line)) {
-			_requestBody.append(line + "\n");
+			this->_requestBody.append(line + "\n");
 			contentLength -= line.length() + 1; // +1 per il carattere di nuova linea che getline consuma
 		}
 	}
 }
 
-void Http::_process_requests()
-{
-	// Individuare il virtual server corretto ed inviargli la richiesta,
-	// quest'ultimo provvedera' a restituire la risposta
-	// TMP
-	// _responseStatus = INTERNAL_SERVER_ERROR;
-	// cout << ports.size() << " | " << sockets.size() << endl; // Error check?
-
-	//					server					listen					port
-	// cout << this->get_value_block()[1]->get_value_block()[0]->get_value_inline()[2] << endl;
-
-	string				requestHost = _requestHeaders["Host"];
+int Http::_find_virtual_server(void) {
+	string				requestHost = this->_requestHeaders["Host"];
 	string				requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	vector<Directive *>	serverValueBlock = this->get_value_block();
 	vector<Directive *>	matchingServers;
 
-	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer)	// Iterate through server blocks
-	{
+	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer) {
 		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
 
-		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++)	// Iterate through listen directive inside server block
-		{
+		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++) {
 			cout << listenValueBlock[0]->get_value_inline()[i] << endl;
 
 			string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
@@ -214,15 +191,9 @@ void Http::_process_requests()
 	}
 	// cout << "matchingServers' server_name : " << matchingServers[1]->get_value_block()[3]->get_value_inline()[0] << endl;
 	if (matchingServers.size() == 0)
-	{
 		cout << "Match not found" << endl;
-
-	}
 	else if (matchingServers.size() == 1)
-	{
 		cout << "Match found" << endl;
-
-	}
 	else //if (matchingServers.size() > 1)
 	{
 		cout << "matchingServers : " << matchingServers.size() << endl;
@@ -234,37 +205,51 @@ void Http::_process_requests()
 		// }
 
 		cout << "Checking IP" << endl;
-		for (size_t i = 0; i < matchingServers.size(); ++i)
-		{
+		for (size_t i = 0; i < matchingServers.size(); ++i) {
 			string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
 			string	serverIP = "";
 
 			if (serverHost.find(":") != string::npos)
 				serverIP = serverHost.substr(0, serverHost.find(":"));
 
-			if (serverIP == requestIP)
-			{
+			if (serverIP == requestIP) {
 				cout << "server_name " << i << " matched : " << serverIP << endl;
 				// break;
 			}
-			else
-			{
-
+			else {
+				// 
 			}
-
 		}
-
 	}
+
+
+	return 0;
 }
 
-void Http::_send_response(Socket *client_socket)
-{
-	Log::response(_requestMethod, _request["httpVersion"], _request["uri"], _responseStatus);
+/*!
+ * @brief
+	- Trova il blocco server a cui e' indirizzata la richiesta,
+	- Instrada la richiesta al blocco server corretto.
+	- Il blocco server elabora la richiesta e ritorna la risposta.
+ */
+map<string, string> Http::_process_requests() {
+	int index = this->_find_virtual_server();
+	Server *server = dynamic_cast<Server *>(this->get_value_block()[index]);
+	map<string, string> response = server->process_request(this->_request);
 
-	std::string response = _request["httpVersion"] + " " + _statusToString(_responseStatus)
-						+ "\r\nContent-Type: text/html\r\n\r\n<html>";
+	return response;
+}
 
-	ssize_t bytes_sent = send(client_socket->get_socket(), response.c_str(), strlen(response.c_str()), 0);
+void Http::_send_response(Socket *client_socket) {
+	Log::response(this->_requestMethod, this->_request["httpVersion"],
+				  this->_request["uri"], _responseStatus);
+
+	string response = (this->_request["httpVersion"] + " " +
+					   _statusToString(_responseStatus) +
+					   "\r\nContent-Type: text/html\r\n\r\n<html>");
+
+	ssize_t bytes_sent = send(client_socket->get_socket(), response.c_str(),
+							  strlen(response.c_str()), 0);
 
 	// TODO:
 	// Se non si riesce ad inviare tutti i dati, impostare POLLOUT ed inviare
@@ -276,10 +261,8 @@ void Http::_send_response(Socket *client_socket)
 	}
 }
 
-std::string Http::_statusToString(enum HTTP_STATUS status)
-{
-	switch (status)
-	{
+string Http::_statusToString(enum HTTP_STATUS status) {
+	switch (status) {
 		case OK:
 			return "200 OK";
 		case BAD_REQUEST:
@@ -293,8 +276,7 @@ std::string Http::_statusToString(enum HTTP_STATUS status)
 	}
 }
 
-enum HTTP_METHOD Http::_methodToEnum(const std::string &method)
-{
+enum HTTP_METHOD Http::_methodToEnum(const string &method) {
 	if (method == "GET")
 		return GET;
 	else if (method == "POST")
@@ -306,19 +288,19 @@ enum HTTP_METHOD Http::_methodToEnum(const std::string &method)
 }
 
 void Http::start_servers(void) {
-	vector<uint16_t> ports = this->_get_ports();
+	vector<uint16_t> ports = this->_extract_listen_ports();
 	vector<Socket *> sockets;
 	int num_ports = ports.size();
 	struct pollfd fds[num_ports];
 	int num_fds = 0;
 	Socket *client_socket;
-	std::string request;
+	string request;
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
 	for (int i = 0; i < num_ports; i++) {
 		sockets.push_back(new Socket(ports[i]));
 		fds[num_fds].fd = sockets[i]->get_socket();
-		fds[num_fds].events = POLLIN | POLLOUT; //monitora sia per lettura che per scrittura
+		fds[num_fds].events = POLLIN | POLLOUT;
 		num_fds++;
 	}
 
@@ -329,31 +311,31 @@ void Http::start_servers(void) {
 			Log::error("Poll failed");
 			exit(1);
 		}
+
 		// Handle events on sockets ------------------------------------------->
 		for (int i = 0; i < num_fds; ++i) {
 			if (fds[i].revents & POLLIN) {
+
 				// Accept connection and create new socket for client---------->
 				client_socket = sockets[i]->create_client_socket();
 
 				// Read the request ------------------------------------------->
-				request = _read_requests(client_socket);
+				request = this->_read_requests(client_socket);
 
-				if (!request.empty())
-				{
-					// Parse the request ------------------------------------------>
-					_parse_request(request);
+				if (!request.empty()) {
+					// Parse the request -------------------------------------->
+					this->_parse_request(request);
 
-					// Process the requests --------------------------------------->
-					_process_requests();
+					// Process the requests ----------------------------------->
+					this->_process_requests();
 
-					// Send the response ------------------------------------------>
-					_send_response(client_socket);
+					// Send the response -------------------------------------->
+					this->_send_response(client_socket);
 				}
 
 				// Close the client socket ------------------------------------>
 				client_socket->close_socket();
 			}
-
 		}
 	}
 }

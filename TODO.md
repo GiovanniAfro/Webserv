@@ -127,3 +127,5 @@
 
 [ ] es. 	listen 1111  8585 default_server; se spazi consecutivi => 0
 
+[ ] la direttiva listen puo contenere un solo [ip:port] e opzionalmente il val
+    default_server, aggiungere check parser.
