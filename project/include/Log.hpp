@@ -19,6 +19,7 @@
 #define RED "\033[31m"
 #define GREEN "\033[32m"
 #define YELLOW "\033[33m"
+#define ORANGE "\033[38;5;208m"
 #define BLUE "\033[34m"
 #define WHITE "\033[37m"
 
@@ -33,6 +34,7 @@ class Log {
 
 		static string _timeStamp(void);
 	public:
+		static void debug(const string &msg);
 		static void info(const string &msg);
 		static void error(const string &msg);
 		static void response(int method, std::string httpVersion, std::string uri, int status);

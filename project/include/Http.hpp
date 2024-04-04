@@ -46,7 +46,6 @@ class Http : public Directive {
 		map<string, string> _requestHeaders;
 		string 				_requestBody;
 		enum HTTP_METHOD 	_requestMethod;
-		enum HTTP_STATUS 	_responseStatus;
 
 		// Functionality ------------------------------------------------------>
 		vector<uint16_t> 	_extract_listen_ports(void);
@@ -54,13 +53,15 @@ class Http : public Directive {
 		void 				_parse_request(const string& request);
 		int					_find_virtual_server(void);
 		map<string, string> _process_requests();
-		void 				_send_response(Socket *client_socket);
+		void 				_send_response(Socket *client_socket, map<string, string> response);
 
 		// Utils -------------------------------------------------------------->
 		enum HTTP_METHOD 	_methodToEnum(const string &method);
-		string 				_statusToString(enum HTTP_STATUS status);
+		string _statusToMessage(enum HTTP_STATUS status);
+		enum HTTP_STATUS _statusToEnum(const string &status);
 
 	public:
+		static string 				statusToString(enum HTTP_STATUS status);
 		Http(string context);
 		Http(ifstream &raw_value, string context);
 		~Http(void);

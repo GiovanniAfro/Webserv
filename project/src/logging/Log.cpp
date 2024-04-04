@@ -25,7 +25,13 @@ string Log::_timeStamp() {
 	return (ss.str());
 }
 
-void Log::info(const string &msg) {
+void Log::debug(const string &msg)
+{
+	cout << ORANGE << _timeStamp() << " [DEBUG]\t" << WHITE << msg << endl;
+}
+
+void Log::info(const string &msg)
+{
 	cout << BLUE << _timeStamp() << " [INFO]\t" << WHITE << msg << endl;
 }
 

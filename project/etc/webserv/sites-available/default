@@ -1,5 +1,6 @@
 server {
-	listen localhost:1111 8585 default_server;
+	listen 42.42.42.42:3333 default_server;
+	listen 42.42.42.42:1111;
 
 	root /var/www/html;
 

@@ -154,12 +154,18 @@ vector<Index *> Server::get_index(void) {
 }
 
 map<string, string> Server::process_request(map<string, string> request) {
-    map<string, string> response;
 
-    (void)request;
+    // if (request["method"] == "GET")
+    //     return this->_process_get(request);
+
+
+    map<string, string> response;
+    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
+
 
     // Processare la richiesta e ritornare la risposta in formato map o altra
     // struttura dati appropriata.
 
     return response;
+    (void)request;
 }

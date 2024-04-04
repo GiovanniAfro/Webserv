@@ -126,7 +126,7 @@ string Http::_read_requests(Socket *client_socket) {
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	cout << request << endl;
+	// cout << request << endl;
 	return request;
 }
 
@@ -147,7 +147,7 @@ void Http::_parse_request(const string &request) {
 			string headerName = line.substr(0, colonPos);
 			string headerValue = line.substr(colonPos + 2);
 			this->_requestHeaders[headerName] = headerValue;
-			cout << headerName << " -> " << headerValue << endl;
+			// cout << headerName << " -> " << headerValue << endl;
 		}
 	}
 
@@ -169,12 +169,13 @@ int Http::_find_virtual_server(void) {
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	vector<Directive *>	serverValueBlock = this->get_value_block();
 	vector<Directive *>	matchingServers;
+	stringstream stream;
 
 	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer) {
 		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
 
 		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++) {
-			cout << listenValueBlock[0]->get_value_inline()[i] << endl;
+			// cout << listenValueBlock[0]->get_value_inline()[i] << endl;
 
 			string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
 			uint16_t	serverPort;
@@ -184,19 +185,20 @@ int Http::_find_virtual_server(void) {
 			serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 			if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
 			{
-				cout << "port " << i << " matched : " << serverPort << endl;
+				stream << "port " << i << " matched : " << serverPort;
+				Log::debug(stream.str());
 				matchingServers.push_back(*itServer);
 			}
 		}
 	}
 	// cout << "matchingServers' server_name : " << matchingServers[1]->get_value_block()[3]->get_value_inline()[0] << endl;
 	if (matchingServers.size() == 0)
-		cout << "Match not found" << endl;
+		Log::error("Match not found");
 	else if (matchingServers.size() == 1)
-		cout << "Match found" << endl;
+		Log::debug("Match found");
 	else //if (matchingServers.size() > 1)
 	{
-		cout << "matchingServers : " << matchingServers.size() << endl;
+		// cout << "matchingServers : " << matchingServers.size() << endl;
 		// cout << "Checking server_name" << endl;
 
 		// for (size_t i = 0; i < matchingServers.size(); ++i)
@@ -204,7 +206,7 @@ int Http::_find_virtual_server(void) {
 
 		// }
 
-		cout << "Checking IP" << endl;
+		// cout << "Checking IP" << endl;
 		for (size_t i = 0; i < matchingServers.size(); ++i) {
 			string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
 			string	serverIP = "";
@@ -213,11 +215,11 @@ int Http::_find_virtual_server(void) {
 				serverIP = serverHost.substr(0, serverHost.find(":"));
 
 			if (serverIP == requestIP) {
-				cout << "server_name " << i << " matched : " << serverIP << endl;
+				// cout << "server_name " << i << " matched : " << serverIP << endl;
 				// break;
 			}
 			else {
-				// 
+				//
 			}
 		}
 	}
@@ -235,21 +237,22 @@ int Http::_find_virtual_server(void) {
 map<string, string> Http::_process_requests() {
 	int index = this->_find_virtual_server();
 	Server *server = dynamic_cast<Server *>(this->get_value_block()[index]);
-	map<string, string> response = server->process_request(this->_request);
 
-	return response;
+	return server->process_request(this->_request);
 }
 
-void Http::_send_response(Socket *client_socket) {
-	Log::response(this->_requestMethod, this->_request["httpVersion"],
-				  this->_request["uri"], _responseStatus);
+void Http::_send_response(Socket *client_socket, map<string, string> response) {
+	HTTP_STATUS status = _statusToEnum(response["status"]);
 
-	string response = (this->_request["httpVersion"] + " " +
-					   _statusToString(_responseStatus) +
+	Log::response(this->_requestMethod, this->_request["httpVersion"],
+				  this->_request["uri"], status);
+
+	string s_response = (this->_request["httpVersion"] + " " +
+					   _statusToMessage(status) +
 					   "\r\nContent-Type: text/html\r\n\r\n<html>");
 
-	ssize_t bytes_sent = send(client_socket->get_socket(), response.c_str(),
-							  strlen(response.c_str()), 0);
+	ssize_t bytes_sent = send(client_socket->get_socket(), s_response.c_str(),
+							  strlen(s_response.c_str()), 0);
 
 	// TODO:
 	// Se non si riesce ad inviare tutti i dati, impostare POLLOUT ed inviare
@@ -261,7 +264,7 @@ void Http::_send_response(Socket *client_socket) {
 	}
 }
 
-string Http::_statusToString(enum HTTP_STATUS status) {
+string Http::_statusToMessage(enum HTTP_STATUS status) {
 	switch (status) {
 		case OK:
 			return "200 OK";
@@ -269,11 +272,33 @@ string Http::_statusToString(enum HTTP_STATUS status) {
 			return "400 Bad Request";
 		case NOT_FOUND:
 			return "404 Not Found";
-		case INTERNAL_SERVER_ERROR:
-			return "500 Internal Server Error";
 		default:
-			return "Unknown status";
+			return "500 Internal Server Error";
 	}
+}
+
+string Http::statusToString(enum HTTP_STATUS status) {
+	switch (status) {
+		case OK:
+			return "200";
+		case BAD_REQUEST:
+			return "400";
+		case NOT_FOUND:
+			return "404";
+		default:
+			return "500";
+	}
+}
+
+enum HTTP_STATUS Http::_statusToEnum(const string &status) {
+	if (status == "200")
+		return OK;
+	else if (status == "400")
+		return BAD_REQUEST;
+	else if (status == "404")
+		return NOT_FOUND;
+	else
+		return INTERNAL_SERVER_ERROR;
 }
 
 enum HTTP_METHOD Http::_methodToEnum(const string &method) {
@@ -295,6 +320,7 @@ void Http::start_servers(void) {
 	int num_fds = 0;
 	Socket *client_socket;
 	string request;
+	map<string, string> response;
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
 	for (int i = 0; i < num_ports; i++) {
@@ -327,10 +353,10 @@ void Http::start_servers(void) {
 					this->_parse_request(request);
 
 					// Process the requests ----------------------------------->
-					this->_process_requests();
+					response = this->_process_requests();
 
 					// Send the response -------------------------------------->
-					this->_send_response(client_socket);
+					this->_send_response(client_socket, response);
 				}
 
 				// Close the client socket ------------------------------------>
