@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:26:33 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/05 15:45:17 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ void Http::_parse_request(const string &request) {
 			string headerName = line.substr(0, colonPos);
 			string headerValue = line.substr(colonPos + 2);
 			this->_requestHeaders[headerName] = headerValue;
-			// cout << headerName << " -> " << headerValue << endl;
+			cout << headerName << " -> " << headerValue << endl;
 		}
 	}
 
@@ -169,57 +169,84 @@ int Http::_find_virtual_server(void) {
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	vector<Directive *>	serverValueBlock = this->get_value_block();
 	vector<Directive *>	matchingServers;
-	stringstream stream;
+	bool				isMatch = false;
+	stringstream		stream;
 
 	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer) {
 		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
 
-		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++) {
-			// cout << listenValueBlock[0]->get_value_inline()[i] << endl;
-
-			string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
-			uint16_t	serverPort;
-
-			if (tmpPort.find(':'))
-				tmpPort = tmpPort.substr(tmpPort.find(':') + 1, tmpPort.length() - 1).c_str();
-			serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
-			if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
+		for (size_t l = 0; listenValueBlock[l]->get_type() == "listen"; ++l)
+		{
+			for (size_t p = 0; p < listenValueBlock[l]->get_inline_size(); ++p)
 			{
-				stream << "port " << i << " matched : " << serverPort;
-				Log::debug(stream.str());
-				matchingServers.push_back(*itServer);
+				string		tmpPort = listenValueBlock[l]->get_value_inline()[p];
+				uint16_t	serverPort;
+
+				if (tmpPort.find(':') != string::npos)
+					tmpPort = tmpPort.substr(tmpPort.find(":") + 1).c_str();
+				serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
+
+				Log::debug(tmpPort);
+
+				if (requestPort == serverPort)
+				{
+					cout << "listen " << l << " : port " << p << " matched : " << serverPort << endl;
+					// Log::debug(stream.str());
+					isMatch = true;
+				}
 			}
 		}
+
+		if (isMatch)
+		{
+			matchingServers.push_back(*itServer);
+			isMatch = false;
+		}
 	}
-	// cout << "matchingServers' server_name : " << matchingServers[1]->get_value_block()[3]->get_value_inline()[0] << endl;
 	if (matchingServers.size() == 0)
+	{
 		Log::error("Match not found");
+
+	}
 	else if (matchingServers.size() == 1)
+	{
 		Log::debug("Match found");
+
+	}
 	else //if (matchingServers.size() > 1)
 	{
 		// cout << "matchingServers : " << matchingServers.size() << endl;
-		// cout << "Checking server_name" << endl;
 
 		// for (size_t i = 0; i < matchingServers.size(); ++i)
 		// {
 
 		// }
+		for (size_t i = 0; i < matchingServers.size(); ++i)
+		{
+			vector<Directive *>	listenValueBlock = matchingServers[i]->get_value_block();
+			cout << i << endl;
+			for (size_t l = 0; listenValueBlock[l]->get_type() == "listen"; ++l)
+			{
+				for (size_t p = 0; p < listenValueBlock[l]->get_inline_size(); ++p)
+				{
+					string	serverHost = listenValueBlock[l]->get_value_inline()[p];
+					string	serverIP = "";
 
-		// cout << "Checking IP" << endl;
-		for (size_t i = 0; i < matchingServers.size(); ++i) {
-			string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
-			string	serverIP = "";
+					if (serverHost.find(":") != string::npos)
+						serverIP = serverHost.substr(0, serverHost.find(":"));
 
-			if (serverHost.find(":") != string::npos)
-				serverIP = serverHost.substr(0, serverHost.find(":"));
+					Log::debug(serverHost);
+					Log::debug(serverIP);
+					
+					if (serverIP == requestIP) {
+						cout << "server_name " << i << " matched : " << serverIP << endl;
+						// break;
+					}
 
-			if (serverIP == requestIP) {
-				// cout << "server_name " << i << " matched : " << serverIP << endl;
-				// break;
-			}
-			else {
-				//
+					else {
+						//
+					}
+				}
 			}
 		}
 	}
