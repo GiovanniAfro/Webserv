@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:24:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 15:46:12 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/06 19:19:06 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,10 @@ class Http : public Directive {
 		string 				_read_requests(Socket *client_socket);
 		void 				_parse_request(const string& request);
 		int					_find_virtual_server(void);
+		vector<Directive*>	_matchingServersPort(const vector<Directive*>& servers, uint16_t requestPort);
+		vector<Directive*>	_matchingServersIP(const vector<Directive*>& servers, const string requestIP);
+		vector<Directive*>	_matchingServersServerName(const vector<Directive*>& servers, const string requestIP);
+
 		map<string, string> _process_requests();
 		void 				_send_response(Socket *client_socket, map<string, string> response);
 
