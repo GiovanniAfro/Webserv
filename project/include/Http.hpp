@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:24:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 15:46:12 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/05 11:19:10 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Http : public Directive {
 		map<string, string> _requestHeaders;
 		string 				_requestBody;
 		enum HTTP_METHOD 	_requestMethod;
+		vector<Socket *> 	_sockets;
 
 		// Functionality ------------------------------------------------------>
 		vector<uint16_t> 	_extract_listen_ports(void);
@@ -53,7 +54,8 @@ class Http : public Directive {
 		void 				_parse_request(const string& request);
 		int					_find_virtual_server(void);
 		map<string, string> _process_requests();
-		void 				_send_response(Socket *client_socket, map<string, string> response);
+		void 				_send_response(Socket *client_socket, 
+										   map<string, string> response);
 
 		// Utils -------------------------------------------------------------->
 		enum HTTP_METHOD 	_methodToEnum(const string &method);
@@ -61,7 +63,7 @@ class Http : public Directive {
 		enum HTTP_STATUS _statusToEnum(const string &status);
 
 	public:
-		static string 				statusToString(enum HTTP_STATUS status);
+		static string statusToString(enum HTTP_STATUS status);
 		Http(string context);
 		Http(ifstream &raw_value, string context);
 		~Http(void);

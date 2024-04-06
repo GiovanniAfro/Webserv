@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 13:15:39 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:10:28 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:54:35 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,15 +148,3 @@ void Directive::_parsing_block(ifstream &raw_value) {
             break;
     }
 }
-
-// vector<Directive *> Directive::get_directive_from_type(const string &type) {
-//     vector<Directive *> directivesOfType;
-
-//     for (vector<Directive *>::const_iterator it = _value_block.begin(); it != _value_block.end(); ++it) {
-//         const Directive *directive = *it;
-//         if (directive->get_type() == type) {
-//             directivesOfType.push_back(directive);
-//         }
-//     }
-//     return directivesOfType;
-// }

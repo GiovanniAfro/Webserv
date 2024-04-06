@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:26:33 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/05 11:18:22 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,10 @@ Http::Http(ifstream &raw_value, string context) {
 }
 
 Http::~Http(void) {
-	for (VecDirIt it = this->_value_block.begin();
-		it != this->_value_block.end(); ++it)
-		delete *it;
+	for (size_t i = 0; i < this->_value_block.size(); ++i)
+		delete this->_value_block[i];
+	for (size_t i = 0; i < this->_sockets.size(); ++i)
+		delete this->_sockets[i];
 }
 
 vector<uint16_t> Http::_extract_listen_ports(void) {
@@ -164,65 +165,65 @@ void Http::_parse_request(const string &request) {
 }
 
 int Http::_find_virtual_server(void) {
-	string				requestHost = this->_requestHeaders["Host"];
-	string				requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
-	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
-	vector<Directive *>	serverValueBlock = this->get_value_block();
-	vector<Directive *>	matchingServers;
-	stringstream stream;
+	// string				requestHost = this->_requestHeaders["Host"];
+	// string				requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
+	// uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+	// vector<Directive *>	serverValueBlock = this->get_value_block();
+	// vector<Directive *>	matchingServers;
+	// stringstream stream;
 
-	for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer) {
-		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
+	// for (vector<Directive *>::iterator itServer = serverValueBlock.begin(); itServer != serverValueBlock.end(); ++itServer) {
+	// 	vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
 
-		for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++) {
-			// cout << listenValueBlock[0]->get_value_inline()[i] << endl;
+	// 	for (size_t i = 0; i < listenValueBlock[0]->get_inline_size(); i++) {
+	// 		// cout << listenValueBlock[0]->get_value_inline()[i] << endl;
 
-			string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
-			uint16_t	serverPort;
+	// 		string		tmpPort = listenValueBlock[0]->get_value_inline()[i];
+	// 		uint16_t	serverPort;
 
-			if (tmpPort.find(':'))
-				tmpPort = tmpPort.substr(tmpPort.find(':') + 1, tmpPort.length() - 1).c_str();
-			serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
-			if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
-			{
-				stream << "port " << i << " matched : " << serverPort;
-				Log::debug(stream.str());
-				matchingServers.push_back(*itServer);
-			}
-		}
-	}
-	// cout << "matchingServers' server_name : " << matchingServers[1]->get_value_block()[3]->get_value_inline()[0] << endl;
-	if (matchingServers.size() == 0)
-		Log::error("Match not found");
-	else if (matchingServers.size() == 1)
-		Log::debug("Match found");
-	else //if (matchingServers.size() > 1)
-	{
-		// cout << "matchingServers : " << matchingServers.size() << endl;
-		// cout << "Checking server_name" << endl;
+	// 		if (tmpPort.find(':'))
+	// 			tmpPort = tmpPort.substr(tmpPort.find(':') + 1, tmpPort.length() - 1).c_str();
+	// 		serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
+	// 		if (requestPort == serverPort) // Save the virtual servers that match the port, if more than 1 match -> Compare server_name
+	// 		{
+	// 			stream << "port " << i << " matched : " << serverPort;
+	// 			Log::debug(stream.str());
+	// 			matchingServers.push_back(*itServer);
+	// 		}
+	// 	}
+	// }
+	// // cout << "matchingServers' server_name : " << matchingServers[1]->get_value_block()[3]->get_value_inline()[0] << endl;
+	// if (matchingServers.size() == 0)
+	// 	Log::error("Match not found");
+	// else if (matchingServers.size() == 1)
+	// 	Log::debug("Match found");
+	// else //if (matchingServers.size() > 1)
+	// {
+	// 	// cout << "matchingServers : " << matchingServers.size() << endl;
+	// 	// cout << "Checking server_name" << endl;
 
-		// for (size_t i = 0; i < matchingServers.size(); ++i)
-		// {
+	// 	// for (size_t i = 0; i < matchingServers.size(); ++i)
+	// 	// {
 
-		// }
+	// 	// }
 
-		// cout << "Checking IP" << endl;
-		for (size_t i = 0; i < matchingServers.size(); ++i) {
-			string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
-			string	serverIP = "";
+	// 	// cout << "Checking IP" << endl;
+	// 	for (size_t i = 0; i < matchingServers.size(); ++i) {
+	// 		string	serverHost = matchingServers[i]->get_value_block()[3]->get_value_inline()[0];
+	// 		string	serverIP = "";
 
-			if (serverHost.find(":") != string::npos)
-				serverIP = serverHost.substr(0, serverHost.find(":"));
+	// 		if (serverHost.find(":") != string::npos)
+	// 			serverIP = serverHost.substr(0, serverHost.find(":"));
 
-			if (serverIP == requestIP) {
-				// cout << "server_name " << i << " matched : " << serverIP << endl;
-				// break;
-			}
-			else {
-				//
-			}
-		}
-	}
+	// 		if (serverIP == requestIP) {
+	// 			// cout << "server_name " << i << " matched : " << serverIP << endl;
+	// 			// break;
+	// 		}
+	// 		else {
+	// 			//
+	// 		}
+	// 	}
+	// }
 
 
 	return 0;
@@ -314,7 +315,7 @@ enum HTTP_METHOD Http::_methodToEnum(const string &method) {
 
 void Http::start_servers(void) {
 	vector<uint16_t> ports = this->_extract_listen_ports();
-	vector<Socket *> sockets;
+	// vector<Socket *> sockets;
 	int num_ports = ports.size();
 	struct pollfd fds[num_ports];
 	int num_fds = 0;
@@ -324,8 +325,8 @@ void Http::start_servers(void) {
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
 	for (int i = 0; i < num_ports; i++) {
-		sockets.push_back(new Socket(ports[i]));
-		fds[num_fds].fd = sockets[i]->get_socket();
+		this->_sockets.push_back(new Socket(ports[i]));
+		fds[num_fds].fd = this->_sockets[i]->get_socket();
 		fds[num_fds].events = POLLIN | POLLOUT;
 		num_fds++;
 	}
@@ -343,7 +344,7 @@ void Http::start_servers(void) {
 			if (fds[i].revents & POLLIN) {
 
 				// Accept connection and create new socket for client---------->
-				client_socket = sockets[i]->create_client_socket();
+				client_socket = this->_sockets[i]->create_client_socket();
 
 				// Read the request ------------------------------------------->
 				request = this->_read_requests(client_socket);
@@ -361,6 +362,7 @@ void Http::start_servers(void) {
 
 				// Close the client socket ------------------------------------>
 				client_socket->close_socket();
+				delete client_socket;
 			}
 		}
 	}
