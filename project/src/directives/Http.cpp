@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/06 22:41:31 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/06 22:54:23 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,6 @@ void Http::_parse_request(const string &request) {
 vector<Directive*>	Http::_matchingServersServerName(const vector<Directive*>& servers, const string requestIP)
 {
 	vector<Directive *>	matchingServers;
-	// bool	isMatch = false;
 
 	for (vector<Directive *>::const_iterator itServer = servers.cbegin(); itServer != servers.cend(); ++itServer)
 	{
@@ -183,14 +182,15 @@ vector<Directive*>	Http::_matchingServersServerName(const vector<Directive*>& se
 					if (serverBlock[i]->get_value_inline()[j] == requestIP)
 					{
 						Log::debug("server_name match found");
-
+						matchingServers.push_back(*itServer);
+						return matchingServers;
 					}
 
 				}
 			}
 		}
 	}
-	return matchingServers;
+	return vector<Directive*>();
 }
 
 vector<Directive*>	Http::_matchingServersIP(const vector<Directive*>& servers, const string requestIP)
