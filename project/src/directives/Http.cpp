@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/05 15:45:17 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/05 18:58:15 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,16 +215,12 @@ int Http::_find_virtual_server(void) {
 	}
 	else //if (matchingServers.size() > 1)
 	{
-		// cout << "matchingServers : " << matchingServers.size() << endl;
+		bool	isMatch = false;
 
-		// for (size_t i = 0; i < matchingServers.size(); ++i)
-		// {
-
-		// }
-		for (size_t i = 0; i < matchingServers.size(); ++i)
+		for (vector<Directive *>::iterator itServer = matchingServers.begin(); itServer != matchingServers.end(); ++itServer)
 		{
-			vector<Directive *>	listenValueBlock = matchingServers[i]->get_value_block();
-			cout << i << endl;
+			vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
+
 			for (size_t l = 0; listenValueBlock[l]->get_type() == "listen"; ++l)
 			{
 				for (size_t p = 0; p < listenValueBlock[l]->get_inline_size(); ++p)
@@ -235,19 +231,19 @@ int Http::_find_virtual_server(void) {
 					if (serverHost.find(":") != string::npos)
 						serverIP = serverHost.substr(0, serverHost.find(":"));
 
-					Log::debug(serverHost);
+					// Log::debug(serverHost);
 					Log::debug(serverIP);
 					
 					if (serverIP == requestIP) {
-						cout << "server_name " << i << " matched : " << serverIP << endl;
-						// break;
-					}
-
-					else {
-						//
+						// cout << "server_name " << i << " matched : " << serverIP << endl;
+						isMatch = true;
 					}
 				}
 			}
+			// if (!isMatch)
+			// 	matchingServers.erase(std::remove_if(matchingServers.begin(), matchingServers.end(),
+			// 	[isMatch](const Server& server) { return !isMatch; }), matchingServers.end());
+			isMatch = false;
 		}
 	}
 
