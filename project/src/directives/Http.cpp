@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/06 22:54:23 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/06 23:02:33 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,10 @@ Http::Http(ifstream &raw_value, string context) {
 }
 
 Http::~Http(void) {
-	for (VecDirIt it = this->_value_block.begin();
-		it != this->_value_block.end(); ++it)
-		delete *it;
+	for (size_t i = 0; i < this->_value_block.size(); ++i)
+		delete this->_value_block[i];
+	for (size_t i = 0; i < this->_sockets.size(); ++i)
+		delete this->_sockets[i];
 }
 
 vector<uint16_t> Http::_extract_listen_ports(void) {
@@ -388,7 +389,7 @@ enum HTTP_METHOD Http::_methodToEnum(const string &method) {
 
 void Http::start_servers(void) {
 	vector<uint16_t> ports = this->_extract_listen_ports();
-	vector<Socket *> sockets;
+	// vector<Socket *> sockets;
 	int num_ports = ports.size();
 	struct pollfd fds[num_ports];
 	int num_fds = 0;
@@ -398,8 +399,8 @@ void Http::start_servers(void) {
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
 	for (int i = 0; i < num_ports; i++) {
-		sockets.push_back(new Socket(ports[i]));
-		fds[num_fds].fd = sockets[i]->get_socket();
+		this->_sockets.push_back(new Socket(ports[i]));
+		fds[num_fds].fd = this->_sockets[i]->get_socket();
 		fds[num_fds].events = POLLIN | POLLOUT;
 		num_fds++;
 	}
@@ -417,7 +418,7 @@ void Http::start_servers(void) {
 			if (fds[i].revents & POLLIN) {
 
 				// Accept connection and create new socket for client---------->
-				client_socket = sockets[i]->create_client_socket();
+				client_socket = this->_sockets[i]->create_client_socket();
 
 				// Read the request ------------------------------------------->
 				request = this->_read_requests(client_socket);
@@ -435,6 +436,7 @@ void Http::start_servers(void) {
 
 				// Close the client socket ------------------------------------>
 				client_socket->close_socket();
+				delete client_socket;
 			}
 		}
 	}
