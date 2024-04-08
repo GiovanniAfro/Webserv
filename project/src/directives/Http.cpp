@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/06 23:02:33 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/08 14:37:55 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ vector<Directive*>	Http::_matchingServersServerName(const vector<Directive*>& se
 {
 	vector<Directive *>	matchingServers;
 
-	for (vector<Directive *>::const_iterator itServer = servers.cbegin(); itServer != servers.cend(); ++itServer)
+	for (vector<Directive *>::const_iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
 	{
 		vector<Directive *>	serverBlock = (*itServer)->get_value_block();
 		
@@ -199,7 +199,7 @@ vector<Directive*>	Http::_matchingServersIP(const vector<Directive*>& servers, c
 	vector<Directive *>	matchingServers;
 	bool	isMatch = false;
 
-	for (vector<Directive *>::const_iterator itServer = servers.cbegin(); itServer != servers.cend(); ++itServer)
+	for (vector<Directive *>::const_iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
 	{
 		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
 
@@ -223,8 +223,10 @@ vector<Directive*>	Http::_matchingServersIP(const vector<Directive*>& servers, c
 			}
 		}
 		if (isMatch)
+		{
 			matchingServers.push_back(*itServer);
 			isMatch = false;
+		}
 	}
 	return matchingServers;
 }
@@ -234,7 +236,7 @@ vector<Directive*>	Http::_matchingServersPort(const vector<Directive*>& servers,
 	vector<Directive *>	matchingServers;
 	bool				isMatch = false;
 
-	for (vector<Directive *>::const_iterator itServer = servers.cbegin(); itServer != servers.cend(); ++itServer) {
+	for (vector<Directive *>::const_iterator itServer = servers.begin(); itServer != servers.end(); ++itServer) {
 		vector<Directive *>	listenValueBlock = (*itServer)->get_value_block();
 
 		for (size_t l = 0; listenValueBlock[l]->get_type() == "listen"; ++l)
