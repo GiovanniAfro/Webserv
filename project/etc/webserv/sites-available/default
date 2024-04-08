@@ -1,6 +1,7 @@
 server {
 	listen 192.168.174.101:3333 default_server;
 	listen 42.42.42.42:1111;
+	listen 127.0.0.1:1111;
 
 	root /var/www/html;
 
