@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:59:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:10:32 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 15:29:52 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,6 @@ class Directive {
         vector<Directive *> get_value_block(void) const;
         size_t              get_block_size(void) const;
         size_t              get_inline_size(void) const;
-        // vector<Directive *> get_directive_from_type(const string &type);
-
 
         static const char *_directives[];
 
@@ -74,17 +72,17 @@ class Directive {
         );
 
         class WrongContextExc : public exception {
-        private:
-            virtual const char *what(void) const throw() {
-                return "err";
-            }
-        public:
-            WrongContextExc(string directive, string allow, string wrong) {
-                cerr << "webserv: " << directive << ": this directive " <<
-                    "can be used only in: " << allow << " directive/s and "
-                    << "not in: " << wrong << endl;
-            }
-            virtual ~WrongContextExc() throw() {}
+            private:
+                virtual const char *what(void) const throw() {
+                    return "err";
+                }
+            public:
+                WrongContextExc(string directive, string allow, string wrong) {
+                    cerr << "webserv: " << directive << ": this directive " <<
+                        "can be used only in: " << allow << " directive/s and "
+                        << "not in: " << wrong << endl;
+                }
+                virtual ~WrongContextExc() throw() {}
         };
 };
 

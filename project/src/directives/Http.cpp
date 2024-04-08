@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/05 11:18:22 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 15:10:51 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,6 @@ Http::Http(ifstream &raw_value, string context) {
 }
 
 Http::~Http(void) {
-	for (size_t i = 0; i < this->_value_block.size(); ++i)
-		delete this->_value_block[i];
 	for (size_t i = 0; i < this->_sockets.size(); ++i)
 		delete this->_sockets[i];
 }

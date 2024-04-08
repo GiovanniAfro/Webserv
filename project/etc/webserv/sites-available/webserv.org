@@ -1,6 +1,6 @@
 server {
-	listen 42.42.42.42:2222;
-	listen 42.42.42.42:4444;
+	listen 127.0.0.1:2222 88;
+	listen 127.0.0.1:4444;
 
 	root /var/www/html;
 

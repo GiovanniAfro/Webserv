@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:48:03 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/11 12:31:05 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 15:23:48 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,15 @@ Listen::Listen(string raw_value, string context) {
     this->_type = "listen";
     this->_is_context = false;
     this->_parsing_inline(raw_value);
+    this->_validate_config();
 }
 
 Listen::~Listen() {}
+
+void Listen::_validate_config(void) {
+    if (this->_value_inline.size() != 1 and this->_value_inline.size() != 2)
+        throw WrongNumArgsExc();
+    else if (this->_value_inline.size() == 2 and 
+             this->_value_inline[1] != "default_server")
+        throw WrongValueArgExc(this->_value_inline[1]);
+}
