@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 13:15:39 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/06 18:54:35 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 15:24:42 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,11 @@ const char *Directive::_directives[] = {
 
 Directive::Directive(void) {}
 
-Directive::~Directive() {}
+Directive::~Directive() {
+    for (size_t i = 0; i < _value_block.size(); ++i)
+        delete _value_block[i];
+    _value_block.clear();
+}
 
 string Directive::get_type(void) const {
     return this->_type;
@@ -121,6 +125,8 @@ void Directive::_parsing_inline(string raw_value) {
         i++;
     while (raw_value[i] != 59 && i < raw_value.length()) {
         value = "";
+        while (raw_value[i] == 32 || raw_value[i] == 9)
+            i++;
         while (raw_value[i] != 32 && raw_value[i] != 9 && raw_value[i] != 59)
             value += raw_value[i++];
         if (raw_value[i] != 59)

@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:48:29 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 16:48:36 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:21:05 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,3 +32,8 @@ Root::Root(string raw_value, string context) {
 }
 
 Root::~Root() {}
+
+void Root::_validate_config(void) {
+    if (this->_value_inline.size() != 1)
+        throw WrongNumArgsExc(this->_type);
+}

@@ -13,32 +13,32 @@
 [ ] It must be non-blocking and use only 1 poll() (or equivalent) for all the
     I/O operations between the client and the server (listen included).
 
-[ ] poll() (or equivalent) must check read and write at the same time.
+[x] poll() (or equivalent) must check read and write at the same time.
 
-[ ] You must never do a read or a write operation without going through poll()
+[x] You must never do a read or a write operation without going through poll()
     (or equivalent).
 
-[ ] Checking the value of errno is strictly forbidden after a read or a write
+[x] Checking the value of errno is strictly forbidden after a read or a write
     operation.
 
-[ ] You don’t need to use poll() (or equivalent) before reading your
+[x] You don’t need to use poll() (or equivalent) before reading your
     configuration file
 
-[ ] You can use every macro and define like FD_SET, FD_CLR, FD_ISSET, FD_ZERO
+[x] You can use every macro and define like FD_SET, FD_CLR, FD_ISSET, FD_ZERO
     (understanding what and how they do it is very useful).
 
 [ ] A request to your server should never hang forever.
 
 [ ] Your server must be compatible with the web browser of your choice.
 
-[ ] We will consider that NGINX is HTTP 1.1 compliant and may be used to
+[x] We will consider that NGINX is HTTP 1.1 compliant and may be used to
     compare headers and answer behaviors.
 
 [ ] Your HTTP response status codes must be accurate.
 
 [ ] You server must have default error pages if none are provided.
 
-[ ] You can’t use fork for something else than CGI (like PHP, or Python, and so
+[x] You can’t use fork for something else than CGI (like PHP, or Python, and so
     forth).
 
 [ ] You must be able to serve a fully static website.
@@ -49,14 +49,14 @@
 
 [ ] Stress tests your server. It must stay available at all cost.
 
-[ ] Your server must be able to listen to multiple ports (see Configuration
+[x] Your server must be able to listen to multiple ports (see Configuration
     file).
 
 [ ] Configuration file:
 
-    [ ] Choose the port and host of each ’server’.
+    [x] Choose the port and host of each ’server’.
 
-    [ ] Setup the server_names or not.
+    [x] Setup the server_names or not.
 
     [ ] The first server for a host:port will be the default for this host:port
         (that means it will answer to all the requests that don’t belong to an
@@ -125,10 +125,7 @@
 
 [ ] i commenti all'interno delle righe non vengono individuati
 
-[ ] es. 	listen 1111  8585 default_server; se spazi consecutivi => 0
+[x] es. 	listen 1111     default_server; se spazi consecutivi => 0
 
-[ ] la direttiva listen puo contenere un solo [ip:port] e opzionalmente il val
+[x] la direttiva listen puo contenere un solo [ip:port] e opzionalmente il val
     default_server, aggiungere check parser.
-
-[ ] se mi collego con localhost:port si collega, se mi collego con ipaddress:port
-    non si collega

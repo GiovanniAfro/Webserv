@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 16:23:40 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 17:13:20 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,6 @@ Http::Http(ifstream &raw_value, string context) {
 }
 
 Http::~Http(void) {
-	for (size_t i = 0; i < this->_value_block.size(); ++i)
-		delete this->_value_block[i];
 	for (size_t i = 0; i < this->_sockets.size(); ++i)
 		delete this->_sockets[i];
 }
@@ -58,7 +56,6 @@ vector<uint16_t> Http::_extract_listen_ports(void) {
 						if (tmpPort.find(':') != string::npos) {
 							tmpPort = tmpPort.substr(
 								tmpPort.find(':') + 1, tmpPort.length() - 1);
-							// cout << "get_port() tmpPort : " << tmpPort << endl;
 						}
 						port = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 						if (!uint16_t_in_vec(ports, port))

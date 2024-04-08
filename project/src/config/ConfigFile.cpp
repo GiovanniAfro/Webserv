@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 14:46:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 11:29:56 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 15:30:29 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,7 @@ ConfigFile::ConfigFile(const char *filename) {
     this->_first_parsing(filename);
 }
 
-ConfigFile::~ConfigFile(void) {
-    for (VecDirIt it = _config.begin(); it != _config.end(); ++it)
-        delete *it;
-}
+ConfigFile::~ConfigFile(void) {}
 
 /*!
  * @brief

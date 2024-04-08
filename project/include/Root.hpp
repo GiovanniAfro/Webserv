@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:40:43 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 17:56:13 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:20:51 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,6 @@ class Root : public Directive {
         Root(string context);
         Root(string raw_value, string context);
         ~Root();
+
+        void _validate_config(void);
 };

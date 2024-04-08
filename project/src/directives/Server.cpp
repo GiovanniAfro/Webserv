@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 16:15:40 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 17:13:31 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,7 @@ Server::Server(ifstream &raw_value, string context) {
     this->_parsing_block(raw_value);
 }
 
-Server::~Server() {
-    for (VecDirIt it = this->_value_block.begin();
-        it != this->_value_block.end(); ++it)
-        delete *it;
-}
+Server::~Server() {}
 
 vector<Listen *> Server::get_listen(void) {
     vector<Listen *> result;
