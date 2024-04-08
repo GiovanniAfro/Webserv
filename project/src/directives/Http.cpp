@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 19:10:51 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:36:21 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,7 +322,8 @@ void Http::_send_response(Socket *client_socket, map<string, string> response) {
 
 	string s_response = (this->_request["httpVersion"] + " " +
 					   _statusToMessage(status) +
-					   "\r\nContent-Type: text/html\r\n\r\n<html>");
+					   "\r\nContent-Type: " + response["Content-Type"] +
+					   "\r\n\r\n" + response["body"]);
 
 	ssize_t bytes_sent = send(client_socket->get_socket(), s_response.c_str(),
 							  strlen(s_response.c_str()), 0);

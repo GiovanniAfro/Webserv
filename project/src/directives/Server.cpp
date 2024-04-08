@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 19:05:59 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:34:07 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,13 +206,11 @@ map<string, string> Server::process_request(map<string, string> request, const v
                 ++l;
             while (rootValueBlock[l]->get_type() == "root")
                 ++l;
-            
-            cout << "|" << rootValueBlock[l]->get_type()<< "|" << endl;
-            cout << "|" << rootValueBlock[l]->get_value_inline()[0]<< "|" << endl;
         }
 
         vector<string> v_str = (*it)->get_value_inline();
-        filePath = v_str[0] + request["uri"];
+        filePath = "." + v_str[0] + request["uri"];
+        cout << filePath << endl;
         ifstream file(filePath.c_str());
 
         if (request["method"] == "GET")
