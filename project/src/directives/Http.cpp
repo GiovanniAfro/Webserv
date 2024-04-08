@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 18:55:05 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:10:51 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,7 +284,7 @@ vector<Directive*> Http::_find_virtual_server(void) {
 	}
 	else //if (matchingServers.size() > 1)
 	{
-		ipServers = this->_matchingServersIP(matchingServers, requestIP);
+		matchingServers = this->_matchingServersIP(matchingServers, requestIP);
 		if (matchingServers.size() == 0)
 		{
 			Log::error("IP match not found");
@@ -295,7 +295,7 @@ vector<Directive*> Http::_find_virtual_server(void) {
 			Log::debug("IP match found");
 
 		}
-		matchingServers = this->_matchingServersServerName(matchingServers, requestIP);
+		//matchingServers = this->_matchingServersServerName(matchingServers, requestIP);
 	}
 
 	return matchingServers;
