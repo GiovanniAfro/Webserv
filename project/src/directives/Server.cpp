@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 17:13:31 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 19:05:59 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,15 +190,26 @@ map<string, string> Server::_process_unknown(void)
 
 // Processare la richiesta e ritornare la risposta in formato map o altra
 // struttura dati appropriata.
-map<string, string> Server::process_request(map<string, string> request)
+map<string, string> Server::process_request(map<string, string> request, const vector<Directive*>& servers)
 {
     try
     {
         vector<Root *> root = get_root();
         vector<Root *>::iterator it = root.begin();
         string filePath;
-        while (it != root.end())
-            it++;
+        for (vector<Directive *>::const_iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
+        {
+            size_t l = 0;
+            vector<Directive *> rootValueBlock = (*itServer)->get_value_block();
+            
+            while (rootValueBlock[l]->get_type() != "root")
+                ++l;
+            while (rootValueBlock[l]->get_type() == "root")
+                ++l;
+            
+            cout << "|" << rootValueBlock[l]->get_type()<< "|" << endl;
+            cout << "|" << rootValueBlock[l]->get_value_inline()[0]<< "|" << endl;
+        }
 
         vector<string> v_str = (*it)->get_value_inline();
         filePath = v_str[0] + request["uri"];

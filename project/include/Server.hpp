@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:25:08 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 16:15:28 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:43:42 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Server : public Directive
         Server(ifstream &raw_value, string context);
         ~Server();
 
-        map<string, string> process_request(map<string, string> request);
+        map<string, string> process_request(map<string, string> request, const vector<Directive*>& servers);
 
         vector<Listen *>            get_listen(void);
         vector<ServerName *>        get_server_name(void);

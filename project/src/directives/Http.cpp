@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 18:04:07 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 18:55:05 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,7 +263,7 @@ vector<Directive*>	Http::_matchingServersPort(const vector<Directive*>& servers,
 	return matchingServers;
 }
 
-Directive* Http::_find_virtual_server(void) {
+vector<Directive*> Http::_find_virtual_server(void) {
 	string				requestHost = this->_requestHeaders["Host"];
 	string				requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
@@ -298,7 +298,7 @@ Directive* Http::_find_virtual_server(void) {
 		matchingServers = this->_matchingServersServerName(matchingServers, requestIP);
 	}
 
-	return matchingServers[0];
+	return matchingServers;
 }
 
 /*!
@@ -308,9 +308,10 @@ Directive* Http::_find_virtual_server(void) {
 	- Il blocco server elabora la richiesta e ritorna la risposta.
  */
 map<string, string> Http::_process_requests() {
-	Server *server = dynamic_cast<Server *>(this->_find_virtual_server());
+	vector<Directive *> server = this->_find_virtual_server();
+	Server *ser = dynamic_cast<Server *> (server[0]);
 
-	return server->process_request(this->_request);
+	return ser->process_request(this->_request, server);
 }
 
 void Http::_send_response(Socket *client_socket, map<string, string> response) {
