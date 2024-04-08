@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:59:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 15:29:52 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:18:29 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,28 @@ class Directive {
                         << "not in: " << wrong << endl;
                 }
                 virtual ~WrongContextExc() throw() {}
+        };
+
+        class WrongNumArgsExc : public exception {
+            private:
+                virtual const char *what(void) const throw() {return "err";}
+            public:
+                WrongNumArgsExc(string directive) {
+                    cerr << "webserv: " << directive << ": wrong number of args" 
+                        << endl;
+                }
+                virtual ~WrongNumArgsExc() throw() {}
+        };
+
+        class WrongValueArgExc : public exception {
+            private:
+                virtual const char *what(void) const throw() {return "err";}
+            public:
+                WrongValueArgExc(string directive, string arg) {
+                    cerr << "webserv: " << directive << ": wrong arg: " << arg 
+                        << endl;
+                }
+                virtual ~WrongValueArgExc() throw() {}
         };
 };
 

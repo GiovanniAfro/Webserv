@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 15:10:51 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:14:51 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ vector<uint16_t> Http::_extract_listen_ports(void) {
 						if (tmpPort.find(':') != string::npos) {
 							tmpPort = tmpPort.substr(
 								tmpPort.find(':') + 1, tmpPort.length() - 1);
-							// cout << "get_port() tmpPort : " << tmpPort << endl;
 						}
 						port = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 						if (!uint16_t_in_vec(ports, port))
