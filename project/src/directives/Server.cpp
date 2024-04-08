@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:32:38 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:15:40 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,19 +153,74 @@ vector<Index *> Server::get_index(void) {
     return result;
 }
 
-map<string, string> Server::process_request(map<string, string> request) {
-
-    // if (request["method"] == "GET")
-    //     return this->_process_get(request);
-
-
+map<string, string> Server::_process_get(const ifstream &file)
+{
     map<string, string> response;
-    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
 
-
-    // Processare la richiesta e ritornare la risposta in formato map o altra
-    // struttura dati appropriata.
+    if (file){
+        stringstream buffer;
+        buffer << file.rdbuf();
+        response["body"] = buffer.str();
+        response["Content-Type"] = "text/html";
+        response["status"] = Http::statusToString(OK);
+    }
+    else
+        response["status"] = Http::statusToString(NOT_FOUND);
 
     return response;
-    (void)request;
+}
+
+/* map<string, string> Server::_process_post(map<string, string> request)
+{
+    map<string, string> response;
+    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
+    return response;
+}
+
+map<string, string> Server::_process_delete(map<string, string> request)
+{
+    map<string, string> response;
+    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
+    return response;
+}
+*/
+
+map<string, string> Server::_process_unknown(void)
+{
+    map<string, string> response;
+    response["status"] = Http::statusToString(BAD_REQUEST);
+    return response;
+}
+
+// Processare la richiesta e ritornare la risposta in formato map o altra
+// struttura dati appropriata.
+map<string, string> Server::process_request(map<string, string> request)
+{
+    try
+    {
+        vector<Root *> root = get_root();
+        vector<Root *>::iterator it = root.begin();
+        string filePath;
+        while (it != root.end())
+            it++;
+
+        vector<string> v_str = (*it)->get_value_inline();
+        filePath = v_str[0] + request["uri"];
+        ifstream file(filePath.c_str());
+
+        if (request["method"] == "GET")
+            return this->_process_get(file);
+        /* else if (request["method"] == "POST")
+            return this->_process_post(request);
+        else if (request["method"] == "DELETE")
+            return this->_process_delete(request);
+        else */
+        return this->_process_unknown(); 
+    }
+    catch(const std::exception& e)
+    {
+        map<string, string> response;
+        response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
+        return response;
+    }
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:25:08 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:33:11 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:15:28 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,15 @@
     Default:	—
     Context:	http
  */
-class Server : public Directive {
+class Server : public Directive
+{
+    private:
+        map<string, string> _process_get(const ifstream &file);
+        map<string, string> _process_post(map<string, string> request);
+        map<string, string> _process_delete(map<string, string> request);
+        map<string, string> _process_unknown(void);
+
+
     public:
         Server(string context);
         Server(ifstream &raw_value, string context);

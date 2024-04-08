@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 14:37:55 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/08 16:23:40 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,7 @@ vector<Directive*>	Http::_matchingServersServerName(const vector<Directive*>& se
 				cout << "server_name at block " << i << " size : " << serverBlock[i]->get_inline_size() << endl;
 				for (size_t j = 0; j < serverBlock[i]->get_inline_size(); ++j)
 				{
-					cout << "server_name : " << serverBlock[i]->get_value_inline()[0] << endl;
+					cout << "server_name : " << serverBlock[i]->get_value_inline()[j] << endl;
 					if (serverBlock[i]->get_value_inline()[j] == requestIP)
 					{
 						Log::debug("server_name match found");
