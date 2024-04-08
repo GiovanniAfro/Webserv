@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/06 23:02:33 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/07 00:03:28 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,12 +186,11 @@ vector<Directive*>	Http::_matchingServersServerName(const vector<Directive*>& se
 						matchingServers.push_back(*itServer);
 						return matchingServers;
 					}
-
 				}
 			}
 		}
 	}
-	return vector<Directive*>();
+	return matchingServers;
 }
 
 vector<Directive*>	Http::_matchingServersIP(const vector<Directive*>& servers, const string requestIP)
@@ -265,7 +264,7 @@ vector<Directive*>	Http::_matchingServersPort(const vector<Directive*>& servers,
 	return matchingServers;
 }
 
-int Http::_find_virtual_server(void) {
+Directive* Http::_find_virtual_server(void) {
 	string				requestHost = this->_requestHeaders["Host"];
 	string				requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
 	uint16_t			requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
@@ -287,20 +286,20 @@ int Http::_find_virtual_server(void) {
 	else //if (matchingServers.size() > 1)
 	{
 		ipServers = this->_matchingServersIP(matchingServers, requestIP);
-		if (ipServers.size() == 0)
+		if (matchingServers.size() == 0)
 		{
 			Log::error("IP match not found");
 
 		}
-		else if (ipServers.size() == 1)
+		else if (matchingServers.size() == 1)
 		{
 			Log::debug("IP match found");
 
 		}
-		snServers = this->_matchingServersServerName(matchingServers, requestIP);
+		matchingServers = this->_matchingServersServerName(matchingServers, requestIP);
 	}
 
-	return 0;
+	return matchingServers[0];
 }
 
 /*!
@@ -310,8 +309,7 @@ int Http::_find_virtual_server(void) {
 	- Il blocco server elabora la richiesta e ritorna la risposta.
  */
 map<string, string> Http::_process_requests() {
-	int index = this->_find_virtual_server();
-	Server *server = dynamic_cast<Server *>(this->get_value_block()[index]);
+	Server *server = dynamic_cast<Server *>(this->_find_virtual_server());
 
 	return server->process_request(this->_request);
 }

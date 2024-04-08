@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:24:50 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/06 23:03:52 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/06 23:56:34 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class Http : public Directive {
 		vector<uint16_t> 	_extract_listen_ports(void);
 		string 				_read_requests(Socket *client_socket);
 		void 				_parse_request(const string& request);
-		int					_find_virtual_server(void);
+		Directive*			_find_virtual_server(void);
 		vector<Directive*>	_matchingServersPort(const vector<Directive*>& servers, uint16_t requestPort);
 		vector<Directive*>	_matchingServersIP(const vector<Directive*>& servers, const string requestIP);
 		vector<Directive*>	_matchingServersServerName(const vector<Directive*>& servers, const string requestIP);
