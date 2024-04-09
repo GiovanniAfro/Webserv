@@ -6,11 +6,13 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 13:15:39 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 15:24:42 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/09 11:38:22 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Directive.hpp"
+
+int brackets = 0;
 
 const char *Directive::_directives[] = {
     "http",
@@ -88,10 +90,10 @@ void Directive::router(
         value.push_back(new Http(file, context));
     else if (directive == "server")
         value.push_back(new Server(file, context));
-    // else if (directive == "location")
-    //     value.push_back(new Location(file, context));
-    // else if (directive == "limit_except")
-    //     value.push_back(new LimitExcept(file, context));
+    else if (directive == "location")
+        value.push_back(new Location(line, file, context));
+    else if (directive == "limit_except")
+        value.push_back(new LimitExcept(line, file, context));
     else if (directive == "listen")
         value.push_back(new Listen(line, context));
     else if (directive == "root")
@@ -123,13 +125,15 @@ void Directive::_parsing_inline(string raw_value) {
     value = "";
     while (i <= this->_type.length())
         i++;
-    while (raw_value[i] != 59 && i < raw_value.length()) {
+    while (raw_value[i] != 59 && raw_value[i] != 123 && i < raw_value.length()) 
+    {
         value = "";
         while (raw_value[i] == 32 || raw_value[i] == 9)
             i++;
-        while (raw_value[i] != 32 && raw_value[i] != 9 && raw_value[i] != 59)
+        while (raw_value[i] != 32 && raw_value[i] != 9 && raw_value[i] != 59 
+               && raw_value[i] != 123)
             value += raw_value[i++];
-        if (raw_value[i] != 59)
+        if (raw_value[i] != 59 && raw_value[i] != 123)
             i++;
         this->_value_inline.push_back(value);
     }
@@ -137,9 +141,7 @@ void Directive::_parsing_inline(string raw_value) {
 
 void Directive::_parsing_block(ifstream &raw_value) {
     string    line, token;
-    int       brackets;
-
-    brackets = 0;
+    
     while (getline(raw_value, line)) {
         token = first_token(strip(line));
         if (token[0] == 35)
