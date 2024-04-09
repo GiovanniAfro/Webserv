@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 19:36:21 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/09 16:08:07 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,7 +311,7 @@ map<string, string> Http::_process_requests() {
 	vector<Directive *> server = this->_find_virtual_server();
 	Server *ser = dynamic_cast<Server *> (server[0]);
 
-	return ser->process_request(this->_request, server);
+	return ser->process_request(this->_request);
 }
 
 void Http::_send_response(Socket *client_socket, map<string, string> response) {
