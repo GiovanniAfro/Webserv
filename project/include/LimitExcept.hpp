@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:45:25 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 17:56:23 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/09 11:47:06 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,6 @@
 class LimitExcept : public Directive {
     public:
         LimitExcept(string context);
-        LimitExcept(ifstream &raw_value, string context);
+        LimitExcept(string line, ifstream &block, string context);
         ~LimitExcept();
 };

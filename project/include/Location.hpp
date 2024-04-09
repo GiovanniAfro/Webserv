@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:44:51 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/03/09 17:56:19 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/09 11:46:43 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,6 @@
 class Location : public Directive {
     public:
         Location(string context);
-        Location(ifstream &raw_value, string context);
+        Location(string line, ifstream &block, string context);
         ~Location();
 };
