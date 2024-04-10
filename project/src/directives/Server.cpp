@@ -149,66 +149,69 @@ vector<Index *> Server::get_index(void) {
     return result;
 }
 
+/*!
+    * @brief Process the GET request.
+    * @param filePath Path to the file to be read.
+    * @return map<string, string> Response map.
+    * @note Verify if the file exists by checking file access.
+    *       If the file is successfully read, return 200 OK
+    *       If the file does not exist, return 404 Not Found
+*/
 map<string, string> Server::_process_get(const string &filePath)
 {
-    map<string, string> response;
-    ifstream file(filePath.c_str()); // Apri qui il file
-
+    ifstream file(filePath.c_str());
     if (file)
     {
         stringstream buffer;
-        buffer << file.rdbuf(); // Leggi il contenuto
-        response["body"] = buffer.str();
-        response["Content-Type"] = "text/html";
-        response["status"] = Http::statusToString(OK);
+        buffer << file.rdbuf();
+        return _responseBuilder(OK, buffer.str());
     }
-    else
-        response["status"] = Http::statusToString(NOT_FOUND);
-
-    return response;
+    return _responseBuilder(NOT_FOUND);
 }
-
 
 /* map<string, string> Server::_process_post(map<string, string> request)
 {
-    map<string, string> response;
-    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-    return response;
+    return _responseBuilder(INTERNAL_SERVER_ERROR);
 }
+*/
+
+/*!
+    * @brief Process the DELETE request.
+    * @param filePath Path to the file to be deleted.
+    * @return map<string, string> Response map.
+    * @note Verify if the file exists by checking file access.
+    *       If the file is successfully deleted, return 200 OK
+    *       If the file does not exist, return 404 Not Found
+    *       If the file cannot be deleted, return 500 Internal Server Error
 */
 map<string, string> Server::_process_delete(const string &filePath)
 {
-    map<string, string> response;
-
-    // Verifica se il file esiste verificando l'accesso al file
     if (access(filePath.c_str(), F_OK) != -1)
     {
-        // Prova ad eliminare il file
         if (remove(filePath.c_str()) == 0)
-        {
-            // Se la rimozione è riuscita, restituisci 200 OK
-            response["status"] = Http::statusToString(OK);
-        } 
+            _responseBuilder(OK);
         else
-        {
-            // Se la rimozione fallisce, restituisci 500 Internal Server Error
-            response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-        }
-    }
-    else 
-    {
-        // Se il file non esiste, restituisci 404 Not Found
-        response["status"] = Http::statusToString(NOT_FOUND);
+            _responseBuilder(INTERNAL_SERVER_ERROR);
     }
 
-    return response;
+    return _responseBuilder(NOT_FOUND);
 }
 
+bool Server::_isFolder(const string &path)
+{
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0)
+        return S_ISDIR(buffer.st_mode);
+    return false;
+}
 
-map<string, string> Server::_process_unknown(void)
+// map<string, string> Server::_responseBuilder(HTTP_STATUS status, const string &body = "", const string &contentType = "text/html")
+map<string, string> Server::_responseBuilder(HTTP_STATUS status, const string &body, const string &contentType)
 {
     map<string, string> response;
-    response["status"] = Http::statusToString(BAD_REQUEST);
+    response["status"] = Http::statusToString(status);
+    response["body"] = body;
+    response["Content-Type"] = contentType;
     return response;
 }
 
@@ -227,50 +230,31 @@ map<string, string> Server::process_request(map<string, string> request)
         {
             // Prendi l'ultimo root disponibile
             rootPath = roots.back()->get_value_inline().front();
-            cout << "Root path trovato: " << rootPath << endl;
         }
         else
-        {
-            // Nessun root definito
-            cout << "Nessun root definito per il server." << endl;
-            response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-            return response;
-        }
+            return _responseBuilder(INTERNAL_SERVER_ERROR);
 
-        string filePath = "." + rootPath + request.at("uri"); // Costruisci il percorso completo
-        cout << "Percorso file completo: " << filePath << endl;
+        // location = get_location("/test/")
+        // location.directive['root']
 
-        // Apri il file
-        ifstream file(filePath.c_str());
-        if (!file)
-        {
-            cout << "File non trovato: " << filePath << endl;
-            response["status"] = Http::statusToString(NOT_FOUND); // File non trovato
-            return response;
-        } 
+        string filePath = rootPath + request.at("uri"); // Costruisci il percorso completo
+
+        if (_isFolder(filePath))
+            filePath += "/index.html";
 
         if (request.at("method") == "GET")
-        {
-            cout << "Gestione richiesta GET per: " << filePath << endl;
-            return _process_get(filePath); // Passa il percorso del file
-        }
+            return _process_get(filePath);
         /*else if (request.at("method") == "POST")
             return _process_post(request);
         */
         else if (request.at("method") == "DELETE")
             return _process_delete(filePath);
         else
-        {
-            cout << "Metodo richiesta sconosciuto o non supportato." << endl;
-            return this->_process_unknown(); 
-        }
+            return _responseBuilder(BAD_REQUEST);
     }
     catch(const std::exception& e)
     {
-        cout << "Errore durante l'elaborazione della richiesta: " << e.what() << endl;
-        map<string, string> response;
-        response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-        return response;
+        return _responseBuilder(INTERNAL_SERVER_ERROR);
     }
 }
 

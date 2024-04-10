@@ -13,6 +13,7 @@
 #pragma once
 
 #include "webserv.h"
+#include "Http.hpp"
 
 // Class ---------------------------------------------------------------------->
 
@@ -29,8 +30,9 @@ class Server : public Directive
         map<string, string> _process_get(const string &filePath);
         map<string, string> _process_post(map<string, string> request);
         map<string, string> _process_delete(const string &filePath);
-        map<string, string> _process_unknown(void);
 
+        bool _isFolder(const string &path);
+        map<string, string> _responseBuilder(HTTP_STATUS status, const string &body = "", const string &contentType = "text/html");
 
     public:
         Server(string context);
