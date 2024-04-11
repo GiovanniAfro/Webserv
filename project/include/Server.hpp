@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:25:08 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/09 17:47:44 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/11 17:16:25 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Server : public Directive
 {
     private:
         map<string, string> _process_get(const string &filePath);
-        map<string, string> _process_post(map<string, string> request);
+        map<string, string> _process_post(map<string, string> request, string const &filepath);
         map<string, string> _process_delete(const string &filePath);
 
         bool _isFolder(const string &path);

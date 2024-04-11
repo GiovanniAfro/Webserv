@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/09 17:48:23 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/11 17:32:05 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,11 +169,36 @@ map<string, string> Server::_process_get(const string &filePath)
     return _responseBuilder(NOT_FOUND);
 }
 
-/* map<string, string> Server::_process_post(map<string, string> request)
+map<string, string> Server::_process_post(map<string, string> request, string const &filepath)
 {
-    return _responseBuilder(INTERNAL_SERVER_ERROR);
+    map<string, string> response;
+    string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
+
+    // Controlla se l'header del nome del file e il Content-Type sono presenti
+    if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end())
+    {
+        string fileName = request[fileNameHeader];
+        string contentType = request["Content-Type"];
+        string uploadDir = filepath + "/" + fileName; // Percorso dove salvare il file
+
+        // Gestione basata sul Content-Type
+        if (contentType == "text/plain" || contentType == "application/octet-stream")
+        { // Esempi di Content-Type supportati
+            ofstream outFile(uploadDir.c_str(), ofstream::binary);
+            if (!outFile)
+                 return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+
+            outFile.write(request.at("body").data(), request.at("body").size());
+            outFile.close();
+
+            return _responseBuilder(OK, "File caricato con successo.");
+        }
+        else
+            return _responseBuilder(BAD_REQUEST, "Content-Type non supportato.");
+    }
+    else 
+        return _responseBuilder(BAD_REQUEST, "Header del nome del file mancante o Content-Type mancante.");
 }
-*/
 
 /*!
     * @brief Process the DELETE request.
@@ -244,9 +269,8 @@ map<string, string> Server::process_request(map<string, string> request)
 
         if (request.at("method") == "GET")
             return _process_get(filePath);
-        /*else if (request.at("method") == "POST")
-            return _process_post(request);
-        */
+        else if (request.at("method") == "POST")
+            return _process_post(request, filePath);
         else if (request.at("method") == "DELETE")
             return _process_delete(filePath);
         else
