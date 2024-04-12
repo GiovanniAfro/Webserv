@@ -6,11 +6,11 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 19:36:21 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/09 16:08:07 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Http.hpp"
+#include "Directive.hpp"
 
 Http::Http(string context) {
 	vector<Directive *> value;
@@ -145,7 +145,7 @@ void Http::_parse_request(const string &request) {
 			string headerName = line.substr(0, colonPos);
 			string headerValue = line.substr(colonPos + 2);
 			this->_requestHeaders[headerName] = headerValue;
-			cout << headerName << " -> " << headerValue << endl;
+			// cout << headerName << " -> " << headerValue << endl;
 		}
 	}
 
@@ -168,18 +168,18 @@ vector<Directive*>	Http::_matchingServersServerName(const vector<Directive*>& se
 	for (vector<Directive *>::const_iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
 	{
 		vector<Directive *>	serverBlock = (*itServer)->get_value_block();
-		
+
 		for (size_t i = 0; i < serverBlock.size(); ++i)
 		{
 			if (serverBlock[i]->get_type() == "server_name")
 			{
-				cout << "server_name at block " << i << " size : " << serverBlock[i]->get_inline_size() << endl;
+				// cout << "server_name at block " << i << " size : " << serverBlock[i]->get_inline_size() << endl;
 				for (size_t j = 0; j < serverBlock[i]->get_inline_size(); ++j)
 				{
-					cout << "server_name : " << serverBlock[i]->get_value_inline()[j] << endl;
+					// cout << "server_name : " << serverBlock[i]->get_value_inline()[j] << endl;
 					if (serverBlock[i]->get_value_inline()[j] == requestIP)
 					{
-						Log::debug("server_name match found");
+						// Log::debug("server_name match found");
 						matchingServers.push_back(*itServer);
 						return matchingServers;
 					}
@@ -210,8 +210,8 @@ vector<Directive*>	Http::_matchingServersIP(const vector<Directive*>& servers, c
 					serverIP = serverHost.substr(0, serverHost.find(":"));
 
 				// Log::debug(serverHost);
-				Log::debug(serverIP);
-				
+				// Log::debug(serverIP);
+
 				if (serverIP == requestIP) {
 					// cout << "server_name " << i << " matched : " << serverIP << endl;
 					isMatch = true;
@@ -246,11 +246,11 @@ vector<Directive*>	Http::_matchingServersPort(const vector<Directive*>& servers,
 					tmpPort = tmpPort.substr(tmpPort.find(":") + 1).c_str();
 				serverPort = static_cast<uint16_t>(atoi(tmpPort.c_str()));
 
-				Log::debug(tmpPort);
+				// Log::debug(tmpPort);
 
 				if (requestPort == serverPort)
 				{
-					cout << "listen " << l << " : port " << p << " matched : " << serverPort << endl;
+					// cout << "listen " << l << " : port " << p << " matched : " << serverPort << endl;
 					// Log::debug(stream.str());
 					isMatch = true;
 				}
@@ -275,12 +275,10 @@ vector<Directive*> Http::_find_virtual_server(void) {
 	if (matchingServers.size() == 0)
 	{
 		Log::error("Port match not found");
-
 	}
 	else if (matchingServers.size() == 1)
 	{
-		Log::debug("Port match found");
-
+		// Log::debug("Port match found");
 	}
 	else //if (matchingServers.size() > 1)
 	{
@@ -288,12 +286,10 @@ vector<Directive*> Http::_find_virtual_server(void) {
 		if (matchingServers.size() == 0)
 		{
 			Log::error("IP match not found");
-
 		}
 		else if (matchingServers.size() == 1)
 		{
-			Log::debug("IP match found");
-
+			// Log::debug("IP match found");
 		}
 		//matchingServers = this->_matchingServersServerName(matchingServers, requestIP);
 	}
@@ -311,7 +307,7 @@ map<string, string> Http::_process_requests() {
 	vector<Directive *> server = this->_find_virtual_server();
 	Server *ser = dynamic_cast<Server *> (server[0]);
 
-	return ser->process_request(this->_request, server);
+	return ser->process_request(this->_request);
 }
 
 void Http::_send_response(Socket *client_socket, map<string, string> response) {
@@ -338,7 +334,7 @@ void Http::_send_response(Socket *client_socket, map<string, string> response) {
 	}
 }
 
-string Http::_statusToMessage(enum HTTP_STATUS status) {
+string Http::_statusToMessage(HTTP_STATUS status) {
 	switch (status) {
 		case OK:
 			return "200 OK";
@@ -351,7 +347,7 @@ string Http::_statusToMessage(enum HTTP_STATUS status) {
 	}
 }
 
-string Http::statusToString(enum HTTP_STATUS status) {
+string Http::statusToString(HTTP_STATUS status) {
 	switch (status) {
 		case OK:
 			return "200";
@@ -364,7 +360,7 @@ string Http::statusToString(enum HTTP_STATUS status) {
 	}
 }
 
-enum HTTP_STATUS Http::_statusToEnum(const string &status) {
+HTTP_STATUS Http::_statusToEnum(const string &status) {
 	if (status == "200")
 		return OK;
 	else if (status == "400")
@@ -375,7 +371,7 @@ enum HTTP_STATUS Http::_statusToEnum(const string &status) {
 		return INTERNAL_SERVER_ERROR;
 }
 
-enum HTTP_METHOD Http::_methodToEnum(const string &method) {
+HTTP_METHOD Http::_methodToEnum(const string &method) {
 	if (method == "GET")
 		return GET;
 	else if (method == "POST")

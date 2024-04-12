@@ -24,12 +24,12 @@ enum HTTP_METHOD {
 	UNKNOWN
 };
 
-enum HTTP_STATUS {
+typedef enum HTTP_STATU {
 	OK = 200,
 	BAD_REQUEST = 400,
 	NOT_FOUND = 404,
 	INTERNAL_SERVER_ERROR = 500
-};
+} HTTP_STATUS;
 
 // Class ---------------------------------------------------------------------->
 
@@ -58,16 +58,16 @@ class Http : public Directive {
 		vector<Directive*>	_matchingServersServerName(const vector<Directive*>& servers, const string requestIP);
 
 		map<string, string> _process_requests();
-		void 				_send_response(Socket *client_socket, 
+		void 				_send_response(Socket *client_socket,
 										   map<string, string> response);
 
 		// Utils -------------------------------------------------------------->
-		enum HTTP_METHOD 	_methodToEnum(const string &method);
-		string _statusToMessage(enum HTTP_STATUS status);
-		enum HTTP_STATUS _statusToEnum(const string &status);
+		HTTP_METHOD 	_methodToEnum(const string &method);
+		string _statusToMessage(HTTP_STATUS status);
+		HTTP_STATUS _statusToEnum(const string &status);
 
 	public:
-		static string statusToString(enum HTTP_STATUS status);
+		static string statusToString(HTTP_STATUS status);
 		Http(string context);
 		Http(ifstream &raw_value, string context);
 		~Http(void);

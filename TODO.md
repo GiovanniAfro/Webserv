@@ -112,11 +112,25 @@
 [ ] You must provide some configuration files and default basic files to test
     and demonstrate every feature works during evaluation.
 
+[ ] Handle SIGINT signal
+
+### anvannin
+
+[x] Root path must be absolute path to file
+
+[x] In case there are no root paths, return INTERNAL_SERVER_ERROR
+
+[x] Default file (index.html) to answer if the request is a directory
+
+[ ] Handle multiple locations (see location /css/ in /etc/webserv/sites-enabled/default)
+
 ## Bonus --------------------------------------------------------------------->
 
 [ ] Support cookies and session management (prepare quick examples).
 
 [ ] Handle multiple CGI.
+
+[ ] Make a pseudo installer script to configure roots and server_names
 
 ## Bugs ---------------------------------------------------------------------->
 

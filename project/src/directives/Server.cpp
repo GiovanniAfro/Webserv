@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 19:34:07 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/11 17:32:05 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,83 +149,136 @@ vector<Index *> Server::get_index(void) {
     return result;
 }
 
-map<string, string> Server::_process_get(const ifstream &file)
+/*!
+    * @brief Process the GET request.
+    * @param filePath Path to the file to be read.
+    * @return map<string, string> Response map.
+    * @note Verify if the file exists by checking file access.
+    *       If the file is successfully read, return 200 OK
+    *       If the file does not exist, return 404 Not Found
+*/
+map<string, string> Server::_process_get(const string &filePath)
 {
-    map<string, string> response;
-
-    if (file){
+    ifstream file(filePath.c_str());
+    if (file)
+    {
         stringstream buffer;
         buffer << file.rdbuf();
-        response["body"] = buffer.str();
-        response["Content-Type"] = "text/html";
-        response["status"] = Http::statusToString(OK);
+        return _responseBuilder(OK, buffer.str());
     }
-    else
-        response["status"] = Http::statusToString(NOT_FOUND);
-
-    return response;
+    return _responseBuilder(NOT_FOUND);
 }
 
-/* map<string, string> Server::_process_post(map<string, string> request)
+map<string, string> Server::_process_post(map<string, string> request, string const &filepath)
 {
     map<string, string> response;
-    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-    return response;
+    string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
+
+    // Controlla se l'header del nome del file e il Content-Type sono presenti
+    if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end())
+    {
+        string fileName = request[fileNameHeader];
+        string contentType = request["Content-Type"];
+        string uploadDir = filepath + "/" + fileName; // Percorso dove salvare il file
+
+        // Gestione basata sul Content-Type
+        if (contentType == "text/plain" || contentType == "application/octet-stream")
+        { // Esempi di Content-Type supportati
+            ofstream outFile(uploadDir.c_str(), ofstream::binary);
+            if (!outFile)
+                 return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+
+            outFile.write(request.at("body").data(), request.at("body").size());
+            outFile.close();
+
+            return _responseBuilder(OK, "File caricato con successo.");
+        }
+        else
+            return _responseBuilder(BAD_REQUEST, "Content-Type non supportato.");
+    }
+    else 
+        return _responseBuilder(BAD_REQUEST, "Header del nome del file mancante o Content-Type mancante.");
 }
 
-map<string, string> Server::_process_delete(map<string, string> request)
-{
-    map<string, string> response;
-    response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-    return response;
-}
+/*!
+    * @brief Process the DELETE request.
+    * @param filePath Path to the file to be deleted.
+    * @return map<string, string> Response map.
+    * @note Verify if the file exists by checking file access.
+    *       If the file is successfully deleted, return 200 OK
+    *       If the file does not exist, return 404 Not Found
+    *       If the file cannot be deleted, return 500 Internal Server Error
 */
+map<string, string> Server::_process_delete(const string &filePath)
+{
+    if (access(filePath.c_str(), F_OK) != -1)
+    {
+        if (remove(filePath.c_str()) == 0)
+            _responseBuilder(OK);
+        else
+            _responseBuilder(INTERNAL_SERVER_ERROR);
+    }
 
-map<string, string> Server::_process_unknown(void)
+    return _responseBuilder(NOT_FOUND);
+}
+
+bool Server::_isFolder(const string &path)
+{
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0)
+        return S_ISDIR(buffer.st_mode);
+    return false;
+}
+
+// map<string, string> Server::_responseBuilder(HTTP_STATUS status, const string &body = "", const string &contentType = "text/html")
+map<string, string> Server::_responseBuilder(HTTP_STATUS status, const string &body, const string &contentType)
 {
     map<string, string> response;
-    response["status"] = Http::statusToString(BAD_REQUEST);
+    response["status"] = Http::statusToString(status);
+    response["body"] = body;
+    response["Content-Type"] = contentType;
     return response;
 }
 
 // Processare la richiesta e ritornare la risposta in formato map o altra
 // struttura dati appropriata.
-map<string, string> Server::process_request(map<string, string> request, const vector<Directive*>& servers)
+map<string, string> Server::process_request(map<string, string> request)
 {
     try
     {
-        vector<Root *> root = get_root();
-        vector<Root *>::iterator it = root.begin();
-        string filePath;
-        for (vector<Directive *>::const_iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
+        map<string, string> response;
+        string rootPath;
+
+        // Trova il percorso root corretto
+        vector<Root *> roots = get_root();
+        if (!roots.empty())
         {
-            size_t l = 0;
-            vector<Directive *> rootValueBlock = (*itServer)->get_value_block();
-            
-            while (rootValueBlock[l]->get_type() != "root")
-                ++l;
-            while (rootValueBlock[l]->get_type() == "root")
-                ++l;
+            // Prendi l'ultimo root disponibile
+            rootPath = roots.back()->get_value_inline().front();
         }
+        else
+            return _responseBuilder(INTERNAL_SERVER_ERROR);
 
-        vector<string> v_str = (*it)->get_value_inline();
-        filePath = "." + v_str[0] + request["uri"];
-        cout << filePath << endl;
-        ifstream file(filePath.c_str());
+        // location = get_location("/test/")
+        // location.directive['root']
 
-        if (request["method"] == "GET")
-            return this->_process_get(file);
-        /* else if (request["method"] == "POST")
-            return this->_process_post(request);
-        else if (request["method"] == "DELETE")
-            return this->_process_delete(request);
-        else */
-        return this->_process_unknown(); 
+        string filePath = rootPath + request.at("uri"); // Costruisci il percorso completo
+
+        if (_isFolder(filePath))
+            filePath += "/index.html";
+
+        if (request.at("method") == "GET")
+            return _process_get(filePath);
+        else if (request.at("method") == "POST")
+            return _process_post(request, filePath);
+        else if (request.at("method") == "DELETE")
+            return _process_delete(filePath);
+        else
+            return _responseBuilder(BAD_REQUEST);
     }
     catch(const std::exception& e)
     {
-        map<string, string> response;
-        response["status"] = Http::statusToString(INTERNAL_SERVER_ERROR);
-        return response;
+        return _responseBuilder(INTERNAL_SERVER_ERROR);
     }
 }
+
