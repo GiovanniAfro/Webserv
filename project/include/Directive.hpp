@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 11:59:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/08 16:18:29 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/09 11:38:30 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Directive {
         size_t              get_inline_size(void) const;
 
         static const char *_directives[];
+        static int         _brackets;
 
         static void router(
             vector<Directive *> &value,
@@ -115,11 +116,10 @@ class Directive {
 #include "Http.hpp"
 #include "Include.hpp"
 #include "Index.hpp"
-// #include "LimitExcept.hpp"
+#include "LimitExcept.hpp"
 #include "Listen.hpp"
-// #include "Location.hpp"
+#include "Location.hpp"
 #include "Rewrite.hpp"
 #include "Root.hpp"
 #include "Server.hpp"
-class Server;
 #include "ServerName.hpp"

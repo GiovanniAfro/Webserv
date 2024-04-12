@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/04 16:35:31 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/09 11:38:48 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,8 @@ class Alias;
 class Index;
 class Autoindex;
 class Rewrite;
-// class Location;
-// class LimitExcept;
+class Location;
+class LimitExcept;
 
 // Using ---------------------------------------------------------------------->
 
