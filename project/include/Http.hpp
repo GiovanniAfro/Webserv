@@ -47,17 +47,18 @@ class Http : public Directive {
 		string 				_requestBody;
 		enum HTTP_METHOD 	_requestMethod;
 		vector<Socket *> 	_sockets;
+		vector<uint16_t> 	_ports;
 
 		// Functionality ------------------------------------------------------>
-		vector<uint16_t> 	_extract_listen_ports(void);
-		string 				_read_requests(Socket *client_socket);
-		void 				_parse_request(const string& request);
-		vector<Directive*>			_find_virtual_server(void);
+		void				_extract_listen_ports(void);
+		string				_read_requests(Socket *client_socket);
+		void				_parse_request(const string& request);
+		vector<Directive*>	_find_virtual_server(void);
 		vector<Directive*>	_matchingServersPort(const vector<Directive*>& servers, uint16_t requestPort);
 		vector<Directive*>	_matchingServersIP(const vector<Directive*>& servers, const string requestIP);
 		vector<Directive*>	_matchingServersServerName(const vector<Directive*>& servers, const string requestIP);
 
-		map<string, string> _process_requests();
+		map<string, string>	_process_requests();
 		void 				_send_response(Socket *client_socket,
 										   map<string, string> response);
 

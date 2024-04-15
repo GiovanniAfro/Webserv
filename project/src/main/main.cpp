@@ -15,9 +15,9 @@
 int main(int argc, char const **argv) {
     try {
         if (argc == 1) {
-            ConfigFile configfile;
-            Http *httpDirective = dynamic_cast<Http *>(configfile.get_config()[0]);
-            httpDirective->start_servers();
+            ConfigFile *configfile = new ConfigFile();
+            Webserver *webserver = new Webserver(configfile, dynamic_cast<Http *>(configfile->get_config()[0]));
+            webserver->getHttpDirective()->start_servers();
         }
         else if (argc == 2)
             ConfigFile configfile(argv[1]);
