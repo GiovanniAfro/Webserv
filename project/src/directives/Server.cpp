@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:47:42 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/11 17:32:05 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/04/16 12:28:11 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,6 @@ map<string, string> Server::_process_get(const string &filePath)
 
 map<string, string> Server::_process_post(map<string, string> request, string const &filepath)
 {
-    map<string, string> response;
     string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
 
     // Controlla se l'header del nome del file e il Content-Type sono presenti
