@@ -14,14 +14,15 @@
 
 // Libraries ------------------------------------------------------------------>
 
-#include "webserv.h"
+// #include "webserv.h"
+#include "Directive.hpp"
 
 // Class ---------------------------------------------------------------------->
 
 class ConfigFile {
     private:
         typedef vector<Directive *>::iterator VecDirIt;
-        
+
         vector<Directive *> _config;
 
         void _first_parsing(const char *filename);

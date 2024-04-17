@@ -35,8 +35,7 @@ Http::~Http(void) {
 		delete this->_sockets[i];
 }
 
-vector<uint16_t> Http::_extract_listen_ports(void) {
-	vector<uint16_t> ports;
+void Http::_extract_listen_ports(void) {
 	size_t num_servers = this->_value_block.size();
 	size_t num_directives;
 	size_t num_ports;
@@ -58,14 +57,13 @@ vector<uint16_t> Http::_extract_listen_ports(void) {
 								tmpPort.find(':') + 1, tmpPort.length() - 1);
 						}
 						port = static_cast<uint16_t>(atoi(tmpPort.c_str()));
-						if (!uint16_t_in_vec(ports, port))
-							ports.push_back(port);
+						if (!uint16_t_in_vec(_ports, port))
+							_ports.push_back(port);
 					}
 				}
 			}
 		}
 	}
-	return ports;
 }
 
 // DA SISTEMARE
@@ -383,9 +381,9 @@ HTTP_METHOD Http::_methodToEnum(const string &method) {
 }
 
 void Http::start_servers(void) {
-	vector<uint16_t> ports = this->_extract_listen_ports();
+	this->_extract_listen_ports();
 	// vector<Socket *> sockets;
-	int num_ports = ports.size();
+	int num_ports = _ports.size();
 	struct pollfd fds[num_ports];
 	int num_fds = 0;
 	Socket *client_socket;
@@ -394,7 +392,7 @@ void Http::start_servers(void) {
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
 	for (int i = 0; i < num_ports; i++) {
-		this->_sockets.push_back(new Socket(ports[i]));
+		this->_sockets.push_back(new Socket(_ports[i]));
 		fds[num_fds].fd = this->_sockets[i]->get_socket();
 		fds[num_fds].events = POLLIN | POLLOUT;
 		num_fds++;
@@ -427,6 +425,10 @@ void Http::start_servers(void) {
 
 					// Send the response -------------------------------------->
 					this->_send_response(client_socket, response);
+
+					// Empty the request and response -------------------------->
+					request.clear();
+					response.clear();
 				}
 
 				// Close the client socket ------------------------------------>

@@ -36,6 +36,7 @@ SRCS        := \
 				\
 				config/ConfigFile.cpp \
 				\
+				main/webserv.cpp \
 				main/main.cpp \
 				main/utils.cpp
 SRC_DIR     := src

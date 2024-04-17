@@ -79,7 +79,7 @@ void ConfigFile::_parsing(const char *config_file) {
         if (str_in_array(token.c_str(), Directive::_directives))
             Directive::router(this->_config, "main", token, line, file);
         else {
-            cerr << "webserv: ConfigFile: \"" << token << 
+            cerr << "webserv: ConfigFile: \"" << token <<
                 "\" directive does not exists" << endl;
             remove(config_file);
             throw runtime_error("");

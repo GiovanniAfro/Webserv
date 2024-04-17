@@ -48,6 +48,8 @@
 // Classes -------------------------------------------------------------------->
 
 class Listen;
+class ConfigFile;
+class Http;
 class ServerName;
 class Root;
 class ServerName;
@@ -84,7 +86,26 @@ using std::remove;
 using std::ofstream;
 using std::runtime_error;
 
+#include "ConfigFile.hpp"
+
 // Classes -------------------------------------------------------------------->
+
+class Webserver{
+	private:
+		ConfigFile			*_configfile;
+		Http				*_httpDirective;
+
+		Webserver();
+		~Webserver();
+
+	public:
+		static Webserver	*instance;
+		Webserver(ConfigFile *configfile, Http *httpDirective);
+
+		static Webserver *getInstance();
+		static void sigintHandler(int signum);
+		Http *getHttpDirective();
+};
 
 #include "Directive.hpp"
 #include "Log.hpp"
