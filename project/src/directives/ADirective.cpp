@@ -12,7 +12,7 @@ ADirective::ADirective(const ADirective& copy)
 ADirective::~ADirective()
 {
 	// this->_blocks.pop_front();
-	// std::cout << "PostPop : " << this->_blocks.size() << std::endl;
+	// // std::cout << "PostPop : " << this->_blocks.size() << std::endl;
 
 	for (std::vector<ADirective*>::iterator it = _blocks.begin(); it != _blocks.end(); ++it)
 	{

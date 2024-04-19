@@ -1,17 +1,35 @@
 #include "WebServer.hpp"
 
-WebServer::WebServer() {}
+WebServer *WebServer::instance = NULL;
 
-// WebServer::WebServer() {}
+WebServer::WebServer() {
+	instance = this;
+	signal(SIGINT, sigintHandler);
+}
 
 WebServer::~WebServer()
 {
-	Log::debug("WebServer Desc");
 	for (std::vector<ADirective*>::iterator it = _configs.begin(); it != _configs.end(); ++it)
 		delete (*it);
 	for (std::vector<ADirective*>::iterator it = _servers.begin(); it != _servers.end(); ++it)
 		delete (*it);
+	for (std::vector<Socket*>::iterator it = _sockets.begin(); it != _sockets.end(); ++it)
+		delete (*it);
+	for (std::set<uint16_t>::iterator it = _listenPorts.begin(); it != _listenPorts.end(); ++it)
+		close(*it);
+}
 
+void WebServer::sigintHandler(int signum) {
+	if (signum == SIGINT)
+	{
+		if (WebServer::instance)
+			WebServer::instance->~WebServer();
+		exit(0);
+	}
+}
+
+void	WebServer::setConfigFile(ConfigFile &configFile) {
+	_configFile = &configFile;
 }
 
 void	WebServer::addConfig()
@@ -25,7 +43,7 @@ void	WebServer::addConfig()
 
 void	WebServer::addServer()
 {
-	Log::debug("addServer");
+	// Log::debug("addServer");
 	_servers.push_back(new Server());
 	// if (!_servers.empty())
 	// {
@@ -47,17 +65,16 @@ Request	WebServer::getRequest()
 
 int	WebServer::startServers()
 {
-	std::set<uint16_t>					ports = this->_extractListenPorts();
-	struct pollfd						fds[ports.size()];
+	this->_extractListenPorts();
+	struct pollfd						fds[_listenPorts.size()];
 	unsigned int						numFds = 0;
 	Socket*								clientSocket;
 	std::string							request;
 	std::map<std::string, std::string>	response;
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
-	for (std::set<uint16_t>::iterator it = ports.begin(); it != ports.end(); ++it)
+	for (std::set<uint16_t>::iterator it = _listenPorts.begin(); it != _listenPorts.end(); ++it)
 	{
-		std::cout << *it << std::endl;
 		Socket*	newSocket = new Socket(*it);
 		this->_sockets.push_back(newSocket);
 		fds[numFds].fd = newSocket->getSocket();
@@ -66,11 +83,9 @@ int	WebServer::startServers()
 	}
 
 	// Polling ---------------------------------------------------------------->
-	while (true)
-	{
+	while (true) {
 		int	pollStatus = poll(fds, numFds, -1);
-		if (pollStatus == -1)
-		{
+		if (pollStatus == -1) {
 			Log::error("Poll failed");
 			return -1;
 		}
@@ -87,10 +102,7 @@ int	WebServer::startServers()
 			// Read the request ------------------------------------------->
 			request = this->_readRequests(clientSocket);
 			if (request.empty())
-			{
 				Log::error("Request reading failed");
-				// return -1;
-			}
 
 			// Parse the request -------------------------------------->
 			this->_parseRequest(request);
@@ -105,11 +117,11 @@ int	WebServer::startServers()
 			request.clear();
 			response.clear();
 
+			// Close the client socket ------------------------------------>
+			clientSocket->closeSocket();
+			delete clientSocket;
+			clientSocket = NULL;
 		}
-
-		// Close the client socket ------------------------------------>
-		clientSocket->closeSocket();
-		delete clientSocket;
 	}
 
 	return 0;
@@ -123,10 +135,8 @@ void	WebServer::clearRequest()
 	this->_clientRequest.requestMethod = UNKNOWN;
 }
 
-std::set<uint16_t>	WebServer::_extractListenPorts()
+void	WebServer::_extractListenPorts()
 {
-	std::set<uint16_t>	ports;
-
 	for (std::vector<ADirective*>::iterator itServer = this->getServers().begin(); itServer != this->getServers().end(); ++itServer)
 	{
 		std::vector<ADirective*>	listenBlocks = (*itServer)->getDirectives()["listen"]->getBlocks();
@@ -136,11 +146,9 @@ std::set<uint16_t>	WebServer::_extractListenPorts()
 			if (listen->getPorts().size() == 0)
 				continue;
 			for (std::set<uint16_t>::iterator itPorts = listen->getPorts().begin(); itPorts != listen->getPorts().end(); ++itPorts)
-				ports.insert(*itPorts);
+				_listenPorts.insert(*itPorts);
 		}
 	}
-
-	return ports;
 }
 
 std::string	WebServer::_readRequests(Socket* clientSocket)
@@ -208,7 +216,7 @@ std::string	WebServer::_readRequests(Socket* clientSocket)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	// std::cout << request << std::endl;
+	// // std::cout << request << std::endl;
 	return request;
 }
 
@@ -231,7 +239,7 @@ void	WebServer::_parseRequest(const std::string& request)
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
-			std::cout << headerName << " -> " << headerValue << std::endl;
+			// std::cout << headerName << " -> " << headerValue << std::endl;
 		}
 	}
 
@@ -271,8 +279,8 @@ Server*	WebServer::_findVirtualServer()
 	Server*						virtualServer = NULL;
 	std::stringstream			stream;
 
-	// Log::debug("_findVirtualServer");
-	// std::cout << "requestHost : " << requestHost << std::endl;
+	// // Log::debug("_findVirtualServer");
+	// // std::cout << "requestHost : " << requestHost << std::endl;
 
 	this->_matchingServersPort(matchingServers, requestPort);
 

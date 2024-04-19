@@ -8,7 +8,7 @@ class	WebServer;
 class	ConfigFile
 {
 	private:
-		const std::string	_filePath;
+		const char			*_filePath;
 		WebServer*			_webServer;
 		uint16_t			_context;
 
@@ -19,9 +19,10 @@ class	ConfigFile
 		ConfigFile(const char *filePath, WebServer* server);
 		~ConfigFile();
 
-		const std::string&	getPath() const;
-		WebServer&			getServer();
-		uint16_t			getContext() const;
+		// const std::string&	getPath() const;
+		void	setFilePath(const char *filePath);
+		// WebServer&			getServer();
+		// uint16_t			getContext() const;
 
 		int	parseConfigFile();
 		int	parserRouter(std::ifstream& inputFile, const std::string& header, std::string& content, uint16_t context);

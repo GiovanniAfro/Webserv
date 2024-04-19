@@ -4,6 +4,7 @@
 
 class	Socket;
 class	Server;
+class	ConfigFile;
 struct	Request;
 
 class	WebServer
@@ -11,11 +12,13 @@ class	WebServer
 	private:
 		std::vector<ADirective*>	_configs;
 		std::vector<ADirective*>	_servers;
+		std::set<uint16_t>			_listenPorts;
 
 		std::vector<Socket*>		_sockets;
+		ConfigFile					*_configFile;
 		Request						_clientRequest;
 
-		std::set<uint16_t>					_extractListenPorts();
+		void								_extractListenPorts();
 		std::string							_readRequests(Socket* clientSocket);
 		void								_parseRequest(const std::string& request);
 		Server*								_findVirtualServer();
@@ -26,12 +29,17 @@ class	WebServer
 		std::map<std::string, std::string>	_processRequests();
 		void								_sendResponse(Socket *client_socket, std::map<std::string, std::string> response);
 
-
 	public:
+		static WebServer	*instance;
+
 		WebServer();
-		// WebServer();
 		~WebServer();
 
+		static WebServer *getInstance();
+		static void sigintHandler(int signum);
+		Http *getHttpDirective();
+
+		void	setConfigFile(ConfigFile &configFile);
 		void	addConfig();
 		void	addServer();
 
@@ -39,7 +47,6 @@ class	WebServer
 		std::vector<ADirective*>&	getServers();
 		std::vector<Socket*>&		getSockets();
 		Request						getRequest();
-
 
 		int		startServers();
 		void	clearRequest();

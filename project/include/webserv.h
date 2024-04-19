@@ -31,6 +31,7 @@
 #include <cctype>
 #include <set>
 #include <deque>
+#include <limits>
 
 #include <arpa/inet.h>
 #include <poll.h>
@@ -51,30 +52,6 @@
 #include <stdint.h>
 
 #include "utils.hpp"
-
-// Using ---------------------------------------------------------------------->
-
-// using std::string;
-// using std::stringstream;
-// using std::istringstream;
-// using std::cerr;
-// using std::cout;
-// using std::endl;
-// using std::setw;
-// using std::setfill;
-// using std::time_t;
-// using std::time;
-// using std::tm;
-// using std::localtime;
-// using std::ifstream;
-// using std::vector;
-// using std::getline;
-// using std::streampos;
-// using std::exception;
-// using std::remove;
-// using std::ofstream;
-// using std::runtime_error;
-// using std::map;
 
 // Classes -------------------------------------------------------------------->
 

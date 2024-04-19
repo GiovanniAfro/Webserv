@@ -25,6 +25,15 @@ Server&	Server::operator=(const Server& other)
 ADirective*	Server::clone() const
 { return new Server(); }
 
+
+/*!
+    * @brief Process the GET request.
+    * @param filePath Path to the file to be read.
+    * @return map<string, string> Response map.
+    * @note Verify if the file exists by checking file access.
+    *       If the file is successfully read, return 200 OK
+    *       If the file does not exist, return 404 Not Found
+*/
 std::map<std::string, std::string>	Server::_processGet(const std::string& filePath)
 {
 	std::ifstream	file(filePath.c_str());
@@ -68,7 +77,7 @@ std::map<std::string, std::string>	Server::_processPost(std::map<std::string, st
 		else
 			return _responseBuilder(BAD_REQUEST, "Content-Type non supportato.");
 	}
-	else 
+	else
 		return _responseBuilder(BAD_REQUEST, "Header del nome del file mancante o Content-Type mancante.");
 }
 
@@ -94,7 +103,13 @@ std::map<std::string, std::string>	Server::_processDelete(const std::string& fil
 	return _responseBuilder(NOT_FOUND);
 }
 
-// std::map<std::string, std::string> Server::_responseBuilder(HTTP_STATUS status, const std::string &body = "", const std::string &contentType = "text/html")
+/*!
+	* @brief Build the response map.
+	* @param status HTTP_STATUS enum.
+	* @param body Response body.
+	* @param contentType Content-Type header.
+	* @return map<string, string> Response map.
+*/
 std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, const std::string &body, const std::string &contentType)
 {
 	std::map<std::string, std::string> response;
@@ -126,7 +141,7 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 
 	if (_isFolder(filePath))
 		filePath += "/index.html";
-	
+
 	try
 	{
 		if (request.at("method") == "GET")
@@ -142,7 +157,4 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 	{
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 	}
-
-
-	// return std::map<std::string, std::string>();
 }

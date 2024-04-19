@@ -1,4 +1,7 @@
 .vscode
 project/.build
+.obj
 project/webserv
+webserv
 temp
+project/log
