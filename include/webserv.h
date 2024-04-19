@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/18 14:27:24 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/19 15:53:08 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,14 @@
 #include "Listen.hpp"
 #include "Root.hpp"
 #include "ServerName.hpp"
+#include "Alias.hpp"
+#include "Autoindex.hpp"
+#include "ClientMaxBodySize.hpp"
+#include "ErrorPage.hpp"
+#include "LimitExcept.hpp"
+#include "Location.hpp"
+#include "Rewrite.hpp"
+
 #include "Log.hpp"
 #include "WebServer.hpp"
 #include "ConfigFile.hpp"

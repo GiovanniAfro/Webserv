@@ -11,7 +11,10 @@ SRCS		=   ${SRC_DIR}main.cpp		${SRC_DIR}utils.cpp\
 				${SRC_DIR}ADirective.cpp	${SRC_DIR}Http.cpp\
 				${SRC_DIR}Include.cpp		${SRC_DIR}Server.cpp\
 				${SRC_DIR}Listen.cpp		${SRC_DIR}Root.cpp\
-				${SRC_DIR}ServerName.cpp
+				${SRC_DIR}ServerName.cpp	${SRC_DIR}Alias.cpp\
+				${SRC_DIR}Autoindex.cpp		${SRC_DIR}ClientMaxBodySize.cpp\
+				${SRC_DIR}ErrorPage.cpp		${SRC_DIR}LimitExcept.cpp\
+				${SRC_DIR}Location.cpp		${SRC_DIR}Rewrite.cpp
 
 OBJS        =	$(addprefix $(OBJ_DIR),$(notdir $(SRCS:.cpp=.o)))
 
