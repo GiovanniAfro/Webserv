@@ -9,6 +9,7 @@ enum HTTP_METHOD {
 	DELETE,
 	UNKNOWN
 };
+extern std::vector<HTTP_METHOD>	allHttpMethods;
 
 enum HTTP_STATUS {
 	OK = 200,
@@ -16,6 +17,7 @@ enum HTTP_STATUS {
 	NOT_FOUND = 404,
 	INTERNAL_SERVER_ERROR = 500
 };
+extern std::vector<HTTP_STATUS>	allHttpStatus;
 
 struct	Request
 {

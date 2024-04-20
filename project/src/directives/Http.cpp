@@ -1,8 +1,31 @@
 #include "Http.hpp"
 
+std::vector<HTTP_METHOD>	allHttpMethods;
+
+std::vector<HTTP_STATUS>	allHttpStatus;
+
+void initializeVectors()
+{
+	// if (!(allHttpMethods.empty()))
+	// 	return ;
+	allHttpMethods.push_back(GET);
+	allHttpMethods.push_back(POST);
+	allHttpMethods.push_back(DELETE);
+	allHttpMethods.push_back(UNKNOWN);
+
+	// if (!(allHttpStatus.empty()))
+	// 	return ;
+	allHttpStatus.push_back(OK);
+	allHttpStatus.push_back(BAD_REQUEST);
+	allHttpStatus.push_back(NOT_FOUND);
+	allHttpStatus.push_back(INTERNAL_SERVER_ERROR);
+}
+
 Http::Http()
 : ADirective("http", GLOBAL_CONTEXT)
-{}
+{
+	initializeVectors();
+}
 
 Http::Http(const Http& copy)
 { *this = copy; }
