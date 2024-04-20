@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:02 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/15 16:19:12 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/20 23:29:14 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,9 @@ void Log::info(const std::string &msg)
 	std::cout << BLUE << _timeStamp() << " [INFO]\t" << WHITE << msg << std::endl;
 }
 
-void Log::error(const std::string &msg) {
+int Log::error(const std::string &msg) {
 	std::cout << RED << _timeStamp() << " [ERROR]\t" << WHITE << msg << std::endl;
+	return -1;
 }
 
 void Log::response(int method, std::string httpVersion, std::string uri, int status) {

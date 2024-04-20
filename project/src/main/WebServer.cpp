@@ -85,10 +85,8 @@ int	WebServer::startServers()
 	// Polling ---------------------------------------------------------------->
 	while (true) {
 		int	pollStatus = poll(fds, numFds, -1);
-		if (pollStatus == -1) {
-			Log::error("Poll failed");
-			return -1;
-		}
+		if (pollStatus == -1)
+			return Log::error("Poll failed");
 
 		// Handle events on sockets ------------------------------------------->
 		for (unsigned int i = 0; i < numFds; ++i)

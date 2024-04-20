@@ -31,10 +31,7 @@ int	Socket::_socketInnit()
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == -1)
-	{
-        Log::error("Socket creation failed");
-		return -1;
-	}
+       return  Log::error("Socket creation failed");
 	return sock;
 }
 

@@ -50,7 +50,7 @@ int	ConfigFile::parseConfigFile()
 	inputFile.open(this->_filePath);
 	if (!inputFile.is_open())
 	{
-		// Log::error("webserv: ConfigFile: file does not exist");
+		// return Log::error("webserv: ConfigFile: file does not exist");
 		return -1;
 	}
 	while (getline(inputFile, line))
@@ -61,7 +61,7 @@ int	ConfigFile::parseConfigFile()
 			continue;
 		header = firstToken(line);
 		if (header.empty())
-			return -1;
+			return Log::error("ConfigFile : parseConfigFile : invalid header");
 		std::cout << "header : " << header << std::endl;
 		content = secondToken(line);
 		std::cout << "content : " << content << std::endl;
@@ -130,7 +130,7 @@ int	ConfigFile::parseHttp(std::ifstream& inputFile, std::string& line)
 		header = firstToken(line);
 	std::cout << "header : " << header << std::endl;
 		if (header.empty())
-			return -1;
+			return Log::error("ConfigFile : parseHttp : invalid header");
 		content = secondToken(line);
 	std::cout << "content : " << content << std::endl;
 		if (header == "include")
@@ -199,7 +199,7 @@ int	ConfigFile::parseInclude()
 			header = firstToken(line);
 		std::cout << "header : " << header << std::endl;
 			if (header.empty())
-				return -1;
+			return Log::error("ConfigFile : parseInclude : invalid header");
 			content = secondToken(line);
 		std::cout << "content : " << content << std::endl;
 			if (header == "server")
@@ -234,7 +234,7 @@ int	ConfigFile::parseServers(std::ifstream& inputFile, std::string& line)
 		header = firstToken(line);
 	std::cout << "header : " << header << std::endl;
 		if (header.empty())
-			return -1;
+			return Log::error("ConfigFile : parseServers : invalid header");
 		content = secondToken(line);
 	std::cout << "content : " << content << std::endl;
 		if (isServerDirective(header))
@@ -255,43 +255,27 @@ int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header
 	std::cout << index << std::endl;
 
 	if (index < 0)
-	{
-		// Log::error("parserRouter : invalid header");
-		return -1;
-	}
+		return Log::error("parserRouter : invalid header");
 	if (!checkContext(index, context))
-	{
-		// Log::error("parserRouter : invalid context");
-		return -1;
-	}
+		return Log::error("parserRouter : invalid context");
 	switch (index)
 	{
 		case HTTP_DIRECTIVE:
 			return this->parseHttp(inputFile, content);
-
 		case INCLUDE_DIRECTIVE:
 			return this->parseInclude();
-
 		case SERVER_DIRECTIVE:
 			return this->parseServers(inputFile, content);
-
 		case LISTEN_DIRECTIVE:
 			return this->parseListen(content);
-
 		case ROOT_DIRECTIVE:
 			return this->parseRoot(content, context);
-
 		case SERVER_NAME_DIRECTIVE:
-
 			break;
-
 		case INDEX_DIRECTIVE:
-
 			break;
-
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content);
-
 		default:
 			break;
 	}
@@ -442,10 +426,7 @@ int	ConfigFile::parseErrorPage(const std::string& content)
 				isCode = false;
 		if ((!isCode && codes.empty()) || 
 			(!::isdigit(token.front()) && codes.empty()))
-		{
-			Log::error("error_page : invalid content");
-			// return Log::error("error_page : invalid content");
-		}
+			return Log::error("error_page : invalid content");
 
 		if (::isdigit(token.front()))
 		{
@@ -457,15 +438,11 @@ int	ConfigFile::parseErrorPage(const std::string& content)
 				{
 					isCode = true;
 					codes.push_back(static_cast<HTTP_STATUS>(code));
-					Log::debug("code ok");
 					break;
 				}
 			}
 			if (!isCode)
-			{
-				Log::error("error_page : invalid code");
-				// return Log::error("error_page : invalid code");
-			}
+				return Log::error("error_page : invalid code");
 			continue;
 		}
 
@@ -473,10 +450,7 @@ int	ConfigFile::parseErrorPage(const std::string& content)
 		{
 			case '=' :
 				if (response || codes.empty() || !isCode)
-				{
-					Log::error("error_page : invalid content");
-					// return Log::error("error_page : invalid content");
-				}
+					return Log::error("error_page : invalid content");
 				isCode = false;
 				response = (atoi(token.c_str() + 1));
 				for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
@@ -485,30 +459,20 @@ int	ConfigFile::parseErrorPage(const std::string& content)
 					{
 						isCode = true;
 						response = static_cast<HTTP_STATUS>(response);
-						Log::debug("response ok");
 					}					
 				}
 				if (!isCode)
-				{
-					Log::error("error_page : invalid response code");
-					// return Log::error("error_page : invalid response code");
-				}
+					return Log::error("error_page : invalid response code");
 				break;
 
 			case '/' :	// isLimitModifier() ?
 				if (codes.empty() || !uri.empty())
-				{
-					Log::error("error_page : missing code");
-					// return Log::error("error_page : missing code");
-				}
+					return Log::error("error_page : missing code");
 				uri = token;
-				Log::debug("uri ok");
-				Log::debug(token);
 				break;
 
 			default :
-				Log::error("error_page : invalid content");
-				// return Log::error("error_page : invalid content");
+				return Log::error("error_page : invalid content");
 		}
 	}
 

@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:08 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/15 14:46:06 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/20 23:28:55 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,6 @@ class Log {
 	public:
 		static void debug(const std::string &msg);
 		static void info(const std::string &msg);
-		static void error(const std::string &msg);
+		static int error(const std::string &msg);
 		static void response(int method, std::string httpVersion, std::string uri, int status);
 };
