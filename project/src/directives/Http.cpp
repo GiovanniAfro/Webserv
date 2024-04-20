@@ -6,18 +6,22 @@ std::vector<HTTP_STATUS>	allHttpStatus;
 
 void initializeVectors()
 {
-	// if (!(allHttpMethods.empty()))
-	// 	return ;
+	if (!(allHttpMethods.empty()))
+		return ;
 	allHttpMethods.push_back(GET);
 	allHttpMethods.push_back(POST);
 	allHttpMethods.push_back(DELETE);
 	allHttpMethods.push_back(UNKNOWN);
 
-	// if (!(allHttpStatus.empty()))
-	// 	return ;
+	if (!(allHttpStatus.empty()))
+		return ;
 	allHttpStatus.push_back(OK);
 	allHttpStatus.push_back(BAD_REQUEST);
 	allHttpStatus.push_back(NOT_FOUND);
+	allHttpStatus.push_back(METHOD_NOT_ALLOWED);
+	allHttpStatus.push_back(REQUEST_TIMEOUT);
+	allHttpStatus.push_back(PAYLOAD_TOO_LARGE);
+	allHttpStatus.push_back(REQUEST_HEADER_FIELDS_TOO_LARGE);
 	allHttpStatus.push_back(INTERNAL_SERVER_ERROR);
 }
 

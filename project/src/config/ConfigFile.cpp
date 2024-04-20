@@ -424,25 +424,104 @@ int	ConfigFile::parseErrorPage(const std::string& content)
 {
 	// ADirective*				server = this->_webServer->getServers().back();
 	// ErrorPage				directive;
-	// std::vector<enum HTTP_STATUS>	codes;
-	// uint16_t						response;
-	// std::string						uri;
+	std::vector<enum HTTP_STATUS>	codes;
+	int								response = 0;
+	std::string						uri;
 	std::stringstream				iss(content);
 	std::string						token;
 
 	Log::debug("parseErrorPage");
 
-
-	for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
-	{
-		std::cout << *it << std::endl;
-
-	}
 	while (iss >> token)
 	{
 		std::cout << token << std::endl;
 
+		bool	isCode = true;
+		for (std::string::iterator it = token.begin() + 1; it != token.end(); ++it)
+			if (!::isdigit(*it))
+				isCode = false;
+		if ((!isCode && codes.empty()) || 
+			(!::isdigit(token.front()) && codes.empty()))
+		{
+			Log::error("error_page : invalid content");
+			// return Log::error("error_page : invalid content");
+		}
+
+		if (::isdigit(token.front()))
+		{
+			int	code = (atoi(token.c_str()));
+			isCode = false;
+			for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
+			{
+				if (code == *it)
+				{
+					isCode = true;
+					codes.push_back(static_cast<HTTP_STATUS>(code));
+					Log::debug("code ok");
+					break;
+				}
+			}
+			if (!isCode)
+			{
+				Log::error("error_page : invalid code");
+				// return Log::error("error_page : invalid code");
+			}
+			continue;
+		}
+
+		switch(token.front())
+		{
+			case '=' :
+				if (response || codes.empty() || !isCode)
+				{
+					Log::error("error_page : invalid content");
+					// return Log::error("error_page : invalid content");
+				}
+				isCode = false;
+				response = (atoi(token.c_str() + 1));
+				for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
+				{
+					if (response == *it)
+					{
+						isCode = true;
+						response = static_cast<HTTP_STATUS>(response);
+						Log::debug("response ok");
+					}					
+				}
+				if (!isCode)
+				{
+					Log::error("error_page : invalid response code");
+					// return Log::error("error_page : invalid response code");
+				}
+				break;
+
+			case '/' :	// isLimitModifier() ?
+				if (codes.empty() || !uri.empty())
+				{
+					Log::error("error_page : missing code");
+					// return Log::error("error_page : missing code");
+				}
+				uri = token;
+				Log::debug("uri ok");
+				Log::debug(token);
+				break;
+
+			default :
+				Log::error("error_page : invalid content");
+				// return Log::error("error_page : invalid content");
+		}
 	}
+
+	Log::info("codes:");
+	std::cout << codes.size() << std::endl;
+	for (std::vector<HTTP_STATUS>::iterator it = codes.begin(); it != codes.end(); ++it)
+		std::cout << (*it) << std::endl;
+	Log::info("response");
+	std::stringstream	ss;
+	ss << response;
+	Log::info(ss.str());
+	Log::info("uri");
+	Log::info(uri);
 
 	return 0;
 }
