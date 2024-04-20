@@ -60,41 +60,72 @@ enum HTTP_METHOD	Http::_methodToEnum(const std::string& method)
 
 enum HTTP_STATUS	Http::_statusToEnum(const std::string& status)
 {
-	if (status == "200")
+    if (status == "200")
 		return OK;
-	else if (status == "400")
+    else if (status == "400")
 		return BAD_REQUEST;
-	else if (status == "404")
+    else if (status == "403")
+		return FORBIDDEN;
+    else if (status == "404")
 		return NOT_FOUND;
-	else
+    else if (status == "405")
+		return METHOD_NOT_ALLOWED;
+    else if (status == "408")
+		return REQUEST_TIMEOUT;
+    else if (status == "413")
+		return PAYLOAD_TOO_LARGE;
+    else if (status == "431")
+		return REQUEST_HEADER_FIELDS_TOO_LARGE;
+    else
 		return INTERNAL_SERVER_ERROR;
 }
 
 std::string	Http::_statusToMessage(enum HTTP_STATUS status)
 {
-	switch (status) {
-		case OK:
+    switch (status)
+	{
+        case OK:
 			return "200 OK";
-		case BAD_REQUEST:
+        case BAD_REQUEST:
 			return "400 Bad Request";
-		case NOT_FOUND:
+        case FORBIDDEN:
+			return "403 Forbidden";
+        case NOT_FOUND:
 			return "404 Not Found";
-		default:
+        case METHOD_NOT_ALLOWED:
+			return "405 Method Not Allowed";
+        case REQUEST_TIMEOUT:
+			return "408 Request Timeout";
+        case PAYLOAD_TOO_LARGE:
+			return "413 Payload Too Large";
+        case REQUEST_HEADER_FIELDS_TOO_LARGE:
+			return "431 Request Header Fields Too Large";
+        default:
 			return "500 Internal Server Error";
-	}
+    }
 }
 
 std::string	Http::_statusToString(enum HTTP_STATUS status)
 {
-	switch (status)
+    switch (status)
 	{
-		case OK:
+        case OK:
 			return "200";
-		case BAD_REQUEST:
+        case BAD_REQUEST:
 			return "400";
-		case NOT_FOUND:
+        case FORBIDDEN:
+			return "403";
+        case NOT_FOUND:
 			return "404";
-		default:
+        case METHOD_NOT_ALLOWED:
+			return "405";
+        case REQUEST_TIMEOUT:
+			return "408";
+        case PAYLOAD_TOO_LARGE:
+			return "413";
+        case REQUEST_HEADER_FIELDS_TOO_LARGE:
+			return "431";
+        default:
 			return "500";
-	}
+    }
 }
