@@ -142,6 +142,11 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 	if (_isFolder(filePath))
 		filePath += "/index.html";
 
+	std::string method = request["method"];
+
+    if (method != "GET" && method != "POST" && method != "DELETE")
+        return _responseBuilder(METHOD_NOT_ALLOWED);
+
 	try
 	{
 		if (request.at("method") == "GET")
