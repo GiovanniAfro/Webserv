@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:19 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/18 22:18:35 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/20 17:33:26 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,16 +28,22 @@ class	ErrorPage : public ADirective
 	private:
 		// To define ...
 
+		std::vector<enum HTTP_STATUS>	_codes;
+		enum HTTP_STATUS				_response;
+		std::string						_uri;
+
 		ErrorPage();
 
 	public:
-		ErrorPage(uint16_t context);
+		ErrorPage(uint16_t context, const std::vector<enum HTTP_STATUS>& codes, enum HTTP_STATUS response, const std::string& uri);
 		ErrorPage(const ErrorPage& copy);
 		~ErrorPage();
 		ErrorPage&	operator=(const ErrorPage& other);
 
 		ADirective*	clone() const;
 
-		// size_t	getSize() const;
+		std::vector<enum HTTP_STATUS>&	getCodes();
+		enum HTTP_STATUS				getResponse();
+		
 
 };

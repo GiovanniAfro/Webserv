@@ -216,7 +216,7 @@ std::string	WebServer::_readRequests(Socket* clientSocket)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	// // std::cout << request << std::endl;
+	std::cout << request << std::endl;
 	return request;
 }
 
