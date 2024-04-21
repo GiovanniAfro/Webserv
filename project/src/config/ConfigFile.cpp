@@ -273,6 +273,7 @@ int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header
 		case SERVER_NAME_DIRECTIVE:
 			break;
 		case INDEX_DIRECTIVE:
+			// this->parseIndex(content, context);
 			break;
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content, context);
@@ -289,7 +290,7 @@ int	ConfigFile::parseListen(const std::string& content)
 {
 	Server*				server = static_cast<Server*>(this->_webServer->getServers().back());
 	Listen				directive;
-	std::stringstream	iss(content);
+	std::istringstream	iss(content);
 	std::string			token;
 
 	Log::debug("parseListen");
@@ -395,6 +396,19 @@ int	ConfigFile::parseServerName(const std::string& content)
 	{
 		std::cerr << ex.what() << '\n';
 		return -1;
+	}
+
+	return 0;
+}
+
+int	ConfigFile::parseIndex(const std::string& content, uint16_t context)
+{
+	std::istringstream	iss(content);
+	std::string			token;
+
+	while( iss >> token)
+	{
+		
 	}
 
 	return 0;
