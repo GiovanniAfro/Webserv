@@ -276,6 +276,8 @@ int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header
 			break;
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content, context);
+		case LOCATION_DIRECTIVE:
+			return this->parseLocation(content, context);
 		default:
 			break;
 	}
@@ -479,6 +481,15 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 		std::cerr << ex.what() << '\n';
 		return -1;
 	}
+
+	return 0;
+}
+
+int	ConfigFile::parseLocation(const std::string& content, uint16_t context)
+{
+	Log::debug("parseLocation");
+	(void)content;
+	(void)context;
 
 	return 0;
 }
