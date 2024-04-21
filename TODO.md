@@ -112,17 +112,46 @@
 [ ] You must provide some configuration files and default basic files to test
     and demonstrate every feature works during evaluation.
 
-[ ] Handle SIGINT signal
 
-### anvannin
+## Directives
+
+[ ] location
+    - [ ] allow_methods
+    - [ ] client_max_body_size
+    - [ ] root
+
+[ ] server
+    - [ ] server_name
+    - [ ] limit_except
+    - [x] listen
+    - [ ] error_page
+    - [ ] index
+    - [x] root
+
+## anvannin
+
+[x] Handle SIGINT signal
 
 [x] Root path must be absolute path to file
 
 [x] In case there are no root paths, return INTERNAL_SERVER_ERROR
 
-[x] Default file (index.html) to answer if the request is a directory
+[ ] Handle index directive in case URI is a folder
 
-[ ] Handle multiple locations (see location /css/ in /etc/webserv/sites-enabled/default)
+[ ] Allowed methods
+    - [ ] GET, POST, DELETE
+    - [ ] limit_except
+    - [ ] loaction allow_methods
+
+[ ] Handle location
+    - [ ] root overrides the server root
+    - [ ] index
+    - [ ] client_max_body_size
+    - [ ] allow_methods
+
+[ ] Handle error pages
+
+[ ] Handle multiple locations
 
 ## Bonus --------------------------------------------------------------------->
 

@@ -27,12 +27,12 @@ ADirective*	Server::clone() const
 
 
 /*!
-    * @brief Process the GET request.
-    * @param filePath Path to the file to be read.
-    * @return map<string, string> Response map.
-    * @note Verify if the file exists by checking file access.
-    *       If the file is successfully read, return 200 OK
-    *       If the file does not exist, return 404 Not Found
+	* @brief Process the GET request.
+	* @param filePath Path to the file to be read.
+	* @return map<string, string> Response map.
+	* @note Verify if the file exists by checking file access.
+	*       If the file is successfully read, return 200 OK
+	*       If the file does not exist, return 404 Not Found
 */
 std::map<std::string, std::string>	Server::_processGet(const std::string& filePath)
 {
@@ -82,13 +82,13 @@ std::map<std::string, std::string>	Server::_processPost(std::map<std::string, st
 }
 
 /*!
-    * @brief Process the DELETE request.
-    * @param filePath Path to the file to be deleted.
-    * @return map<string, string> Response map.
-    * @note Verify if the file exists by checking file access.
-    *       If the file is successfully deleted, return 200 OK
-    *       If the file does not exist, return 404 Not Found
-    *       If the file cannot be deleted, return 500 Internal Server Error
+	* @brief Process the DELETE request.
+	* @param filePath Path to the file to be deleted.
+	* @return map<string, string> Response map.
+	* @note Verify if the file exists by checking file access.
+	*       If the file is successfully deleted, return 200 OK
+	*       If the file does not exist, return 404 Not Found
+	*       If the file cannot be deleted, return 500 Internal Server Error
 */
 std::map<std::string, std::string>	Server::_processDelete(const std::string& filePath)
 {
@@ -119,6 +119,11 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 	return response;
 }
 
+/*!
+	* @brief Check if the path is a folder.
+	* @param path Path to the file.
+	* @return bool True if the path is a folder, false otherwise.
+*/
 bool	Server::_isFolder(const std::string& path)
 {
 	struct stat buffer;
@@ -129,8 +134,45 @@ bool	Server::_isFolder(const std::string& path)
 	return false;
 }
 
+/*!
+	* @brief Check if the method is allowed.
+	* @param method HTTP method.
+	* @return bool True if the method is allowed, false otherwise.
+*/
+bool Server::_isMethodAllowed(const std::string& method)
+{
+	if (method == "GET" || method == "POST" || method == "DELETE")
+		return true;
+	return false;
+}
+
+/*!
+	* @brief Get the index file.
+	* @return string Index file.
+	* @note If the index directive is not found, return an empty string.
+*/
+std::string Server::_getIndex()
+{
+	std::map<std::string, ADirective*>	directives = this->getDirectives();
+	if (directives.find("index") == directives.end())
+		return "";
+	return "";
+
+	// Index *index = static_cast<Index*>(directives["index"]);
+	// if (index->getValues().empty())
+	// 	return "";
+	// return index->getValues()[0];
+}
+
 std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request)
 {
+	std::map<std::string, ADirective*>	directives = this->getDirectives();
+	// for (std::map<std::string, ADirective*>::iterator it = directives.begin(); it != directives.end(); ++it)
+	// 	std::cout << it->first << std::endl;
+
+	if (directives.find("root") == directives.end())
+		return _responseBuilder(INTERNAL_SERVER_ERROR);
+
 	std::string	rootValue = static_cast<Root*>(this->getDirectives()["root"])->getPath();
 
 	if (rootValue.empty())
@@ -139,16 +181,20 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 	std::string	requestUri = request["uri"];
 	std::string	filePath = rootValue + requestUri;
 
-	if (_isFolder(filePath))
-		filePath += "/index.html";
+	if (_isFolder(filePath)) {
+		std::string index = _getIndex();
+		if (index == "")
+			return _responseBuilder(INTERNAL_SERVER_ERROR);
 
-	std::string method = request["method"];
+		filePath += index;
+	}
 
-    if (method != "GET" && method != "POST" && method != "DELETE")
-        return _responseBuilder(METHOD_NOT_ALLOWED);
+	// Allowed methods
+	if (!_isMethodAllowed(request.at("method"))){
+		return _responseBuilder(METHOD_NOT_ALLOWED);
+	}
 
-	try
-	{
+	try {
 		if (request.at("method") == "GET")
 			return _processGet(filePath);
 		else if (request.at("method") == "POST")
