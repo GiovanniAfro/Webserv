@@ -300,10 +300,9 @@ int	ConfigFile::parseListen(const std::string& content)
 
 		bool	isPort = true;
 		for (std::string::iterator it = token.begin(); it != token.end(); ++it)
-		{
 			if (!::isdigit(*it))
 				isPort = false;
-		}
+
 		if (isPort)
 		{
 			int	port = atoi(token.c_str());
@@ -324,20 +323,16 @@ int	ConfigFile::parseListen(const std::string& content)
 			std::cout << port << std::endl;
 
 			if (port < 0 || port > 65535)
-			{
-				// Log::error("listen : invalid port");
-				return -1;
-			}
+				return Log::error("listen : invalid port");
+
 			// struct in_addr	addr;	Check "localhost" first?
 			// if (inet_pton(AF_INET, address.c_str(), &addr) == 1)
 			// {
 			// 	// valid IPv4
 			// }
 			// else
-			// {
-			// 	std::cerr << "listen : invalid ip address" << std::endl;
-			// 	return -1;
-			// }
+			// 	return Log::error("listen : invalid ip address");
+
 			listen->addPort(static_cast<uint16_t>(port));
 			listen->addAddress(address);
 			listen->addAddressPort(address, static_cast<uint16_t>(port));
@@ -348,6 +343,8 @@ int	ConfigFile::parseListen(const std::string& content)
 
 			if (token == "default_server")
 			{
+				if (listen->isDefaultServer())
+					return Log::error("listen : default_server directive is duplicated");
 				listen->setDefaultServer();
 			}
 			else if (inet_pton(AF_INET, token.c_str(), &addr) == 1)
@@ -357,10 +354,7 @@ int	ConfigFile::parseListen(const std::string& content)
 
 			}
 			else
-			{
-				std::cerr << "listen : invalid ip address" << std::endl;
-				return -1;
-			}
+				return Log::error("listen : invalid ip address");
 		}
 
 	}
@@ -474,9 +468,17 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 		}
 	}
 
-	ADirective*	server = this->_webServer->getServers().back();
-	ErrorPage	errorPage(context, codes, static_cast<HTTP_STATUS>(response), uri);
-	server->addDirective(&errorPage);
+	try
+	{
+		ADirective*	server = this->_webServer->getServers().back();
+		ErrorPage	errorPage(context, codes, static_cast<HTTP_STATUS>(response), uri);
+		server->addDirective(&errorPage);
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
 
 	return 0;
 }

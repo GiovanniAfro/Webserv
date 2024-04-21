@@ -5,8 +5,13 @@ ServerName::ServerName(const std::string& content)
 	std::stringstream	iss(content);
 	std::string			token;
 
+	if (content.empty())
+		throw std::runtime_error("server_name : empty content");
+
 	while (iss >> token)
 		_names.push_back(token);
+	
+	// check _names's content? ...
 }
 
 ServerName::ServerName(const ServerName& copy)

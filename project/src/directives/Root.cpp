@@ -11,6 +11,8 @@ Root::Root(uint16_t context, const std::string& path)
 	std::string			token;
 	unsigned int		tokenCount = 0;
 
+	if (path.empty())
+		throw std::runtime_error("root : empty content");
 	while (iss >> token)
 		++tokenCount;
 	if (tokenCount != 1)
