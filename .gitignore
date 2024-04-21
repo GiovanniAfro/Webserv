@@ -2,6 +2,6 @@
 project/.build
 .obj
 project/webserv
-webserv
+# webserv
 temp
 project/log
