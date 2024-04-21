@@ -432,11 +432,10 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 		for (std::string::iterator it = token.begin() + 1; it != token.end(); ++it)
 			if (!::isdigit(*it))
 				isCode = false;
-		if ((!isCode && codes.empty()) || 
-			(!::isdigit(token.front()) && codes.empty()))
+		if ((!isCode && codes.empty()) || (!::isdigit(token[0]) && codes.empty()))
 			return Log::error("error_page : invalid content");
 
-		if (::isdigit(token.front()))
+		if (::isdigit(token[0]))
 		{
 			int	code = (atoi(token.c_str()));
 			isCode = false;
@@ -454,7 +453,7 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 			continue;
 		}
 
-		switch(token.front())
+		switch(token[0])
 		{
 			case '=' :
 				if (response || codes.empty() || !isCode)
@@ -467,7 +466,7 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 					{
 						isCode = true;
 						response = static_cast<HTTP_STATUS>(response);
-					}					
+					}
 				}
 				if (!isCode)
 					return Log::error("error_page : invalid response code");

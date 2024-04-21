@@ -16,6 +16,8 @@ class	Server : public ADirective
 		std::map<std::string, std::string>	_responseBuilder(HTTP_STATUS status, const std::string &body = "", const std::string &contentType = "text/html");
 
 		bool	_isFolder(const std::string& path);
+		bool	_isMethodAllowed(const std::string& method);
+		std::string	_getIndex();
 
 	public:
 		Server();
@@ -23,7 +25,7 @@ class	Server : public ADirective
 		~Server();
 		Server&	operator=(const Server& other);
 
-        ADirective*  clone() const;
+		ADirective*  clone() const;
 
 		std::map<std::string, std::string>	processRequest(std::map<std::string, std::string> request);
 };

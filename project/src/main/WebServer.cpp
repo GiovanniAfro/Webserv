@@ -43,7 +43,7 @@ void	WebServer::addConfig()
 
 void	WebServer::addServer()
 {
-	// Log::debug("addServer");
+	// // Log::debug("addServer");
 	_servers.push_back(new Server());
 	// if (!_servers.empty())
 	// {
@@ -101,19 +101,21 @@ int	WebServer::startServers()
 			request = this->_readRequests(clientSocket);
 			if (request.empty())
 				Log::error("Request reading failed");
+			else
+			{
+				// Parse the request -------------------------------------->
+				this->_parseRequest(request);
 
-			// Parse the request -------------------------------------->
-			this->_parseRequest(request);
+				// Process the requests ----------------------------------->
+				response = this->_processRequests();
 
-			// Process the requests ----------------------------------->
-			response = this->_processRequests();
+				// Send the response -------------------------------------->
+				this->_sendResponse(clientSocket, response);
 
-			// Send the response -------------------------------------->
-			this->_sendResponse(clientSocket, response);
-
-			// Empty the request and response -------------------------->
-			request.clear();
-			response.clear();
+				// Empty the request and response -------------------------->
+				request.clear();
+				response.clear();
+			}
 
 			// Close the client socket ------------------------------------>
 			clientSocket->closeSocket();
@@ -212,7 +214,7 @@ std::string	WebServer::_readRequests(Socket* clientSocket)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	std::cout << request << std::endl;
+	// std::cout << request << std::endl;
 	return request;
 }
 
@@ -235,7 +237,7 @@ void	WebServer::_parseRequest(const std::string& request)
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
-			// std::cout << headerName << " -> " << headerValue << std::endl;
+			// // std::cout << headerName << " -> " << headerValue << std::endl;
 		}
 	}
 
