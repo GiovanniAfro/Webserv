@@ -172,3 +172,7 @@
 
 [x] la direttiva listen puo contenere un solo [ip:port] e opzionalmente il val
     default_server, aggiungere check parser.
+
+## Leaks
+
+[ ] 104 bytes in 1 blocks are still reachable in WebServer::startServers() (WebServer.cpp:101)
