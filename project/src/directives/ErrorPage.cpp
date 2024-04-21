@@ -29,5 +29,11 @@ ErrorPage&	ErrorPage::operator=(const ErrorPage& other)
 ADirective*	ErrorPage::clone() const
 { return new ErrorPage(*this); }
 
-// size_t	ErrorPage::getSize() const
-// { return _size; }
+std::vector<enum HTTP_STATUS>&	ErrorPage::getCodes()
+{ return _codes; }
+
+enum HTTP_STATUS	ErrorPage::getResponse()
+{return _response; }
+
+const std::string&	ErrorPage::getUri() const
+{return _uri; }

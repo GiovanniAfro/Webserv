@@ -141,8 +141,6 @@ void	WebServer::_extractListenPorts()
 		for (std::vector<ADirective*>::iterator itListen = listenBlocks.begin(); itListen != listenBlocks.end(); ++itListen)
 		{
 			Listen*	listen = static_cast<Listen*>(*itListen);
-			if (listen->getPorts().size() == 0)
-				continue;
 			for (std::set<uint16_t>::iterator itPorts = listen->getPorts().begin(); itPorts != listen->getPorts().end(); ++itPorts)
 				_listenPorts.insert(*itPorts);
 		}

@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:19 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/20 17:33:26 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/21 02:03:12 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@
 class	ErrorPage : public ADirective
 {
 	private:
-		// To define ...
-
 		std::vector<enum HTTP_STATUS>	_codes;
 		enum HTTP_STATUS				_response;
 		std::string						_uri;
@@ -44,6 +42,7 @@ class	ErrorPage : public ADirective
 
 		std::vector<enum HTTP_STATUS>&	getCodes();
 		enum HTTP_STATUS				getResponse();
+		const std::string&				getUri() const;
 		
 
 };

@@ -275,7 +275,7 @@ int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header
 		case INDEX_DIRECTIVE:
 			break;
 		case ERRORPAGE_DIRECTIVE:
-			return this->parseErrorPage(content);
+			return this->parseErrorPage(content, context);
 		default:
 			break;
 	}
@@ -404,10 +404,8 @@ int	ConfigFile::parseServerName(const std::string& content)
 	return 0;
 }
 
-int	ConfigFile::parseErrorPage(const std::string& content)
+int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 {
-	// ADirective*				server = this->_webServer->getServers().back();
-	// ErrorPage				directive;
 	std::vector<enum HTTP_STATUS>	codes;
 	int								response = 0;
 	std::string						uri;
@@ -476,16 +474,9 @@ int	ConfigFile::parseErrorPage(const std::string& content)
 		}
 	}
 
-	Log::info("codes:");
-	std::cout << codes.size() << std::endl;
-	for (std::vector<HTTP_STATUS>::iterator it = codes.begin(); it != codes.end(); ++it)
-		std::cout << (*it) << std::endl;
-	Log::info("response");
-	std::stringstream	ss;
-	ss << response;
-	Log::info(ss.str());
-	Log::info("uri");
-	Log::info(uri);
+	ADirective*	server = this->_webServer->getServers().back();
+	ErrorPage	errorPage(context, codes, static_cast<HTTP_STATUS>(response), uri);
+	server->addDirective(&errorPage);
 
 	return 0;
 }
