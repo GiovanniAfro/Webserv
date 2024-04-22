@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 20:04:11 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:23:47 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,12 @@ int	ConfigFile::parseConfigFile() {
 			Index*	indBlock = static_cast<Index*>(ser->getDirectives()["index"]);
 			for (std::vector<std::string>::iterator itInd = indBlock->getFiles().begin(); itInd != indBlock->getFiles().end(); ++itInd)
 				std::cout << *itInd << std::endl;
+		}
+		if (ser->getDirectives().find("error_page") != ser->getDirectives().end())
+		{
+			ErrorPage*	errBlock = static_cast<ErrorPage*>(ser->getDirectives()["error_page"]);
+			for (std::vector<enum HTTP_STATUS>::iterator itErr = errBlock->getCodes().begin(); itErr != errBlock->getCodes().end(); ++itErr)
+				std::cout << "error_page code : " << *itErr << std::endl;
 		}
 	}
 

@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPage.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:41:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:42:06 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:22:12 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ErrorPage.hpp"
 
 ErrorPage::ErrorPage()
-	: ADirective("ErrorPage", GLOBAL_CONTEXT), _response(NOT_FOUND) {}
+	: ADirective("error_page", GLOBAL_CONTEXT), _response(NOT_FOUND) {}
 
 ErrorPage::ErrorPage(uint16_t context, const std::vector<enum HTTP_STATUS> &codes, enum HTTP_STATUS response, const std::string &uri)
-	: ADirective("ErrorPage", context), _codes(codes), _response(response), _uri(uri) {
+	: ADirective("error_page", context), _codes(codes), _response(response), _uri(uri) {
 	bool	codesOk = false, responseOk = false;
 
 	for (std::vector<HTTP_STATUS>::iterator itCodes = _codes.begin(); itCodes != _codes.end(); ++itCodes) {
