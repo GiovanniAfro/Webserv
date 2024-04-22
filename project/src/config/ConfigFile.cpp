@@ -401,18 +401,18 @@ int	ConfigFile::parseServerName(const std::string& content)
 	return 0;
 }
 
-int	ConfigFile::parseIndex(const std::string& content, uint16_t context)
-{
-	std::istringstream	iss(content);
-	std::string			token;
+// int	ConfigFile::parseIndex(const std::string& content, uint16_t context)
+// {
+// 	std::istringstream	iss(content);
+// 	std::string			token;
 
-	while( iss >> token)
-	{
+// 	while( iss >> token)
+// 	{
 		
-	}
+// 	}
 
-	return 0;
-}
+// 	return 0;
+// }
 
 int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 {

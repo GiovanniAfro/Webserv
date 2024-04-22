@@ -32,6 +32,7 @@ class	ConfigFile
 		int	parseListen(const std::string& content);
 		int	parseRoot(const std::string& content, uint16_t context);
 		int	parseServerName(const std::string& content);
+		int	parseIndex(const std::string& content, uint16_t context);
 		int	parseErrorPage(const std::string& content, uint16_t context);
 		int	parseLocation(const std::string& content, uint16_t context);
 
