@@ -1,18 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ErrorPage.cpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:41:48 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:42:06 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ErrorPage.hpp"
 
 ErrorPage::ErrorPage()
-: ADirective("ErrorPage", GLOBAL_CONTEXT), _response(NOT_FOUND)
-{}
+	: ADirective("ErrorPage", GLOBAL_CONTEXT), _response(NOT_FOUND) {}
 
-ErrorPage::ErrorPage(uint16_t context, const std::vector<enum HTTP_STATUS>& codes, enum HTTP_STATUS response, const std::string& uri)
-: ADirective("ErrorPage", context), _codes(codes), _response(response), _uri(uri)
-{
+ErrorPage::ErrorPage(uint16_t context, const std::vector<enum HTTP_STATUS> &codes, enum HTTP_STATUS response, const std::string &uri)
+	: ADirective("ErrorPage", context), _codes(codes), _response(response), _uri(uri) {
 	bool	codesOk = false, responseOk = false;
 
-	for (std::vector<HTTP_STATUS>::iterator itCodes = _codes.begin(); itCodes != _codes.end(); ++itCodes)
-	{
-		for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
-		{
+	for (std::vector<HTTP_STATUS>::iterator itCodes = _codes.begin(); itCodes != _codes.end(); ++itCodes) {
+		for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it) {
 			if (*itCodes == *it)
 				codesOk = true;
 			if (response == *it)
@@ -25,13 +33,13 @@ ErrorPage::ErrorPage(uint16_t context, const std::vector<enum HTTP_STATUS>& code
 		throw std::runtime_error("error_page : invalid response code");
 }
 
-ErrorPage::ErrorPage(const ErrorPage& copy)
-{ *this = copy; }
+ErrorPage::ErrorPage(const ErrorPage &copy) : ADirective(copy) {
+	*this = copy;
+}
 
 ErrorPage::~ErrorPage() {}
 
-ErrorPage&	ErrorPage::operator=(const ErrorPage& other)
-{
+ErrorPage &ErrorPage::operator=(const ErrorPage &other) {
 	if (this == &other)
 		return *this;
 
@@ -43,14 +51,18 @@ ErrorPage&	ErrorPage::operator=(const ErrorPage& other)
 	return *this;
 }
 
-ADirective*	ErrorPage::clone() const
-{ return new ErrorPage(*this); }
+ADirective *ErrorPage::clone() const {
+	return new ErrorPage(*this);
+}
 
-std::vector<enum HTTP_STATUS>&	ErrorPage::getCodes()
-{ return _codes; }
+std::vector<enum HTTP_STATUS> &ErrorPage::getCodes() {
+	return _codes;
+}
 
-enum HTTP_STATUS	ErrorPage::getResponse()
-{return _response; }
+enum HTTP_STATUS	ErrorPage::getResponse() {
+	return _response;
+}
 
-const std::string&	ErrorPage::getUri() const
-{return _uri; }
+const std::string &ErrorPage::getUri() const {
+	return _uri;
+}

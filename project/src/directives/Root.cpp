@@ -1,12 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Root.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:47:12 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:47:32 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Root.hpp"
 
-Root::Root()
-: ADirective("root", GLOBAL_CONTEXT)
-{}
+Root::Root() : ADirective("root", GLOBAL_CONTEXT) {}
 
-Root::Root(uint16_t context, const std::string& path)
-: ADirective("root", context), _path(path)
-{
+Root::Root(uint16_t context, const std::string &path)
+	: ADirective("root", context), _path(path) {
 	std::stringstream	iss(path);
 	std::string			token;
 	unsigned int		tokenCount = 0;
@@ -23,13 +32,13 @@ Root::Root(uint16_t context, const std::string& path)
 	// 	throw std::runtime_error("root : invalid path");
 }
 
-Root::Root(const Root& copy)
-{ *this = copy; }
+Root::Root(const Root &copy) : ADirective(copy) {
+	*this = copy;
+}
 
 Root::~Root() {}
 
-Root&	Root::operator=(const Root& other)
-{
+Root &Root::operator=(const Root &other) {
 	if (this == &other)
 		return *this;
 
@@ -39,8 +48,10 @@ Root&	Root::operator=(const Root& other)
 	return *this;
 }
 
-ADirective*	Root::clone() const
-{ return new Root(*this); }
+ADirective *Root::clone() const {
+	return new Root(*this);
+}
 
-const std::string&	Root::getPath() const
-{ return _path; }
+const std::string &Root::getPath() const {
+	return _path;
+}

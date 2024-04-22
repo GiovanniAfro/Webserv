@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LimitExcept.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:45:25 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/18 22:22:43 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:35:34 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,7 @@
     Default:	—
     Context:	location
  */
-
-class	LimitExcept : public ADirective
-{
+class	LimitExcept : public ADirective {
 	private:
 		enum HTTP_METHOD	_method;
 
@@ -39,6 +37,5 @@ class	LimitExcept : public ADirective
 
 		ADirective*	clone() const;
 
-		enum HTTP_METHOD	getMethod() const;
-
+		enum HTTP_METHOD getMethod() const;
 };

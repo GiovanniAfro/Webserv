@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ADirective.hpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:31:07 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:36:18 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
 #include <iostream>
@@ -35,32 +47,30 @@
 #define ERRORPAGE_DIRECTIVE 7
 #define LOCATION_DIRECTIVE 8
 
-class	ADirective
-{
+class ADirective {
 	protected:
 		// typedef	vector<ADirective*>::iterator	DirIt;
 
 		std::string					_type;
 		uint16_t					_context;
-		std::vector<ADirective*>	_blocks;
+		std::vector<ADirective *>	_blocks;
 
-		std::map<std::string, ADirective*>	_directives;
+		std::map<std::string, ADirective *>	_directives;
 
 	public:
 		ADirective();
-		ADirective(const std::string& type, int context);
-		ADirective(const ADirective& copy);
+		ADirective(const std::string &type, int context);
+		ADirective(const ADirective &copy);
 		virtual ~ADirective();
-		ADirective&	operator=(const ADirective& other);
-		virtual ADirective*		clone() const = 0;
+		ADirective &operator=(const ADirective &other);
+		virtual ADirective *clone() const = 0;
 
-		const std::string&				getType() const;
-		std::vector<ADirective*>&		getBlocks();
-		std::map<std::string, ADirective*>&	getDirectives();
+		const std::string &getType() const;
+		std::vector<ADirective *> &getBlocks();
+		std::map<std::string, ADirective *> &getDirectives();
 		size_t						getBlocksSize() const;
 
-		void	addBlock(ADirective* block);
-		void	addDirective(ADirective* directive);
-		void	addDirectiveRouter(const std::string& type);
-
+		void	addBlock(ADirective *block);
+		void	addDirective(ADirective *directive);
+		void	addDirectiveRouter(const std::string &type);
 };

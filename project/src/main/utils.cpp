@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:49:18 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "webserv.h"
 
-std::string	strip(const std::string& str)
-{
+std::string	strip(const std::string &str) {
 	size_t first, last;
 
 	first = str.find_first_not_of(" \t\n\r");
@@ -11,8 +22,7 @@ std::string	strip(const std::string& str)
 	return str.substr(first, last - first + 1);
 }
 
-bool	isClosedBracket(const std::string& s)
-{
+bool isClosedBracket(const std::string &s) {
 	std::stringstream	iss(s);
 	std::string			token;
 
@@ -22,8 +32,7 @@ bool	isClosedBracket(const std::string& s)
 	return false;
 }
 
-bool	isBracket(const std::string& s)
-{
+bool isBracket(const std::string &s) {
 	std::stringstream	iss(s);
 	std::string			token;
 
@@ -33,8 +42,7 @@ bool	isBracket(const std::string& s)
 	return false;
 }
 
-bool	isComment(const std::string& s)
-{
+bool isComment(const std::string &s) {
 	std::stringstream	iss(s);
 	std::string			token;
 
@@ -44,12 +52,10 @@ bool	isComment(const std::string& s)
 	return false;
 }
 
-bool	isServerDirective(const std::string& s)
-{
-	const std::string	directiveNames[] = { "listen", "root", "server_name", "index", "error_page", "location" };
+bool isServerDirective(const std::string &s) {
+	const std::string	directiveNames[] = {"listen", "root", "server_name", "index", "error_page", "location"};
 
-	for (size_t i = 0; i < directiveNames->size(); ++i)
-	{
+	for (size_t i = 0; i < directiveNames->size(); ++i) {
 		if (s == directiveNames[i])
 			return true;
 	}
@@ -57,12 +63,10 @@ bool	isServerDirective(const std::string& s)
 	return false;
 }
 
-bool	isDirective(const std::string& s)
-{
-	const std::string	directiveNames[] = { "http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location" };
+bool isDirective(const std::string &s) {
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location"};
 
-	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i)
-	{
+	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i) {
 		if (s == directiveNames[i])
 			return true;
 	}
@@ -70,10 +74,8 @@ bool	isDirective(const std::string& s)
 	return false;
 }
 
-std::vector<uint16_t>	getContextValues(int directive)
-{
-	switch (directive)
-	{
+std::vector<uint16_t> getContextValues(int directive) {
+	switch (directive) {
 		case HTTP_DIRECTIVE:
 			return std::vector<uint16_t>(1, GLOBAL_CONTEXT);
 
@@ -87,42 +89,42 @@ std::vector<uint16_t>	getContextValues(int directive)
 			return std::vector<uint16_t>(1, SERVER_CONTEXT);
 
 		case ROOT_DIRECTIVE:
-			{
-				std::vector<uint16_t> values;
-				values.push_back(HTTP_CONTEXT);
-				values.push_back(SERVER_CONTEXT);
-				values.push_back(LOCATION_CONTEXT);
-				return values;
-			}
+		{
+			std::vector<uint16_t> values;
+			values.push_back(HTTP_CONTEXT);
+			values.push_back(SERVER_CONTEXT);
+			values.push_back(LOCATION_CONTEXT);
+			return values;
+		}
 
 		case SERVER_NAME_DIRECTIVE:
 			return std::vector<uint16_t>(1, SERVER_CONTEXT);
 
 		case INDEX_DIRECTIVE:
-			{
-				std::vector<uint16_t> values;
-				values.push_back(HTTP_CONTEXT);
-				values.push_back(SERVER_CONTEXT);
-				values.push_back(LOCATION_CONTEXT);
-				return values;
-			}
-		
+		{
+			std::vector<uint16_t> values;
+			values.push_back(HTTP_CONTEXT);
+			values.push_back(SERVER_CONTEXT);
+			values.push_back(LOCATION_CONTEXT);
+			return values;
+		}
+
 		case ERRORPAGE_DIRECTIVE:
-			{
-				std::vector<uint16_t> values;
-				values.push_back(HTTP_CONTEXT);
-				values.push_back(SERVER_CONTEXT);
-				values.push_back(LOCATION_CONTEXT);
-				return values;
-			}
+		{
+			std::vector<uint16_t> values;
+			values.push_back(HTTP_CONTEXT);
+			values.push_back(SERVER_CONTEXT);
+			values.push_back(LOCATION_CONTEXT);
+			return values;
+		}
 
 		case LOCATION_DIRECTIVE:
-			{
-				std::vector<uint16_t> values;
-				values.push_back(SERVER_CONTEXT);
-				values.push_back(LOCATION_CONTEXT);
-				return values;
-			}
+		{
+			std::vector<uint16_t> values;
+			values.push_back(SERVER_CONTEXT);
+			values.push_back(LOCATION_CONTEXT);
+			return values;
+		}
 
 		default:
 			return std::vector<uint16_t>();
@@ -130,13 +132,11 @@ std::vector<uint16_t>	getContextValues(int directive)
 }
 
 // get index's directive context and compare with current context
-				 		  // http			// global	
-bool	checkContext(int directiveContext, uint16_t currentContext)
-{
+						  // http			// global	
+bool checkContext(int directiveContext, uint16_t currentContext) {
 	std::vector<uint16_t>	contextLevels = getContextValues(directiveContext);
 
-	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it)
-	{
+	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it) {
 		if ((*it) <= currentContext)
 			return true;
 	}
@@ -144,13 +144,11 @@ bool	checkContext(int directiveContext, uint16_t currentContext)
 	return false;
 }
 
-int	whichDirective(const std::string& s)
-{
-	const std::string	directiveNames[] = { "http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location" };
+int	whichDirective(const std::string &s) {
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location"};
 
-	for (int i = 0; i < NUM_DIRECTIVES; ++i)
-	{
-		
+	for (int i = 0; i < NUM_DIRECTIVES; ++i) {
+
 		if (s == directiveNames[i])
 			return i;
 	}
@@ -158,8 +156,7 @@ int	whichDirective(const std::string& s)
 	return -1;
 }
 
-std::string	firstToken(const std::string& str)
-{
+std::string	firstToken(const std::string &str) {
 	std::stringstream	iss(str);
 	std::string			token;
 
@@ -171,8 +168,7 @@ std::string	firstToken(const std::string& str)
 	return "";
 }
 
-std::string	secondToken(const std::string& str)
-{
+std::string	secondToken(const std::string &str) {
 	// istd::stringstream	iss(str);
 	// std::string			token;
 

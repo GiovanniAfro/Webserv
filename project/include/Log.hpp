@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Log.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:08 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/20 23:28:55 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:34:57 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class Log {
 		~Log(void);
 
 		static std::string _timeStamp(void);
+
 	public:
 		static void debug(const std::string &msg);
 		static void info(const std::string &msg);

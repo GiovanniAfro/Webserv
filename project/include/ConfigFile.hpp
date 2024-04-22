@@ -1,12 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ConfigFile.hpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:32:45 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:35:56 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
 #include "webserv.h"
 // #include "WebServer.hpp"
 
-class	WebServer;
+class WebServer;
 
-class	ConfigFile
-{
+class ConfigFile {
 	private:
 		const char			*_filePath;
 		WebServer*			_webServer;
@@ -34,5 +45,4 @@ class	ConfigFile
 		int	parseServerName(const std::string& content);
 		int	parseErrorPage(const std::string& content, uint16_t context);
 		int	parseLocation(const std::string& content, uint16_t context);
-
 };

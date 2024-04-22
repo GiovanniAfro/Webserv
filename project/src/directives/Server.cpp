@@ -1,29 +1,36 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:48:00 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Server.hpp"
 
-Server::Server()
-: ADirective("server", HTTP_CONTEXT)
-{}
+Server::Server() : ADirective("server", HTTP_CONTEXT) {}
 
-Server::Server(const Server& copy)
-{ *this = copy; }
-
-Server::~Server()
-{
-
+Server::Server(const Server &copy) : ADirective(copy) {
+	*this = copy;
 }
 
-Server&	Server::operator=(const Server& other)
-{
-	if (this != &other)
-	{
+Server::~Server() {}
+
+Server &Server::operator=(const Server &other) {
+	if (this != &other) {
 		;
 	}
 
 	return *this;
 }
 
-ADirective*	Server::clone() const
-{ return new Server(); }
+ADirective *Server::clone() const {
+	return new Server();
+}
 
 
 /*!
@@ -34,12 +41,10 @@ ADirective*	Server::clone() const
 	*       If the file is successfully read, return 200 OK
 	*       If the file does not exist, return 404 Not Found
 */
-std::map<std::string, std::string>	Server::_processGet(const std::string& filePath)
-{
+std::map<std::string, std::string>	Server::_processGet(const std::string &filePath) {
 	std::ifstream	file(filePath.c_str());
 
-	if (file)
-	{
+	if (file) {
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 		return _responseBuilder(OK, buffer.str());
@@ -48,23 +53,20 @@ std::map<std::string, std::string>	Server::_processGet(const std::string& filePa
 	return _responseBuilder(NOT_FOUND);
 }
 
-std::map<std::string, std::string>	Server::_processPost(std::map<std::string, std::string> request, std::string const& filepath)
-{
+std::map<std::string, std::string>	Server::_processPost(std::map<std::string, std::string> request, std::string const &filepath) {
 	std::string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
 
 	// Controlla se l'header del nome del file e il Content-Type sono presenti
-	if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end())
-	{
+	if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end()) {
 		std::string fileName = request[fileNameHeader];
 		std::string contentType = request["Content-Type"];
 		std::string uploadDir = filepath + "/" + fileName; // Percorso dove salvare il file
 
 		// Gestione basata sul Content-Type
-		if (contentType == "text/plain" || contentType == "application/octet-stream")
-		{ // Esempi di Content-Type supportati
+		if (contentType == "text/plain" || contentType == "application/octet-stream") { // Esempi di Content-Type supportati
 			std::ofstream outFile(uploadDir.c_str(), std::ofstream::binary);
 			if (!outFile)
-				 return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+				return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
 
 			std::string	body = request.at("body");
 			if (body.size() > static_cast<std::size_t>(std::numeric_limits<std::streamsize>::max()))
@@ -90,10 +92,8 @@ std::map<std::string, std::string>	Server::_processPost(std::map<std::string, st
 	*       If the file does not exist, return 404 Not Found
 	*       If the file cannot be deleted, return 500 Internal Server Error
 */
-std::map<std::string, std::string>	Server::_processDelete(const std::string& filePath)
-{
-	if (access(filePath.c_str(), F_OK) != -1)
-	{
+std::map<std::string, std::string>	Server::_processDelete(const std::string &filePath) {
+	if (access(filePath.c_str(), F_OK) != -1) {
 		if (remove(filePath.c_str()) == 0)
 			_responseBuilder(OK);
 		else
@@ -110,8 +110,7 @@ std::map<std::string, std::string>	Server::_processDelete(const std::string& fil
 	* @param contentType Content-Type header.
 	* @return map<string, string> Response map.
 */
-std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, const std::string &body, const std::string &contentType)
-{
+std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, const std::string &body, const std::string &contentType) {
 	std::map<std::string, std::string> response;
 	response["status"] = Http::_statusToString(status);
 	response["body"] = body;
@@ -124,8 +123,7 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 	* @param path Path to the file.
 	* @return bool True if the path is a folder, false otherwise.
 */
-bool	Server::_isFolder(const std::string& path)
-{
+bool	Server::_isFolder(const std::string &path) {
 	struct stat buffer;
 
 	if (stat(path.c_str(), &buffer) == 0)
@@ -139,8 +137,7 @@ bool	Server::_isFolder(const std::string& path)
 	* @param method HTTP method.
 	* @return bool True if the method is allowed, false otherwise.
 */
-bool Server::_isMethodAllowed(const std::string& method)
-{
+bool Server::_isMethodAllowed(const std::string &method) {
 	if (method == "GET" || method == "POST" || method == "DELETE")
 		return true;
 	return false;
@@ -151,9 +148,8 @@ bool Server::_isMethodAllowed(const std::string& method)
 	* @return string Index file.
 	* @note If the index directive is not found, return an empty string.
 */
-std::string Server::_getIndex()
-{
-	std::map<std::string, ADirective*>	directives = this->getDirectives();
+std::string Server::_getIndex() {
+	std::map<std::string, ADirective *>	directives = this->getDirectives();
 	if (directives.find("index") == directives.end())
 		return "";
 	return "";
@@ -164,16 +160,15 @@ std::string Server::_getIndex()
 	// return index->getValues()[0];
 }
 
-std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request)
-{
-	std::map<std::string, ADirective*>	directives = this->getDirectives();
+std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request) {
+	std::map<std::string, ADirective *>	directives = this->getDirectives();
 	// for (std::map<std::string, ADirective*>::iterator it = directives.begin(); it != directives.end(); ++it)
 	// 	std::cout << it->first << std::endl;
 
 	if (directives.find("root") == directives.end())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 
-	std::string	rootValue = static_cast<Root*>(this->getDirectives()["root"])->getPath();
+	std::string	rootValue = static_cast<Root *>(this->getDirectives()["root"])->getPath();
 
 	if (rootValue.empty())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
@@ -190,7 +185,7 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 	}
 
 	// Allowed methods
-	if (!_isMethodAllowed(request.at("method"))){
+	if (!_isMethodAllowed(request.at("method"))) {
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
 
@@ -204,8 +199,7 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 		else
 			return _responseBuilder(BAD_REQUEST);
 	}
-	catch (const std::exception& ex)
-	{
+	catch (const std::exception &ex) {
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 	}
 }

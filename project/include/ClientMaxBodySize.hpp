@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ClientMaxBodySize.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:24 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/18 22:07:15 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:32:37 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,7 @@
     Context:	http, server, location
  */
 
-class	ClientMaxBodySize : public ADirective
-{
+class ClientMaxBodySize : public ADirective {
 	private:
 		size_t	_size;
 
@@ -40,5 +39,4 @@ class	ClientMaxBodySize : public ADirective
 		ADirective*	clone() const;
 
 		size_t	getSize() const;
-
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Log.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 12:17:02 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/20 23:29:14 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:48:22 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,11 @@ std::string Log::_timeStamp() {
 	return (ss.str());
 }
 
-void Log::debug(const std::string &msg)
-{
+void Log::debug(const std::string &msg) {
 	std::cout << ORANGE << _timeStamp() << " [DEBUG]\t" << WHITE << msg << std::endl;
 }
 
-void Log::info(const std::string &msg)
-{
+void Log::info(const std::string &msg) {
 	std::cout << BLUE << _timeStamp() << " [INFO]\t" << WHITE << msg << std::endl;
 }
 
