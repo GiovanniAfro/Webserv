@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/19 15:53:08 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/21 20:07:48 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@
 #include "LimitExcept.hpp"
 #include "Location.hpp"
 #include "Rewrite.hpp"
+#include "Index.hpp"
 
 #include "Log.hpp"
 #include "WebServer.hpp"
