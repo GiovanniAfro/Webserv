@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listen.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:34:12 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:36:59 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:00:10 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,18 @@ class ADirective;
  */
 class Listen : public ADirective {
 	private:
-		std::map< std::string, std::set<uint16_t> >	_addressPort;	// In the context of a listen directive, it's more common to have multiple ports per IP address
-		std::vector<std::string>					_ipAddress;		// if ipAddress, addressPort instead of port
-		std::set<uint16_t>							_port;
-		bool										_isDefaultServer;
+		std::pair< std::string, std::set<uint16_t> >	_addressPort;	// In the context of a listen directive, it's more common to have multiple ports per IP address
+		std::string										_ipAddress;		// if ipAddress, addressPort instead of port
+		std::set<uint16_t>								_ports;
+		bool											_isDefaultServer;
+
 
 	public:
 		Listen();
-		// Listen();
+		Listen( const std::pair< std::string, std::set<uint16_t> >& addressPort, 
+				const std::string& ipAddress, 
+				const std::set<uint16_t>&	ports, 
+				bool isDefault );
 		Listen(const Listen &copy);
 		~Listen();
 		Listen &operator=(const Listen &other);
@@ -48,9 +52,9 @@ class Listen : public ADirective {
 		void    addPort(uint16_t port);
 		void    setDefaultServer();
 
-		std::map< std::string, std::set<uint16_t> > &getAddressPort();
-		std::vector<std::string> &getAddress();
-		std::set<uint16_t> &getPorts();
-		bool isDefaultServer() const;
+		std::pair< std::string, std::set<uint16_t> >&	getAddressPort();
+		std::string&									getAddress();
+		std::set<uint16_t>&								getPorts();
+		bool											isDefaultServer() const;
 
 };

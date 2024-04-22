@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:49:28 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:07:59 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,7 +271,7 @@ Server *WebServer::_findVirtualServer() {
 
 	this->_matchingServersPort(matchingServers, requestPort);
 
-	this->_matchingServersIp(matchingServers, requestIP);
+	// this->_matchingServersIp(matchingServers, requestIP);
 
 	// this->_matchingServersIpPort(matchingServers, requestIP, requestPort);
 
@@ -310,78 +310,78 @@ void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_
 	}
 }
 
-void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP) {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
-		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
-		bool		isMatch = false;
+// void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP) {
+// 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
+// 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
+// 		bool		isMatch = false;
 
-		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
-			Listen *listen = static_cast<Listen *>(*itListen);
+// 		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
+// 			Listen *listen = static_cast<Listen *>(*itListen);
 
-			for (std::vector<std::string>::iterator itIP = listen->getAddress().begin(); itIP != listen->getAddress().end(); ++itIP) {
+// 			for (std::vector<std::string>::iterator itIP = listen->getAddress().begin(); itIP != listen->getAddress().end(); ++itIP) {
 
-				if ((*itIP) == requestIP) {
-					isMatch = true;
-					break;
-				}
-			}
-			if (isMatch == true)
-				break;
-		}
-		if (isMatch == false)
-			itServer = servers.erase(itServer);
-		else
-			++itServer;
-	}
-}
+// 				if ((*itIP) == requestIP) {
+// 					isMatch = true;
+// 					break;
+// 				}
+// 			}
+// 			if (isMatch == true)
+// 				break;
+// 		}
+// 		if (isMatch == false)
+// 			itServer = servers.erase(itServer);
+// 		else
+// 			++itServer;
+// 	}
+// }
 
-void	WebServer::_matchingServersIpPort(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort) {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
-		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
-		bool		isMatch = false;
+// void	WebServer::_matchingServersIpPort(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort) {
+// 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
+// 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
+// 		bool		isMatch = false;
 
-		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
-			Listen *listen = static_cast<Listen *>(*itListen);
+// 		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
+// 			Listen *listen = static_cast<Listen *>(*itListen);
 
-			if (listen->getAddressPort().find(requestIP) != listen->getAddressPort().end()) {
-				for (std::set<uint16_t>::iterator itPort = listen->getAddressPort()[requestIP].begin(); itPort != listen->getAddressPort()[requestIP].end(); ++itPort) {
-					if ((*itPort) == requestPort) {
-						// Matching address:port
-						isMatch = true;
-						break;
-					}
-				}
-			}
-			if (isMatch == true)
-				break;
-		}
-		if (isMatch == false)
-			itServer = servers.erase(itServer);
-		else
-			++itServer;
-	}
+// 			if (listen->getAddressPort().find(requestIP) != listen->getAddressPort().end()) {
+// 				for (std::set<uint16_t>::iterator itPort = listen->getAddressPort()[requestIP].begin(); itPort != listen->getAddressPort()[requestIP].end(); ++itPort) {
+// 					if ((*itPort) == requestPort) {
+// 						// Matching address:port
+// 						isMatch = true;
+// 						break;
+// 					}
+// 				}
+// 			}
+// 			if (isMatch == true)
+// 				break;
+// 		}
+// 		if (isMatch == false)
+// 			itServer = servers.erase(itServer);
+// 		else
+// 			++itServer;
+// 	}
 
-}
+// }
 
-void	WebServer::_matchingServersName(std::vector<ADirective *> &servers) {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
-		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
-		bool		isMatch = false;
+// void	WebServer::_matchingServersName(std::vector<ADirective *> &servers) {
+// 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
+// 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
+// 		bool		isMatch = false;
 
-		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
-			// Listen*	listen = static_cast<Listen*>(*itListen);
+// 		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
+// 			// Listen*	listen = static_cast<Listen*>(*itListen);
 
 
 
-			if (isMatch == true)
-				break;
-		}
-		if (isMatch == false)
-			itServer = servers.erase(itServer);
-		else
-			++itServer;
-	}
-}
+// 			if (isMatch == true)
+// 				break;
+// 		}
+// 		if (isMatch == false)
+// 			itServer = servers.erase(itServer);
+// 		else
+// 			++itServer;
+// 	}
+// }
 
 void	WebServer::_sendResponse(Socket *client_socket, std::map<std::string, std::string> response) {
 	HTTP_STATUS status = Http::_statusToEnum(response["status"]);

@@ -6,7 +6,7 @@
 /*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 13:13:09 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:10:16 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,17 +267,18 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 	return 0;
 }
 
-int	ConfigFile::parseListen(const std::string &content) {
-	Server *server = static_cast<Server *>(this->_webServer->getServers().back());
-	Listen				directive;
+int	ConfigFile::parseListen(const std::string &content)
+{
+	std::pair< std::string, std::set<uint16_t> >	addressPort;	// In the context of a listen directive, it's more common to have multiple ports per IP address
+	std::string										ipAddress;		// if ipAddress, addressPort instead of port
+	std::set<uint16_t>								ports;
+	bool											isDefault = false;
+
 	std::istringstream	iss(content);
 	std::string			token;
 
-	Log::debug("parseListen");
-
-	server->addDirective(&directive);
-	Listen *listen = static_cast<Listen *>(server->getDirectives()["listen"]->getBlocks().back());
-	while (iss >> token) {
+	while (iss >> token)
+	{
 		std::cout << token << std::endl;
 
 		bool	isPort = true;
@@ -285,17 +286,18 @@ int	ConfigFile::parseListen(const std::string &content) {
 			if (!::isdigit(*it))
 				isPort = false;
 
-		if (isPort) {
+		if (isPort)
+		{
 			int	port = atoi(token.c_str());
-			if (port < 0 || port > 65535) {
-				std::cerr << "listen : invalid port" << std::endl;
-				return -1;
-			}
-			listen->addPort(static_cast<uint16_t>(port));
-
+			if (port < 0 || port > 65535)
+				return Log::error("listen : invalid port");
+			ports.insert(static_cast<uint16_t>(port));
 		}
 		else if (std::count(token.begin(), token.end(), ':') == 1)	// addressPort
 		{
+			if (!ipAddress.empty())
+				return Log::error("listen : IP address is duplicated");
+
 			std::string	address = token.substr(0, token.find(":")).c_str();
 			int			port = atoi(token.substr(token.find(":") + 1).c_str());
 
@@ -313,28 +315,43 @@ int	ConfigFile::parseListen(const std::string &content) {
 			// else
 			// 	return Log::error("listen : invalid ip address");
 
-			listen->addPort(static_cast<uint16_t>(port));
-			listen->addAddress(address);
-			listen->addAddressPort(address, static_cast<uint16_t>(port));
+			ipAddress = address;
+			ports.insert(static_cast<uint16_t>(port));
 		}
 		else	// address or default_server
 		{
 			struct in_addr	addr;
 
-			if (token == "default_server") {
-				if (listen->isDefaultServer())
+			if (token == "default_server")
+			{
+				if (isDefault)
 					return Log::error("listen : default_server directive is duplicated");
-				listen->setDefaultServer();
+				isDefault = true;;
 			}
-			else if (inet_pton(AF_INET, token.c_str(), &addr) == 1) {
+			else if (inet_pton(AF_INET, token.c_str(), &addr) == 1)
+			{
 				// valid IPv4
-				listen->addAddress(token);
-
+				if (!ipAddress.empty())
+					return Log::error("listen : IP address is duplicated");
+				ipAddress = token;
 			}
 			else
 				return Log::error("listen : invalid ip address");
 		}
+	}
 
+	addressPort = std::make_pair(ipAddress, ports);
+
+	try
+	{
+		Server *server = static_cast<Server *>(this->_webServer->getServers().back());
+		Listen	directive(addressPort, ipAddress, ports, isDefault);
+		server->addDirective(&directive);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
 	}
 
 	return 0;

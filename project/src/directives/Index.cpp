@@ -15,7 +15,7 @@ Index::Index(const std::string& content, uint16_t context)
 	// check _files's content? ...
 }
 
-Index::Index(const Index& copy)
+Index::Index(const Index& copy) : ADirective(copy)
 { *this = copy; }
 
 Index::~Index() {}
