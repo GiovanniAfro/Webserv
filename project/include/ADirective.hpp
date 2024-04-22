@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ADirective.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:31:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:36:18 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:28:34 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 #define SERVER_CONTEXT 2
 #define LOCATION_CONTEXT 3
 
-#define NUM_DIRECTIVES 9
+#define NUM_DIRECTIVES 10
 #define HTTP_DIRECTIVE 0
 #define INCLUDE_DIRECTIVE 1
 #define SERVER_DIRECTIVE 2
@@ -46,6 +46,7 @@
 #define INDEX_DIRECTIVE 6
 #define ERRORPAGE_DIRECTIVE 7
 #define LOCATION_DIRECTIVE 8
+#define AUTOINDEX_DIRECTIVE 9
 
 class ADirective {
 	protected:

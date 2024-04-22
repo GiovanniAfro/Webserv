@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Autoindex.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:28 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:36:05 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:35:46 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Autoindex : public ADirective
 		Autoindex();
 
 	public:
-		Autoindex(uint16_t context, bool isEnabled);
+		Autoindex(uint16_t context, const std::string& content);
 		Autoindex(const Autoindex& copy);
 		~Autoindex();
 		Autoindex&	operator=(const Autoindex& other);

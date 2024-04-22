@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 20:23:47 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:46:27 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,12 @@ int	ConfigFile::parseConfigFile() {
 			ErrorPage*	errBlock = static_cast<ErrorPage*>(ser->getDirectives()["error_page"]);
 			for (std::vector<enum HTTP_STATUS>::iterator itErr = errBlock->getCodes().begin(); itErr != errBlock->getCodes().end(); ++itErr)
 				std::cout << "error_page code : " << *itErr << std::endl;
+		}
+
+		if (ser->getDirectives().find("autoindex") != ser->getDirectives().end())
+		{
+			Autoindex*	autoBlock = static_cast<Autoindex*>(ser->getDirectives()["autoindex"]);
+			std::cout << "autoindex : " << (autoBlock->getMode()? "on" : "off") << std::endl;
 		}
 	}
 
@@ -272,6 +278,8 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 			return this->parseErrorPage(content, context);
 		case LOCATION_DIRECTIVE:
 			return this->parseLocation(content, context);
+		case AUTOINDEX_DIRECTIVE:
+			return this->parseAutoIndex(content, context);
 		default:
 			break;
 	}
@@ -513,6 +521,23 @@ int	ConfigFile::parseLocation(const std::string &content, uint16_t context) {
 	Log::debug("parseLocation");
 	(void)content;
 	(void)context;
+
+	return 0;
+}
+
+int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
+{
+	try
+	{
+		ADirective *server = this->_webServer->getServers().back();
+		Autoindex	autoIndex(context, content);
+		server->addDirective(&autoIndex);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
 
 	return 0;
 }

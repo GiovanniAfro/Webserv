@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFile.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:32:45 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:10:21 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:29:36 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,4 +46,5 @@ class ConfigFile {
 		int	parseIndex(const std::string& content, uint16_t context);
 		int	parseErrorPage(const std::string& content, uint16_t context);
 		int	parseLocation(const std::string& content, uint16_t context);
+		int	parseAutoIndex(const std::string& content, uint16_t context);
 };
