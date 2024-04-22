@@ -119,20 +119,6 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 }
 
 /*!
-	* @brief Check if the path is a folder.
-	* @param path Path to the file.
-	* @return bool True if the path is a folder, false otherwise.
-*/
-bool	Server::_isFolder(const std::string &path) {
-	struct stat buffer;
-
-	if (stat(path.c_str(), &buffer) == 0)
-		return S_ISDIR(buffer.st_mode);
-
-	return false;
-}
-
-/*!
 	* @brief Check if the method is allowed.
 	* @param method HTTP method.
 	* @return bool True if the method is allowed, false otherwise.
@@ -143,27 +129,98 @@ bool Server::_isMethodAllowed(const std::string &method) {
 	return false;
 }
 
+// Index and Autoindex ------------------------------------------------------>
+/*!
+	* @brief Check if the path is a folder.
+	* @param path Path to the file.
+	* @return bool True if the path is a folder, false otherwise.
+*/
+bool	Server::_isFolder(const std::string &path) {
+	struct stat buffer;
+
+	if (stat(path.c_str(), &buffer) == 0)
+		return S_ISDIR(buffer.st_mode);
+	return false;
+}
+
+/*!
+	* @brief Check if the path is a file.
+	* @param path Path to the file.
+	* @return bool True if the path is a file, false otherwise.
+*/
+bool	Server::_isFile(const std::string &path) {
+	struct stat buffer;
+
+	if (stat(path.c_str(), &buffer) == 0)
+		return S_ISREG(buffer.st_mode);
+	return false;
+}
+
+/*!
+	* @brief Check if the autoindex directive is set to on.
+	* @return bool True if the autoindex directive is defined and set to on, false otherwise.
+*/
+bool	Server::_isAutoIndex() {
+	std::cout << "Checking autoindex" << std::endl;
+	std::map<std::string, ADirective *>	directives = this->getDirectives();
+	for (std::map<std::string, ADirective *>::iterator it = directives.begin(); it != directives.end(); ++it)
+		std::cout << it->first << std::endl;
+
+	Autoindex *autoindex = static_cast<Autoindex *>(directives["autoindex"]);
+
+	if (!autoindex)
+		return false;
+	return autoindex->getMode();
+}
+
 /*!
 	* @brief Get the index file.
+	* @param filePath Path to the file.
 	* @return string Index file.
-	* @note If the index directive is not found, return an empty string.
+	* @note If no index file is found, return an empty string.
 */
-std::string Server::_getIndex() {
+std::string Server::_getIndex(std::string const &filePath) {
 	std::map<std::string, ADirective *>	directives = this->getDirectives();
-	if (directives.find("index") == directives.end())
-		return "";
-	return "";
 
-	// Index *index = static_cast<Index*>(directives["index"]);
-	// if (index->getValues().empty())
-	// 	return "";
-	// return index->getValues()[0];
+	Index *index = static_cast<Index *>(directives["index"]);
+
+	for (std::vector<std::string>::iterator it = index->getFiles().begin(); it != index->getFiles().end(); ++it)
+		if (_isFile(filePath + *it))
+			return *it;
+	return "";
 }
+
+std::map<std::string, std::string> Server::_directoryListing(std::string const &path)
+{
+	std::map<std::string, std::string>	response;
+	std::string							body;
+	DIR									*dir;
+	struct dirent						*ent;
+
+	if ((dir = opendir(path.c_str())) != NULL)
+	{
+		body += "<html><head><title>Directory listing</title></head><body><h1>Directory listing</h1><ul>";
+		while ((ent = readdir(dir)) != NULL)
+		{
+			body += "<li><a href=\"";
+			body += ent->d_name;
+			body += "\">";
+			body += ent->d_name;
+			body += "</a></li>";
+		}
+		body += "</ul></body></html>";
+		closedir(dir);
+
+		return _responseBuilder(OK, body, "text/html");
+	}
+	else
+		response = _responseBuilder(INTERNAL_SERVER_ERROR);
+	return response;
+}
+// -------------------------------------------------------------------------->
 
 std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request) {
 	std::map<std::string, ADirective *>	directives = this->getDirectives();
-	// for (std::map<std::string, ADirective*>::iterator it = directives.begin(); it != directives.end(); ++it)
-	// 	std::cout << it->first << std::endl;
 
 	if (directives.find("root") == directives.end())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
@@ -176,12 +233,24 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 	std::string	requestUri = request["uri"];
 	std::string	filePath = rootValue + requestUri;
 
-	if (_isFolder(filePath)) {
-		std::string index = _getIndex();
-		if (index == "")
-			return _responseBuilder(INTERNAL_SERVER_ERROR);
+	// If the path is a folder, check for the index file and autoindex directive
+	if (_isFolder(filePath))
+	{
+		if (directives.find("index") != directives.end())
+		{
+			std::string index = _getIndex(filePath);
+			std::cout << "Index: " << index << std::endl;
+			if (index.empty() && _isAutoIndex())
+				return _directoryListing(filePath);
+			else if (index.empty())
+				return _responseBuilder(FORBIDDEN);
 
-		filePath += index;
+			filePath += index;
+		}
+		else if (_isAutoIndex())
+			return _directoryListing(filePath);
+		else
+			return _responseBuilder(FORBIDDEN);
 	}
 
 	// Allowed methods

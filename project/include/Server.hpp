@@ -26,9 +26,14 @@ class Server : public ADirective {
 
 		std::map<std::string, std::string>	_responseBuilder(HTTP_STATUS status, const std::string &body = "", const std::string &contentType = "text/html");
 
-		bool	_isFolder(const std::string &path);
 		bool	_isMethodAllowed(const std::string &method);
-		std::string	_getIndex();
+
+		// Index and autoindex
+		bool	_isFolder(const std::string &path);
+		bool	_isFile(const std::string &path);
+		bool		_isAutoIndex();
+		std::string	_getIndex(const std::string &path);
+		std::map<std::string, std::string> _directoryListing(const std::string &path);
 
 	public:
 		Server();

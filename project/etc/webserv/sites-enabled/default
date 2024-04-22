@@ -6,7 +6,13 @@ server {
 	root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
 	# Add index.php to the list if you are using PHP
-	index index.html index.htm index.nginx-debian.html;
+	# index index.html index.htm index.webserv-debian.html;
+	index index.html;
+	autoindex on;
+
+	limit_except GET, POST {
+		deny all;
+	}
 
 	server_name _;
 
@@ -16,10 +22,11 @@ server {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.
 		try_files $uri $uri/ =404;
+		limit_except GET {
+			deny all;
+		}
+		autoindex off;
 	}
-
-	autoindex on;
-
 }
 
 server {

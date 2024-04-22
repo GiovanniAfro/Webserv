@@ -115,18 +115,23 @@
 
 ## Directives
 
-[ ] location
-    - [ ] allow_methods
-    - [ ] client_max_body_size
-    - [ ] root
-
 [ ] server
     - [ ] server_name
     - [ ] limit_except
     - [x] listen
     - [ ] error_page
-    - [ ] index
+    - [x] index
+    - [x] autoindex
     - [x] root
+
+[ ] location
+    - [ ] allow_methods
+    - [ ] client_max_body_size
+    - [ ] index
+    - [ ] root
+    - [ ] autoindex (check if definded by server on)
+
+[ ] redirect
 
 ## anvannin
 
