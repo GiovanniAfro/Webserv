@@ -6,7 +6,7 @@
 /*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:34:12 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:00:10 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:14:10 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ class Listen : public ADirective {
 		std::set<uint16_t>								_ports;
 		bool											_isDefaultServer;
 
+		Listen();
 
 	public:
-		Listen();
 		Listen( const std::pair< std::string, std::set<uint16_t> >& addressPort, 
 				const std::string& ipAddress, 
 				const std::set<uint16_t>&	ports, 

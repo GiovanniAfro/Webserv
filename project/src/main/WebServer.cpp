@@ -6,7 +6,7 @@
 /*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:07:59 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:51:30 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,17 @@ int	WebServer::startServers() {
 
 				// Process the requests ----------------------------------->
 				response = this->_processRequests();
+
+				if (response.empty())
+				{
+					Log::error("WebServer : empty response");
+					clientSocket->closeSocket();
+					delete clientSocket;
+					clientSocket = NULL;
+					// request.clear();
+					// response.clear();
+					continue;
+				}
 
 				// Send the response -------------------------------------->
 				this->_sendResponse(clientSocket, response);
@@ -255,6 +266,12 @@ void	WebServer::_parseRequest(const std::string &request) {
 std::map<std::string, std::string>	WebServer::_processRequests() {
 	Server *server = _findVirtualServer();
 
+	if (!server)
+	{
+		Log::error("WebServer : _processRequests : matching server not found");
+		return std::map<std::string, std::string>();
+	}
+
 	return server->processRequest(this->_clientRequest.request);
 }
 
@@ -271,7 +288,7 @@ Server *WebServer::_findVirtualServer() {
 
 	this->_matchingServersPort(matchingServers, requestPort);
 
-	// this->_matchingServersIp(matchingServers, requestIP);
+	this->_matchingServersIp(matchingServers, requestIP, requestPort);
 
 	// this->_matchingServersIpPort(matchingServers, requestIP, requestPort);
 
@@ -310,30 +327,34 @@ void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_
 	}
 }
 
-// void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP) {
-// 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
-// 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
-// 		bool		isMatch = false;
+void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort)
+{
+	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); )
+	{
+		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
+		bool		isMatch = false;
 
-// 		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
-// 			Listen *listen = static_cast<Listen *>(*itListen);
+		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen)
+		{
+			Listen *listen = static_cast<Listen *>(*itListen);
 
-// 			for (std::vector<std::string>::iterator itIP = listen->getAddress().begin(); itIP != listen->getAddress().end(); ++itIP) {
 
-// 				if ((*itIP) == requestIP) {
-// 					isMatch = true;
-// 					break;
-// 				}
-// 			}
-// 			if (isMatch == true)
-// 				break;
-// 		}
-// 		if (isMatch == false)
-// 			itServer = servers.erase(itServer);
-// 		else
-// 			++itServer;
-// 	}
-// }
+			if (listen->getAddress().empty())
+				continue;
+
+			if (listen->getAddress() == requestIP && 
+				listen->getPorts().find(requestPort) != listen->getPorts().end())
+			{
+				isMatch = true;
+				break;
+			}
+		}
+		if (isMatch == false)
+			itServer = servers.erase(itServer);
+		else
+			++itServer;
+	}
+}
 
 // void	WebServer::_matchingServersIpPort(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort) {
 // 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {

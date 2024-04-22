@@ -6,7 +6,7 @@
 /*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 13:15:31 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:19:15 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	main(int ac, char **av) {
 	webServer.setConfigFile(file);
 
 	file.parseConfigFile();
-	// webServer.startServers();
+	webServer.startServers();
 
 	return 0;
 }

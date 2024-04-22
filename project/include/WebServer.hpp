@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:18 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:38:27 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/22 15:43:59 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class	WebServer {
 		void								_parseRequest(const std::string &request);
 		Server *_findVirtualServer();
 		void								_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort);
-		void								_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP);
+		void								_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort);
 		void								_matchingServersIpPort(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort);
 		void								_matchingServersName(std::vector<ADirective *> &servers);
 		std::map<std::string, std::string>	_processRequests();
