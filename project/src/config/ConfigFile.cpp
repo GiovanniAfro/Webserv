@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:10:16 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 20:04:11 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,13 @@ int	ConfigFile::parseConfigFile() {
 				std::cout << *it << std::endl;
 			}
 			std::cout << std::endl;
+		}
+
+		if (ser->getDirectives().find("index") != ser->getDirectives().end())
+		{
+			Index*	indBlock = static_cast<Index*>(ser->getDirectives()["index"]);
+			for (std::vector<std::string>::iterator itInd = indBlock->getFiles().begin(); itInd != indBlock->getFiles().end(); ++itInd)
+				std::cout << *itInd << std::endl;
 		}
 	}
 
@@ -254,8 +261,7 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 		case SERVER_NAME_DIRECTIVE:
 			break;
 		case INDEX_DIRECTIVE:
-			// this->parseIndex(content, context);
-			break;
+			this->parseIndex(content, context);
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content, context);
 		case LOCATION_DIRECTIVE:
@@ -273,6 +279,8 @@ int	ConfigFile::parseListen(const std::string &content)
 	std::string										ipAddress;		// if ipAddress, addressPort instead of port
 	std::set<uint16_t>								ports;
 	bool											isDefault = false;
+
+	Log::debug("parseListen");
 
 	std::istringstream	iss(content);
 	std::string			token;
@@ -358,9 +366,11 @@ int	ConfigFile::parseListen(const std::string &content)
 }
 
 int	ConfigFile::parseRoot(const std::string &content, uint16_t context) {
-	ADirective *server = this->_webServer->getServers().back();
+
+	Log::debug("parseRoot");
 
 	try {
+		ADirective *server = this->_webServer->getServers().back();
 		Root	directive(context, content);
 		server->addDirective(&directive);
 	}
@@ -373,9 +383,11 @@ int	ConfigFile::parseRoot(const std::string &content, uint16_t context) {
 }
 
 int	ConfigFile::parseServerName(const std::string &content) {
-	ADirective *server = this->_webServer->getServers().back();
+
+	Log::debug("parseServerName");
 
 	try {
+		ADirective *server = this->_webServer->getServers().back();
 		ServerName	directive(content);
 		server->addDirective(&directive);
 	}
@@ -387,16 +399,35 @@ int	ConfigFile::parseServerName(const std::string &content) {
 	return 0;
 }
 
-// int	ConfigFile::parseIndex(const std::string &content, uint16_t context) {
-// 	std::istringstream	iss(content);
-// 	std::string			token;
+int	ConfigFile::parseIndex(const std::string &content, uint16_t context)
+{
+	// std::istringstream	iss(content);
+	// std::string			token;
 
-// 	while (iss >> token) {
+	// if (content.empty())
+	// 	return Log::error("parseIndex : empty content");
 
-// 	}
+	// while (iss >> token)
+	// {
 
-// 	return 0;
-// }
+	// }
+
+	Log::debug("parseIndex");
+
+	try
+	{
+		ADirective *server = this->_webServer->getServers().back();
+		Index		directive(content, context);
+		server->addDirective(&directive);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	return 0;
+}
 
 int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
 	std::vector<enum HTTP_STATUS>	codes;

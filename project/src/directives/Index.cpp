@@ -1,18 +1,25 @@
 #include "Index.hpp"
 
 Index::Index(const std::string& content, uint16_t context)
+: ADirective("index", context)
 {
-	// std::istringstream	iss(content);
-	// std::string			token;
+	std::istringstream	iss(content);
+	std::string			token;
 
 	if (content.empty())
 		throw std::runtime_error("index : empty content");
-	(void)content;
-	(void)context;
-	// while (iss >> token)
-	// 	_variables.push_back(token);
-	
-	// check _files's content? ...
+
+	while (iss >> token)
+	{
+		// check _files's content? ...
+		_files.push_back(token);
+	}
+	if (_files.back()[0] == '/')	// isListenModifier()?
+	{
+		// expand
+		;
+	}
+
 }
 
 Index::Index(const Index& copy) : ADirective(copy)
