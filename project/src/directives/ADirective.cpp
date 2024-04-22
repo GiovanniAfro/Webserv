@@ -1,32 +1,40 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ADirective.cpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:38:49 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 10:39:24 by kichkiro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ADirective.hpp"
 
 ADirective::ADirective() {}
 
-ADirective::ADirective(const std::string& type, int context)
-: _type(type), _context(static_cast<uint16_t>(context))
-{}
+ADirective::ADirective(const std::string &type, int context)
+	: _type(type), _context(static_cast<uint16_t>(context)) {}
 
-ADirective::ADirective(const ADirective& copy)
-{ *this = copy; }
+ADirective::ADirective(const ADirective &copy) {
+	*this = copy;
+}
 
-ADirective::~ADirective()
-{
+ADirective::~ADirective() {
 	// this->_blocks.pop_front();
 	// // std::cout << "PostPop : " << this->_blocks.size() << std::endl;
 
-	for (std::vector<ADirective*>::iterator it = _blocks.begin(); it != _blocks.end(); ++it)
-	{
+	for (std::vector<ADirective *>::iterator it = _blocks.begin(); it != _blocks.end(); ++it) {
 		delete (*it);
 	}
-	for (std::map<std::string, ADirective*>::iterator it = _directives.begin(); it != _directives.end(); ++it)
-	{
+	for (std::map<std::string, ADirective *>::iterator it = _directives.begin(); it != _directives.end(); ++it) {
 		delete it->second;
 	}
 	_directives.clear();
 }
 
-ADirective&	ADirective::operator=(const ADirective& other)
-{
+ADirective &ADirective::operator=(const ADirective &other) {
 	if (this == &other)
 		return *this;
 
@@ -38,32 +46,33 @@ ADirective&	ADirective::operator=(const ADirective& other)
 	return *this;
 }
 
-const std::string&	ADirective::getType() const
-{ return _type; }
+const std::string &ADirective::getType() const {
+	return _type;
+}
 
-std::vector<ADirective*>&	ADirective::getBlocks()
-{return _blocks; }
+std::vector<ADirective *> &ADirective::getBlocks() {
+	return _blocks;
+}
 
-size_t	ADirective::getBlocksSize() const
-{ return _blocks.size(); }
+size_t	ADirective::getBlocksSize() const {
+	return _blocks.size();
+}
 
-void	ADirective::addBlock(ADirective* block)
-{ _blocks.push_back(block); }
+void	ADirective::addBlock(ADirective *block) {
+	_blocks.push_back(block);
+}
 
-void	ADirective::addDirective(ADirective* directive)
-{
-	if (_directives.find(directive->getType()) == _directives.end())
-	{
-		ADirective*	newDirective = directive->clone();
+void	ADirective::addDirective(ADirective *directive) {
+	if (_directives.find(directive->getType()) == _directives.end()) {
+		ADirective *newDirective = directive->clone();
 
 		_directives[directive->getType()] = newDirective;
 		_directives[directive->getType()]->addBlock(newDirective->clone());
 	}
 	else
-	{
 		_directives[directive->getType()]->addBlock(directive->clone());	// clone in addBlock?
-	}
 }
 
-std::map<std::string, ADirective*>&	ADirective::getDirectives()
-{ return _directives; }
+std::map<std::string, ADirective *> &ADirective::getDirectives() {
+	return _directives;
+}

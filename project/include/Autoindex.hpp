@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Autoindex.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:28 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/19 15:54:14 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:36:05 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@
     Default:    autoindex off;
     Context:	http, server, location
  */
-
-class	Autoindex : public ADirective
+class Autoindex : public ADirective
 {
 	private:
 		bool	_isEnabled;
@@ -40,5 +39,4 @@ class	Autoindex : public ADirective
 		ADirective*	clone() const;
 
 		bool	getMode() const;
-
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Rewrite.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:00 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/18 22:29:37 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:35:15 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,9 @@
 	Default:	—
 	Context:	server, location, if
  */
-class	Rewrite : public ADirective
+class Rewrite : public ADirective
 {
 	private:
-
-
 		Rewrite();
 
 	public:
@@ -37,7 +35,4 @@ class	Rewrite : public ADirective
 		Rewrite&	operator=(const Rewrite& other);
 
 		ADirective*	clone() const;
-
-
-
 };

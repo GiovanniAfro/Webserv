@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ErrorPage.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:19 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/21 02:03:12 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/22 10:33:05 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@
     Default:	—
     Context:	http, server, location
  */
-class	ErrorPage : public ADirective
-{
+class ErrorPage : public ADirective {
 	private:
 		std::vector<enum HTTP_STATUS>	_codes;
 		enum HTTP_STATUS				_response;
@@ -43,6 +42,4 @@ class	ErrorPage : public ADirective
 		std::vector<enum HTTP_STATUS>&	getCodes();
 		enum HTTP_STATUS				getResponse();
 		const std::string&				getUri() const;
-		
-
 };

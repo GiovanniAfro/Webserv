@@ -1,15 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ConfigFile.cpp                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
+/*   Updated: 2024/04/22 13:13:09 by adi-nata         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ConfigFile.hpp"
 
 ConfigFile::ConfigFile() {}
 
-ConfigFile::ConfigFile(WebServer* server)
-: _filePath("etc/webserv/webserv.conf")
-{
+ConfigFile::ConfigFile(WebServer *server)
+	: _filePath("etc/webserv/webserv.conf") {
 	std::ifstream	inputFile;
 
 	inputFile.open(this->_filePath);
-	if (!inputFile.is_open())
-	{
+	if (!inputFile.is_open()) {
 		throw std::runtime_error("webserv: ConfigFile: file does not exist");
 	}
 	inputFile.close();
@@ -17,14 +27,12 @@ ConfigFile::ConfigFile(WebServer* server)
 	_context = GLOBAL_CONTEXT;
 }
 
-ConfigFile::ConfigFile(const char *filePath, WebServer* server)
-: _filePath(filePath)
-{
+ConfigFile::ConfigFile(const char *filePath, WebServer *server)
+	: _filePath(filePath) {
 	std::ifstream	inputFile;
 
 	inputFile.open(this->_filePath);
-	if (!inputFile.is_open())
-	{
+	if (!inputFile.is_open()) {
 		throw std::runtime_error("webserv: ConfigFile: file does not exist");
 	}
 	inputFile.close();
@@ -32,29 +40,24 @@ ConfigFile::ConfigFile(const char *filePath, WebServer* server)
 	_context = GLOBAL_CONTEXT;
 }
 
-void	ConfigFile::setFilePath(const char *filePath)
-{
+void	ConfigFile::setFilePath(const char *filePath) {
 	this->_filePath = filePath;
 }
 
-ConfigFile::~ConfigFile() {
-}
+ConfigFile::~ConfigFile() {}
 
-int	ConfigFile::parseConfigFile()
-{
+int	ConfigFile::parseConfigFile() {
 	std::ifstream		inputFile;
 	std::string			line, header, content;
 	std::stringstream	streamBlock;
 
 	Log::debug("parseConfigFile");
 	inputFile.open(this->_filePath);
-	if (!inputFile.is_open())
-	{
+	if (!inputFile.is_open()) {
 		// return Log::error("webserv: ConfigFile: file does not exist");
 		return -1;
 	}
-	while (getline(inputFile, line))
-	{
+	while (getline(inputFile, line)) {
 		std::cout << "line : " << line << std::endl;
 		line = strip(line);
 		if (line.empty() || isComment(line))
@@ -65,8 +68,7 @@ int	ConfigFile::parseConfigFile()
 		std::cout << "header : " << header << std::endl;
 		content = secondToken(line);
 		std::cout << "content : " << content << std::endl;
-		if (header == "http")
-		{
+		if (header == "http") {
 			this->_context = HTTP_CONTEXT;
 			this->parserRouter(inputFile, header, content, GLOBAL_CONTEXT);
 
@@ -77,31 +79,27 @@ int	ConfigFile::parseConfigFile()
 	this->parserRouter(inputFile, "include", line, HTTP_CONTEXT);
 
 	Log::debug("PROVE");
-	Http*		con = static_cast<Http*>(this->_webServer->getConfigs()[0]);
+	Http *con = static_cast<Http *>(this->_webServer->getConfigs()[0]);
 	std::cout << "Http : " << this->_webServer->getConfigs().size() << std::endl;
-	Include*	inc = static_cast<Include*>(con->getDirectives()["include"]);
+	Include *inc = static_cast<Include *>(con->getDirectives()["include"]);
 	std::cout << "Include size : " << inc->getBlocks().size() << std::endl;
-	for (std::vector<ADirective*>::iterator it = inc->getBlocks().begin(); it != inc->getBlocks().end(); ++it)
-	{
-		std::cout << static_cast<Include*>(*it)->getPath() << std::endl;
+	for (std::vector<ADirective *>::iterator it = inc->getBlocks().begin(); it != inc->getBlocks().end(); ++it) {
+		std::cout << static_cast<Include *>(*it)->getPath() << std::endl;
 	}
 
 	// size_t	serSize = this->_webServer->getServers().size();
 	// std::cout << "Server : " << serSize << std::endl;
-	for (std::vector<ADirective*>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it)
-	{
-		Server*	ser = static_cast<Server*>(*it);
-		Listen*	lisBlock = static_cast<Listen*>(ser->getDirectives()["listen"]);
+	for (std::vector<ADirective *>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it) {
+		Server *ser = static_cast<Server *>(*it);
+		Listen *lisBlock = static_cast<Listen *>(ser->getDirectives()["listen"]);
 
 		std::cout << "Listen : " << lisBlock->getBlocksSize() << std::endl;
-		for (std::vector<ADirective*>::iterator it = lisBlock->getBlocks().begin(); it != lisBlock->getBlocks().end(); ++it)
-		{
+		for (std::vector<ADirective *>::iterator it = lisBlock->getBlocks().begin(); it != lisBlock->getBlocks().end(); ++it) {
 			std::cout << std::endl;
-			Listen* 			lis = static_cast<Listen*>(*it);
+			Listen *lis = static_cast<Listen *>(*it);
 			std::set<uint16_t>	ports = lis->getPorts();
 			std::cout << "ports : " << lis->getPorts().size() << std::endl;
-			for (std::set<uint16_t>::iterator it = ports.begin(); it != ports.end(); ++it)
-			{
+			for (std::set<uint16_t>::iterator it = ports.begin(); it != ports.end(); ++it) {
 				std::cout << *it << std::endl;
 			}
 			std::cout << std::endl;
@@ -112,41 +110,36 @@ int	ConfigFile::parseConfigFile()
 	return 0;
 }
 
-int	ConfigFile::parseHttp(std::ifstream& inputFile, std::string& line)
-{
+int	ConfigFile::parseHttp(std::ifstream &inputFile, std::string &line) {
 	std::string	header, content;
 
 	Log::debug("parseHttp");
 
 	this->_webServer->addConfig();
-	while (getline(inputFile, line))
-	{
-	std::cout << "line : " << line << std::endl;
+	while (getline(inputFile, line)) {
+		std::cout << "line : " << line << std::endl;
 		line = strip(line);
 		if (line.empty() || isComment(line) /* || isBracket(line) */)
 			continue;
 		else if (isClosedBracket(line))
 			break;
 		header = firstToken(line);
-	std::cout << "header : " << header << std::endl;
+		std::cout << "header : " << header << std::endl;
 		if (header.empty())
 			return Log::error("ConfigFile : parseHttp : invalid header");
 		content = secondToken(line);
-	std::cout << "content : " << content << std::endl;
-		if (header == "include")
-		{
+		std::cout << "content : " << content << std::endl;
+		if (header == "include") {
 			glob_t	globPaths;
 			glob(content.c_str(), GLOB_TILDE, NULL, &globPaths);
-			for (unsigned int i = 0; i < globPaths.gl_pathc; ++i)
-			{
+			for (unsigned int i = 0; i < globPaths.gl_pathc; ++i) {
 				std::cout << globPaths.gl_pathv[i] << std::endl;
 				Include	include(globPaths.gl_pathv[i]);
 				this->_webServer->getConfigs().back()->addDirective(&include);	// getConfigs()[0]
 			}
 			globfree(&globPaths);
 		}
-		else
-		{
+		else {
 			this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
 		}
 	}
@@ -155,59 +148,51 @@ int	ConfigFile::parseHttp(std::ifstream& inputFile, std::string& line)
 	return 0;
 }
 
-int	ConfigFile::parseInclude()
-{
-	Include*	include = NULL;
+int	ConfigFile::parseInclude() {
+	Include *include = NULL;
 
 	Log::debug("parseInclude");
 	// for (std::vector<ADirective*>::iterator it = _webServer->getConfigs().begin(); it != _webServer->getConfigs().end(); ++it)
 	// {}
 	if (_webServer->getConfigs()[0]->getDirectives().find("include") !=
-		_webServer->getConfigs()[0]->getDirectives().end())
-	{
-		include = static_cast<Include*>
-				(_webServer->getConfigs()[0]->getDirectives()["include"]);
+		_webServer->getConfigs()[0]->getDirectives().end()) {
+		include = static_cast<Include *>
+			(_webServer->getConfigs()[0]->getDirectives()["include"]);
 	}
-	else
-	{
+	else {
 		return -1;
 	}
 
-	for (std::vector<ADirective*>::iterator it = include->getBlocks().begin(); it != include->getBlocks().end(); ++it)
-	{
-		Include*		include = static_cast<Include*>(*it);
+	for (std::vector<ADirective *>::iterator it = include->getBlocks().begin(); it != include->getBlocks().end(); ++it) {
+		Include *include = static_cast<Include *>(*it);
 		std::ifstream	inputFile;
 		std::string		line, header, content;
-		std::vector<ADirective*>	includeBlocks(include->getBlocks());
+		std::vector<ADirective *>	includeBlocks(include->getBlocks());
 
 		// includeBlocks.pop
 
 		std::cout << include->getPath() << std::endl;
 
 		inputFile.open((include->getPath()).c_str());
-		if (!inputFile.is_open())
-		{
+		if (!inputFile.is_open()) {
 			std::cerr << "webserv: ConfigFile: file does not exist" << std::endl;
 			return -1;
 		}
-		while (getline(inputFile, line))
-		{
-		std::cout << "line : " << line << std::endl;
+		while (getline(inputFile, line)) {
+			std::cout << "line : " << line << std::endl;
 			line = strip(line);
 			if (line.empty() || isComment(line) || isBracket(line))
 				continue;
 			header = firstToken(line);
-		std::cout << "header : " << header << std::endl;
+			std::cout << "header : " << header << std::endl;
 			if (header.empty())
-			return Log::error("ConfigFile : parseInclude : invalid header");
+				return Log::error("ConfigFile : parseInclude : invalid header");
 			content = secondToken(line);
-		std::cout << "content : " << content << std::endl;
-			if (header == "server")
-			{
+			std::cout << "content : " << content << std::endl;
+			if (header == "server") {
 				this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
 			}
-			else
-			{
+			else {
 				this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
 			}
 		}
@@ -216,29 +201,26 @@ int	ConfigFile::parseInclude()
 	return 0;
 }
 
-int	ConfigFile::parseServers(std::ifstream& inputFile, std::string& line)
-{
+int	ConfigFile::parseServers(std::ifstream &inputFile, std::string &line) {
 	std::string	header, content;
 
 	Log::debug("parseServers");
 
 	this->_webServer->addServer();
-	while (getline(inputFile, line))
-	{
-	std::cout << "line : " << line << std::endl;
+	while (getline(inputFile, line)) {
+		std::cout << "line : " << line << std::endl;
 		line = strip(line);
 		if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
 			continue;
 		else if (isClosedBracket(line))
 			break;
 		header = firstToken(line);
-	std::cout << "header : " << header << std::endl;
+		std::cout << "header : " << header << std::endl;
 		if (header.empty())
 			return Log::error("ConfigFile : parseServers : invalid header");
 		content = secondToken(line);
-	std::cout << "content : " << content << std::endl;
-		if (isServerDirective(header))
-		{
+		std::cout << "content : " << content << std::endl;
+		if (isServerDirective(header)) {
 			this->parserRouter(inputFile, header, content, SERVER_CONTEXT);
 		}
 	}
@@ -246,7 +228,7 @@ int	ConfigFile::parseServers(std::ifstream& inputFile, std::string& line)
 	return 0;
 }
 
-int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header, std::string& content, uint16_t context)	// inputFile pointer so that it can be passed as NULL?
+int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header, std::string &content, uint16_t context)	// inputFile pointer so that it can be passed as NULL?
 {
 	Log::debug("parserRouter");
 
@@ -258,8 +240,7 @@ int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header
 		return Log::error("parserRouter : invalid header");
 	if (!checkContext(index, context))
 		return Log::error("parserRouter : invalid context");
-	switch (index)
-	{
+	switch (index) {
 		case HTTP_DIRECTIVE:
 			return this->parseHttp(inputFile, content);
 		case INCLUDE_DIRECTIVE:
@@ -286,9 +267,8 @@ int	ConfigFile::parserRouter(std::ifstream& inputFile, const std::string& header
 	return 0;
 }
 
-int	ConfigFile::parseListen(const std::string& content)
-{
-	Server*				server = static_cast<Server*>(this->_webServer->getServers().back());
+int	ConfigFile::parseListen(const std::string &content) {
+	Server *server = static_cast<Server *>(this->_webServer->getServers().back());
 	Listen				directive;
 	std::istringstream	iss(content);
 	std::string			token;
@@ -296,9 +276,8 @@ int	ConfigFile::parseListen(const std::string& content)
 	Log::debug("parseListen");
 
 	server->addDirective(&directive);
-	Listen*	listen = static_cast<Listen*>(server->getDirectives()["listen"]->getBlocks().back());
-	while (iss >> token)
-	{
+	Listen *listen = static_cast<Listen *>(server->getDirectives()["listen"]->getBlocks().back());
+	while (iss >> token) {
 		std::cout << token << std::endl;
 
 		bool	isPort = true;
@@ -306,11 +285,9 @@ int	ConfigFile::parseListen(const std::string& content)
 			if (!::isdigit(*it))
 				isPort = false;
 
-		if (isPort)
-		{
+		if (isPort) {
 			int	port = atoi(token.c_str());
-			if (port < 0 || port > 65535)
-			{
+			if (port < 0 || port > 65535) {
 				std::cerr << "listen : invalid port" << std::endl;
 				return -1;
 			}
@@ -344,14 +321,12 @@ int	ConfigFile::parseListen(const std::string& content)
 		{
 			struct in_addr	addr;
 
-			if (token == "default_server")
-			{
+			if (token == "default_server") {
 				if (listen->isDefaultServer())
 					return Log::error("listen : default_server directive is duplicated");
 				listen->setDefaultServer();
 			}
-			else if (inet_pton(AF_INET, token.c_str(), &addr) == 1)
-			{
+			else if (inet_pton(AF_INET, token.c_str(), &addr) == 1) {
 				// valid IPv4
 				listen->addAddress(token);
 
@@ -365,17 +340,14 @@ int	ConfigFile::parseListen(const std::string& content)
 	return 0;
 }
 
-int	ConfigFile::parseRoot(const std::string& content, uint16_t context)
-{
-	ADirective*	server = this->_webServer->getServers().back();
+int	ConfigFile::parseRoot(const std::string &content, uint16_t context) {
+	ADirective *server = this->_webServer->getServers().back();
 
-	try
-	{
+	try {
 		Root	directive(context, content);
 		server->addDirective(&directive);
 	}
-	catch (const std::exception& ex)
-	{
+	catch (const std::exception &ex) {
 		std::cerr << ex.what() << '\n';
 		return -1;
 	}
@@ -383,17 +355,14 @@ int	ConfigFile::parseRoot(const std::string& content, uint16_t context)
 	return 0;
 }
 
-int	ConfigFile::parseServerName(const std::string& content)
-{
-	ADirective*	server = this->_webServer->getServers().back();
+int	ConfigFile::parseServerName(const std::string &content) {
+	ADirective *server = this->_webServer->getServers().back();
 
-	try
-	{
+	try {
 		ServerName	directive(content);
 		server->addDirective(&directive);
 	}
-	catch (const std::exception& ex)
-	{
+	catch (const std::exception &ex) {
 		std::cerr << ex.what() << '\n';
 		return -1;
 	}
@@ -401,21 +370,18 @@ int	ConfigFile::parseServerName(const std::string& content)
 	return 0;
 }
 
-// int	ConfigFile::parseIndex(const std::string& content, uint16_t context)
-// {
+// int	ConfigFile::parseIndex(const std::string &content, uint16_t context) {
 // 	std::istringstream	iss(content);
 // 	std::string			token;
 
-// 	while( iss >> token)
-// 	{
-		
+// 	while (iss >> token) {
+
 // 	}
 
 // 	return 0;
 // }
 
-int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
-{
+int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
 	std::vector<enum HTTP_STATUS>	codes;
 	int								response = 0;
 	std::string						uri;
@@ -424,8 +390,7 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 
 	Log::debug("parseErrorPage");
 
-	while (iss >> token)
-	{
+	while (iss >> token) {
 		std::cout << token << std::endl;
 
 		bool	isCode = true;
@@ -435,14 +400,11 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 		if ((!isCode && codes.empty()) || (!::isdigit(token[0]) && codes.empty()))
 			return Log::error("error_page : invalid content");
 
-		if (::isdigit(token[0]))
-		{
+		if (::isdigit(token[0])) {
 			int	code = (atoi(token.c_str()));
 			isCode = false;
-			for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
-			{
-				if (code == *it)
-				{
+			for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it) {
+				if (code == *it) {
 					isCode = true;
 					codes.push_back(static_cast<HTTP_STATUS>(code));
 					break;
@@ -453,17 +415,14 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 			continue;
 		}
 
-		switch(token[0])
-		{
-			case '=' :
+		switch (token[0]) {
+			case '=':
 				if (response || codes.empty() || !isCode)
 					return Log::error("error_page : invalid content");
 				isCode = false;
 				response = (atoi(token.c_str() + 1));
-				for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
-				{
-					if (response == *it)
-					{
+				for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it) {
+					if (response == *it) {
 						isCode = true;
 						response = static_cast<HTTP_STATUS>(response);
 					}
@@ -472,25 +431,23 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 					return Log::error("error_page : invalid response code");
 				break;
 
-			case '/' :	// isLimitModifier() ?
+			case '/':	// isLimitModifier() ?
 				if (codes.empty() || !uri.empty())
 					return Log::error("error_page : missing code");
 				uri = token;
 				break;
 
-			default :
+			default:
 				return Log::error("error_page : invalid content");
 		}
 	}
 
-	try
-	{
-		ADirective*	server = this->_webServer->getServers().back();
+	try {
+		ADirective *server = this->_webServer->getServers().back();
 		ErrorPage	errorPage(context, codes, static_cast<HTTP_STATUS>(response), uri);
 		server->addDirective(&errorPage);
 	}
-	catch (const std::exception& ex)
-	{
+	catch (const std::exception &ex) {
 		std::cerr << ex.what() << '\n';
 		return -1;
 	}
@@ -498,8 +455,7 @@ int	ConfigFile::parseErrorPage(const std::string& content, uint16_t context)
 	return 0;
 }
 
-int	ConfigFile::parseLocation(const std::string& content, uint16_t context)
-{
+int	ConfigFile::parseLocation(const std::string &content, uint16_t context) {
 	Log::debug("parseLocation");
 	(void)content;
 	(void)context;
