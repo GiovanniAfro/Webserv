@@ -3,27 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   LimitExcept.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:44:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:45:30 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/23 19:21:26 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "LimitExcept.hpp"
 
-LimitExcept::LimitExcept() : ADirective("LimitExcept", GLOBAL_CONTEXT) {}
+LimitExcept::LimitExcept()
+: ADirective("limit_except", GLOBAL_CONTEXT)
+{}
 
 LimitExcept::LimitExcept(uint16_t context, enum HTTP_METHOD method)
-	: ADirective("LimitExcept", context), _method(method) {}
+: ADirective("limit_except", context), _method(method)
+{
+	bool	methodOk = false;
 
-LimitExcept::LimitExcept(const LimitExcept &copy) : ADirective(copy) {
-	*this = copy;
+	for (std::vector<HTTP_METHOD>::iterator itMethod = allHttpMethods.begin();itMethod != allHttpMethods.end(); ++itMethod)
+		if (*itMethod == _method)
+			methodOk = true;
+	if (!methodOk)
+		throw std::runtime_error("LimitExcept : invalid method");
 }
+
+LimitExcept::LimitExcept(const LimitExcept &copy) : ADirective(copy)
+{ *this = copy; }
 
 LimitExcept::~LimitExcept() {}
 
-LimitExcept &LimitExcept::operator=(const LimitExcept &other) {
+LimitExcept &LimitExcept::operator=(const LimitExcept &other)
+{
 	if (this == &other)
 		return *this;
 
@@ -33,10 +44,8 @@ LimitExcept &LimitExcept::operator=(const LimitExcept &other) {
 	return *this;
 }
 
-ADirective *LimitExcept::clone() const {
-	return new LimitExcept(*this);
-}
+ADirective *LimitExcept::clone() const
+{ return new LimitExcept(*this); }
 
-enum HTTP_METHOD	LimitExcept::getMethod() const {
-	return _method;
-}
+enum HTTP_METHOD	LimitExcept::getMethod() const
+{ return _method; }

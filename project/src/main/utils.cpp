@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 20:33:51 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/23 19:20:26 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ bool isServerDirective(const std::string &s) {
 }
 
 bool isDirective(const std::string &s) {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except"};
 
 	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i) {
 		if (s == directiveNames[i])
@@ -135,6 +135,9 @@ std::vector<uint16_t> getContextValues(int directive) {
 			return values;
 		}
 
+		case LIMITEXCEPT_DIRECTIVE:
+			return std::vector<uint16_t>(1, LOCATION_CONTEXT);
+
 		default:
 			return std::vector<uint16_t>();
 	}
@@ -154,7 +157,7 @@ bool checkContext(int directiveContext, uint16_t currentContext) {
 }
 
 int	whichDirective(const std::string &s) {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except"};
 
 	for (int i = 0; i < NUM_DIRECTIVES; ++i) {
 

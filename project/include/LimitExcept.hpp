@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LimitExcept.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:45:25 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:35:34 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/23 17:48:01 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@
     Default:	—
     Context:	location
  */
-class	LimitExcept : public ADirective {
+class	LimitExcept : public ADirective
+{
 	private:
 		enum HTTP_METHOD	_method;
 
