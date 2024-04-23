@@ -24,6 +24,7 @@ class Server : public ADirective {
 		std::map<std::string, std::string>	_processPost(std::map<std::string, std::string> request, std::string const &filepath);
 		std::map<std::string, std::string>	_processDelete(const std::string &filePath);
 
+		std::string _getErrorPage(HTTP_STATUS status);
 		std::map<std::string, std::string>	_responseBuilder(HTTP_STATUS status, const std::string &body = "", const std::string &contentType = "text/html");
 
 		bool	_isMethodAllowed(const std::string &method);
@@ -33,7 +34,7 @@ class Server : public ADirective {
 		bool	_isFile(const std::string &path);
 		bool		_isAutoIndex();
 		std::string	_getIndex(const std::string &path);
-		std::map<std::string, std::string> _directoryListing(const std::string &path);
+		std::map<std::string, std::string> _directoryListing(std::string const &path, std::string const &uri);
 
 	public:
 		Server();

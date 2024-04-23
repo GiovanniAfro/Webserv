@@ -119,17 +119,17 @@
     - [ ] server_name
     - [ ] limit_except
     - [x] listen
-    - [ ] error_page
+    - [x] error_page
     - [x] index
     - [x] autoindex
     - [x] root
 
 [ ] location
-    - [ ] allow_methods
     - [ ] client_max_body_size
     - [ ] index
     - [ ] root
     - [ ] autoindex (check if definded by server on)
+    - [ ] try_files
 
 [ ] redirect
 
@@ -146,13 +146,11 @@
 [ ] Allowed methods
     - [ ] GET, POST, DELETE
     - [ ] limit_except
-    - [ ] loaction allow_methods
 
 [ ] Handle location
     - [ ] root overrides the server root
     - [ ] index
     - [ ] client_max_body_size
-    - [ ] allow_methods
 
 [ ] Handle error pages
 

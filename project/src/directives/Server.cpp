@@ -104,16 +104,49 @@ std::map<std::string, std::string>	Server::_processDelete(const std::string &fil
 }
 
 /*!
+	* @brief Get the error page.
+	* @param status HTTP_STATUS enum.
+	* @return string Error page.
+	* @note If the status is different from 200 OK, then try use error_page directive
+*/
+std::string Server::_getErrorPage(HTTP_STATUS status) {
+	std::string errorPagePath = "", errorPageBody = "";
+	if (status != OK) {
+		ErrorPage *errorPage = static_cast<ErrorPage *>(this->getDirectives()["error_page"]);
+		if (errorPage) {
+			for (std::vector<HTTP_STATUS>::iterator it = errorPage->getCodes().begin(); it != errorPage->getCodes().end(); ++it) {
+				if (status == *it) {
+					Root *root = static_cast<Root *>(this->getDirectives()["root"]);
+					std::string errorPagePath = root->getPath() + errorPage->getUri();
+					if (!errorPagePath.empty()) {
+						std::ifstream	file(errorPagePath.c_str());
+						if (file) {
+							std::stringstream buffer;
+							buffer << file.rdbuf();
+							errorPageBody = buffer.str();
+						}
+					}
+				}
+			}
+		}
+	}
+	if (errorPageBody.empty() && status != OK)
+		return Http::_statusToMessage(status);
+	return errorPageBody;
+}
+
+/*!
 	* @brief Build the response map.
 	* @param status HTTP_STATUS enum.
 	* @param body Response body.
 	* @param contentType Content-Type header.
 	* @return map<string, string> Response map.
+	* @note If the status is different from 200 OK, then try use error_page directive
 */
 std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, const std::string &body, const std::string &contentType) {
 	std::map<std::string, std::string> response;
 	response["status"] = Http::_statusToString(status);
-	response["body"] = body;
+	response["body"] = status == OK ? body : _getErrorPage(status);
 	response["Content-Type"] = contentType;
 	return response;
 }
@@ -190,7 +223,14 @@ std::string Server::_getIndex(std::string const &filePath) {
 	return "";
 }
 
-std::map<std::string, std::string> Server::_directoryListing(std::string const &path)
+/*!
+	* @brief Build the directory listing.
+	* @param path Path to the directory.
+	* @param uri URI.
+	* @return map<string, string> Response map.
+	* @note If the directory cannot be opened, return 500 Internal Server Error
+*/
+std::map<std::string, std::string> Server::_directoryListing(std::string const &path, std::string const &uri)
 {
 	std::map<std::string, std::string>	response;
 	std::string							body;
@@ -203,6 +243,11 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 		while ((ent = readdir(dir)) != NULL)
 		{
 			body += "<li><a href=\"";
+			if (uri[uri.size() - 1] != '/')
+			{
+				body += uri;
+				body += "/";
+			}
 			body += ent->d_name;
 			body += "\">";
 			body += ent->d_name;
@@ -221,6 +266,8 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 
 std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request) {
 	std::map<std::string, ADirective *>	directives = this->getDirectives();
+	for (std::map<std::string, ADirective *>::iterator it = directives.begin(); it != directives.end(); ++it)
+		std::cout << it->first << std::endl;
 
 	if (directives.find("root") == directives.end())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
@@ -241,17 +288,19 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 			std::string index = _getIndex(filePath);
 			std::cout << "Index: " << index << std::endl;
 			if (index.empty() && _isAutoIndex())
-				return _directoryListing(filePath);
+				return _directoryListing(filePath, request["uri"]);
 			else if (index.empty())
 				return _responseBuilder(FORBIDDEN);
 
 			filePath += index;
 		}
 		else if (_isAutoIndex())
-			return _directoryListing(filePath);
+			return _directoryListing(filePath, request["uri"]);
 		else
 			return _responseBuilder(FORBIDDEN);
 	}
+	else if (!_isFile(filePath))
+		return _responseBuilder(NOT_FOUND);
 
 	// Allowed methods
 	if (!_isMethodAllowed(request.at("method"))) {
