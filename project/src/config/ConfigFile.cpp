@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 20:46:27 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/23 22:30:44 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,6 @@ int	ConfigFile::parseConfigFile() {
 			for (std::vector<enum HTTP_STATUS>::iterator itErr = errBlock->getCodes().begin(); itErr != errBlock->getCodes().end(); ++itErr)
 				std::cout << "error_page code : " << *itErr << std::endl;
 		}
-
 		if (ser->getDirectives().find("autoindex") != ser->getDirectives().end())
 		{
 			Autoindex*	autoBlock = static_cast<Autoindex*>(ser->getDirectives()["autoindex"]);
@@ -273,13 +272,16 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 		case SERVER_NAME_DIRECTIVE:
 			break;
 		case INDEX_DIRECTIVE:
-			this->parseIndex(content, context);
+			return this->parseIndex(content, context);
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content, context);
 		case LOCATION_DIRECTIVE:
 			return this->parseLocation(content, context);
 		case AUTOINDEX_DIRECTIVE:
 			return this->parseAutoIndex(content, context);
+		case LIMITEXCEPT_DIRECTIVE:
+		
+			break;
 		default:
 			break;
 	}
@@ -443,7 +445,8 @@ int	ConfigFile::parseIndex(const std::string &content, uint16_t context)
 	return 0;
 }
 
-int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
+int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context)
+{
 	std::vector<enum HTTP_STATUS>	codes;
 	int								response = 0;
 	std::string						uri;
@@ -452,8 +455,17 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
 
 	Log::debug("parseErrorPage");
 
-	while (iss >> token) {
+	while (iss >> token)
+	{
 		std::cout << token << std::endl;
+
+		// if (token == "=")	// response = CGI response ?
+		// {
+		// 	if ((iss >> token) && token[0] == '/')
+		// 		if (codes.empty() || !uri.empty())
+		// 			return Log::error("error_page : missing code");
+		// 	uri = token;
+		// }
 
 		bool	isCode = true;
 		for (std::string::iterator it = token.begin() + 1; it != token.end(); ++it)
@@ -462,11 +474,14 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
 		if ((!isCode && codes.empty()) || (!::isdigit(token[0]) && codes.empty()))
 			return Log::error("error_page : invalid content");
 
-		if (::isdigit(token[0])) {
+		if (::isdigit(token[0]))
+		{
 			int	code = (atoi(token.c_str()));
 			isCode = false;
-			for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it) {
-				if (code == *it) {
+			for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it)
+			{
+				if (code == *it)
+				{
 					isCode = true;
 					codes.push_back(static_cast<HTTP_STATUS>(code));
 					break;
@@ -477,14 +492,16 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
 			continue;
 		}
 
-		switch (token[0]) {
+		switch (token[0])
+		{
 			case '=':
 				if (response || codes.empty() || !isCode)
 					return Log::error("error_page : invalid content");
 				isCode = false;
 				response = (atoi(token.c_str() + 1));
 				for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it) {
-					if (response == *it) {
+					if (response == *it)
+					{
 						isCode = true;
 						response = static_cast<HTTP_STATUS>(response);
 					}
@@ -503,13 +520,17 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context) {
 				return Log::error("error_page : invalid content");
 		}
 	}
+	if (response == 0)
+		response = static_cast<int>(codes.back());
 
-	try {
+	try
+	{
 		ADirective *server = this->_webServer->getServers().back();
 		ErrorPage	errorPage(context, codes, static_cast<HTTP_STATUS>(response), uri);
 		server->addDirective(&errorPage);
 	}
-	catch (const std::exception &ex) {
+	catch (const std::exception &ex)
+	{
 		std::cerr << ex.what() << '\n';
 		return -1;
 	}
@@ -541,3 +562,8 @@ int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
 
 	return 0;
 }
+
+// int	ConfigFile::parseLimitExcept(const std::string &content)
+// {
+
+// }

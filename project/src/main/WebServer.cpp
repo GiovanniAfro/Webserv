@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:51:30 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/23 19:33:07 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,6 +270,11 @@ std::map<std::string, std::string>	WebServer::_processRequests() {
 	{
 		Log::error("WebServer : _processRequests : matching server not found");
 		return std::map<std::string, std::string>();
+	}
+
+	for (std::map<std::string, ADirective*>::iterator it = server->getDirectives().begin();it != server->getDirectives().end(); ++it)
+	{
+		Log::debug((*it).first);
 	}
 
 	return server->processRequest(this->_clientRequest.request);

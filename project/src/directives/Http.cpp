@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:42:17 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:44:02 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/23 22:13:49 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ void initializeVectors() {
 	allHttpStatus.push_back(OK);
 	allHttpStatus.push_back(BAD_REQUEST);
 	allHttpStatus.push_back(NOT_FOUND);
+	allHttpStatus.push_back(FORBIDDEN);
 	allHttpStatus.push_back(METHOD_NOT_ALLOWED);
 	allHttpStatus.push_back(REQUEST_TIMEOUT);
 	allHttpStatus.push_back(PAYLOAD_TOO_LARGE);
