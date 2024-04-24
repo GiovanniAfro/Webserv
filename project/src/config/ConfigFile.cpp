@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 19:27:15 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:27:06 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,12 @@ int	ConfigFile::parseConfigFile()
 			Autoindex*	autoBlock = static_cast<Autoindex*>(ser->getDirectives()["autoindex"]);
 			std::cout << "autoindex : " << (autoBlock->getMode()? "on" : "off") << std::endl;
 		}
+		Log::debug("CLIENT_MAX_BODY_SIZE");
+		if (ser->getDirectives().find("client_max_body_size") != ser->getDirectives().end())
+		{
+			ClientMaxBodySize* clieBlock = static_cast<ClientMaxBodySize*>(ser->getDirectives()["client_max_body_size"]);
+			std::cout << "client_max_body_size : " << clieBlock->getSize() << std::endl;
+		}
 		Log::debug("LOCATIONS");
 		if (ser->getDirectives().find("location") != ser->getDirectives().end())
 		{
@@ -155,6 +161,11 @@ int	ConfigFile::parseConfigFile()
 			{
 				Root* rooBlock = static_cast<Root*>(locBlock->getDirectives()["root"]);
 				std::cout << "root : " << rooBlock->getPath() << std::endl;
+			}
+			if (locBlock->getDirectives().find("client_max_body_size") != locBlock->getDirectives().end())
+			{
+				ClientMaxBodySize* clieBlock = static_cast<ClientMaxBodySize*>(locBlock->getDirectives()["client_max_body_size"]);
+				std::cout << "client_max_body_size : " << clieBlock->getSize() << std::endl;
 			}
 		}
 	}
@@ -313,6 +324,8 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 			return this->parseAutoIndex(content, context);
 		case LIMITEXCEPT_DIRECTIVE:
 			return this->parseLimitExcept(content);
+		case CLIENTMAXBODYSIZE_DIRECTIVE:
+			return this->parseClientMaxBodySize(content, context);
 		default:
 			break;
 	}
@@ -680,6 +693,51 @@ int	ConfigFile::parseLimitExcept(const std::string &content)
 		LimitExcept	directive(LOCATION_CONTEXT, method);
 		location->addDirective(&directive);
 
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	return 0;
+}
+
+int	ConfigFile::parseClientMaxBodySize(const std::string &content, uint16_t context)
+{
+	Log::debug("parseClientMaxBodySize");
+
+	std::stringstream	iss(content);
+	std::string			token;
+	int					size = 0;
+
+	while (iss >> token)
+	{
+		if (size)
+			return Log::error("client_max_body_size : invalid content");
+		long long	num = std::strtol(token.c_str(), NULL, 10);
+		if ((num == LONG_MAX || num == LONG_MIN) && errno == ERANGE)
+			return Log::error("client_max_body_size : invalid size");
+		if (num < std::numeric_limits<int>::min() || num > std::numeric_limits<int>::max())
+			return Log::error("client_max_body_size : invalid size");
+		size = static_cast<size_t>(num);
+	}
+
+	try
+	{
+		ADirective*	contextDirective = NULL;
+
+		if (context == HTTP_CONTEXT)
+			contextDirective = this->_webServer->getConfigs()[0];
+		else if (context == SERVER_CONTEXT)
+			contextDirective = this->_webServer->getServers().back();
+		else if (context == LOCATION_CONTEXT)
+			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+
+		// std::cout << "clientmax context : " << 
+
+		ClientMaxBodySize	clientMaxBodySize(context, size);
+		contextDirective->addDirective(&clientMaxBodySize);
 	}
 	catch (const std::exception &ex)
 	{
