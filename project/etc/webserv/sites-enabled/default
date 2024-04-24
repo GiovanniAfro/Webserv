@@ -15,7 +15,7 @@ server {
 	error_page 403 405 408 413 431 /40x.html;
 	error_page 500 /50x.html;
 
-	location /css/ {
+	location /css {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.
 		# try_files $uri $uri/ =404;
@@ -27,11 +27,9 @@ server {
 		root /anvedi;
 	}
 
-	# location /assets/ {
-	# 	# First attempt to serve request as file, then
-	# 	# as directory, then fall back to displaying a 404.
-	# 	try_files $uri $uri/ =404;
-	# }
+	location /upload {
+		limit_except POST
+	}
 
 	autoindex on;
 

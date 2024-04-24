@@ -269,6 +269,18 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 	for (std::map<std::string, ADirective *>::iterator it = directives.begin(); it != directives.end(); ++it)
 		std::cout << it->first << std::endl;
 
+	Location *location = static_cast<Location *>(directives["location"]);
+	for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
+	{
+		std::cout << "Location: " << static_cast<Location *>(*it)->getUri() << std::endl;
+		if (request["uri"].find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
+		{
+			std::cout << "Location found" << std::endl;
+			directives = static_cast<Location *>(*it)->getDirectives();
+			break;
+		}
+	}
+
 	if (directives.find("root") == directives.end())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 

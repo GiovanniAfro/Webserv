@@ -30,7 +30,7 @@ class	WebServer {
 		Request						_clientRequest;
 
 		void								_extractListenPorts();
-		std::string							_readRequests(Socket *clientSocket);
+		std::string							_readRequests(int clientSocketFD);
 		void								_parseRequest(const std::string &request);
 		Server *_findVirtualServer();
 		void								_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort);

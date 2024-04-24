@@ -50,6 +50,7 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include "utils.hpp"
 
