@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:31:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 11:36:53 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 18:16:27 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 #define LOCATION_CONTEXT 3
 #define LIMITEXCEPT_CONTEXT 4
 
-#define NUM_DIRECTIVES 11
+#define NUM_DIRECTIVES 12
 #define HTTP_DIRECTIVE 0
 #define INCLUDE_DIRECTIVE 1
 #define SERVER_DIRECTIVE 2
@@ -49,6 +49,7 @@
 #define LOCATION_DIRECTIVE 8
 #define AUTOINDEX_DIRECTIVE 9
 #define LIMITEXCEPT_DIRECTIVE 10
+#define CLIENTMAXBODYSIZE_DIRECTIVE 11
 
 class ADirective
 {

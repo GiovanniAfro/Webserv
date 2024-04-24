@@ -126,7 +126,7 @@
 [ ] location
     - [x] limit_except
     - [ ] client_max_body_size
-    - [ ] index
+    - [x] index
     - [ ] root
     - [ ] autoindex (check if definded by server on)
     - [ ] try_files

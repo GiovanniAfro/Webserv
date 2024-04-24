@@ -22,7 +22,9 @@ server {
 		limit_except GET {
 			# allow 192.168.1.0/32;
 			# deny  all;
-		}
+		# }	# limit_except treated as non-context -> end with ';'
+		index index2.html index2.htm index2.webserv-debian.html;
+		root /anvedi;
 	}
 
 	# location /assets/ {

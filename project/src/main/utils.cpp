@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 16:58:13 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 18:17:51 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ bool isComment(const std::string &s) {
 
 bool isDirective(const std::string &s)
 {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size"};
 
 	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i) {
 		if (s == directiveNames[i])
@@ -127,6 +127,15 @@ std::vector<uint16_t> getContextValues(int directive) {
 
 		case LIMITEXCEPT_DIRECTIVE:
 			return std::vector<uint16_t>(1, LOCATION_CONTEXT);
+		
+		case CLIENTMAXBODYSIZE_DIRECTIVE:
+		{
+			std::vector<uint16_t> values;
+			values.push_back(HTTP_CONTEXT);
+			values.push_back(SERVER_CONTEXT);
+			values.push_back(LOCATION_CONTEXT);
+			return values;
+		}
 
 		default:
 			return std::vector<uint16_t>();
@@ -149,7 +158,7 @@ bool checkContext(int directiveContext, uint16_t currentContext)
 
 int	whichDirective(const std::string &s)
 {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size"};
 
 	for (int i = 0; i < NUM_DIRECTIVES; ++i) {
 

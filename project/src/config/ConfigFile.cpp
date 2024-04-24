@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 18:07:13 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 19:06:18 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,14 +88,16 @@ int	ConfigFile::parseConfigFile()
 		std::cout << static_cast<Include *>(*it)->getPath() << std::endl;
 	}
 
-	// size_t	serSize = this->_webServer->getServers().size();
-	// std::cout << "Server : " << serSize << std::endl;
-	for (std::vector<ADirective *>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it) {
+	Log::debug("SERVERS");
+	for (std::vector<ADirective *>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it)
+	{
 		Server *ser = static_cast<Server *>(*it);
 		Listen *lisBlock = static_cast<Listen *>(ser->getDirectives()["listen"]);
 
+		Log::debug("LISTENS");
 		std::cout << "Listen : " << lisBlock->getBlocksSize() << std::endl;
-		for (std::vector<ADirective *>::iterator it = lisBlock->getBlocks().begin(); it != lisBlock->getBlocks().end(); ++it) {
+		for (std::vector<ADirective *>::iterator it = lisBlock->getBlocks().begin(); it != lisBlock->getBlocks().end(); ++it)
+		{
 			std::cout << std::endl;
 			Listen *lis = static_cast<Listen *>(*it);
 			std::set<uint16_t>	ports = lis->getPorts();
@@ -106,12 +108,14 @@ int	ConfigFile::parseConfigFile()
 			std::cout << std::endl;
 		}
 
+		Log::debug("INDEX");
 		if (ser->getDirectives().find("index") != ser->getDirectives().end())
 		{
 			Index*	indBlock = static_cast<Index*>(ser->getDirectives()["index"]);
 			for (std::vector<std::string>::iterator itInd = indBlock->getFiles().begin(); itInd != indBlock->getFiles().end(); ++itInd)
 				std::cout << *itInd << std::endl;
 		}
+		Log::debug("ERROR_PAGE");
 		if (ser->getDirectives().find("error_page") != ser->getDirectives().end())
 		{
 			for (std::vector<ADirective*>::iterator it = ser->getDirectives()["error_page"]->getBlocks().begin(); it != ser->getDirectives()["error_page"]->getBlocks().end(); ++it)
@@ -124,11 +128,13 @@ int	ConfigFile::parseConfigFile()
 					std::cout << "error_page code : " << *itErr << std::endl;
 			}
 		}
+		Log::debug("AUTOINDEX");
 		if (ser->getDirectives().find("autoindex") != ser->getDirectives().end())
 		{
 			Autoindex*	autoBlock = static_cast<Autoindex*>(ser->getDirectives()["autoindex"]);
 			std::cout << "autoindex : " << (autoBlock->getMode()? "on" : "off") << std::endl;
 		}
+		Log::debug("LOCATIONS");
 		if (ser->getDirectives().find("location") != ser->getDirectives().end())
 		{
 			Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]->getBlocks().back());
@@ -138,8 +144,18 @@ int	ConfigFile::parseConfigFile()
 				LimitExcept* limBlock = static_cast<LimitExcept*>(locBlock->getDirectives()["limit_except"]);
 				std::cout << "limit_except : " << limBlock->getMethod() << std::endl;
 			}
-			else
-				std::cout << "NADA" << std::endl;
+			if (locBlock->getDirectives().find("index") != locBlock->getDirectives().end())
+			{
+				Index* indBlock = static_cast<Index*>(locBlock->getDirectives()["index"]);
+				std::cout << "index : " << indBlock->getLastElement() << std::endl;
+				for (std::vector<std::string>::iterator itInd = indBlock->getFiles().begin(); itInd != indBlock->getFiles().end(); ++itInd)
+					std::cout << *itInd << std::endl;
+			}
+			if (locBlock->getDirectives().find("root") != locBlock->getDirectives().end())
+			{
+				Root* rooBlock = static_cast<Root*>(locBlock->getDirectives()["root"]);
+				std::cout << "root : " << rooBlock->getPath() << std::endl;
+			}
 		}
 	}
 
@@ -265,7 +281,7 @@ int	ConfigFile::parseServers(std::ifstream &inputFile, std::string &line) {
 int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header, std::string &content, uint16_t context)	// inputFile pointer so that it can be passed as NULL?
 {
 	Log::debug("parserRouter");
-
+	std::cout << "context : " << context << std::endl;
 	int	index = whichDirective(header);
 
 	std::cout << index << std::endl;
@@ -296,7 +312,7 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 		case AUTOINDEX_DIRECTIVE:
 			return this->parseAutoIndex(content, context);
 		case LIMITEXCEPT_DIRECTIVE:
-			return this->parseLimitExcept(content, inputFile);
+			return this->parseLimitExcept(content);
 		default:
 			break;
 	}
@@ -377,7 +393,6 @@ int	ConfigFile::parseListen(const std::string &content)
 				return Log::error("listen : invalid ip address");
 		}
 	}
-
 	addressPort = std::make_pair(ipAddress, ports);
 
 	try
@@ -399,10 +414,19 @@ int	ConfigFile::parseRoot(const std::string &content, uint16_t context) {
 
 	Log::debug("parseRoot");
 
-	try {
-		ADirective *server = this->_webServer->getServers().back();
+	try
+	{
+		ADirective*	contextDirective = NULL;
+
+		if (context == HTTP_CONTEXT)
+			contextDirective = this->_webServer->getConfigs()[0];
+		else if (context == SERVER_CONTEXT)
+			contextDirective = this->_webServer->getServers().back();
+		else if (context == LOCATION_CONTEXT)
+			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+
 		Root	directive(context, content);
-		server->addDirective(&directive);
+		contextDirective->addDirective(&directive);
 	}
 	catch (const std::exception &ex) {
 		std::cerr << ex.what() << '\n';
@@ -432,24 +456,21 @@ int	ConfigFile::parseServerName(const std::string &content) {
 
 int	ConfigFile::parseIndex(const std::string &content, uint16_t context)
 {
-	// std::istringstream	iss(content);
-	// std::string			token;
-
-	// if (content.empty())
-	// 	return Log::error("parseIndex : empty content");
-
-	// while (iss >> token)
-	// {
-
-	// }
-
 	Log::debug("parseIndex");
 
 	try
 	{
-		ADirective *server = this->_webServer->getServers().back();
-		Index		directive(content, context);
-		server->addDirective(&directive);
+		ADirective*	contextDirective = NULL;
+
+		if (context == HTTP_CONTEXT)
+			contextDirective = this->_webServer->getConfigs()[0];
+		else if (context == SERVER_CONTEXT)
+			contextDirective = this->_webServer->getServers().back();
+		else if (context == LOCATION_CONTEXT)
+			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+
+		Index	directive(content, context);
+		contextDirective->addDirective(&directive);
 	}
 	catch (const std::exception &ex)
 	{
@@ -628,26 +649,20 @@ int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
 	return 0;
 }
 
-int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inputFile)
+int	ConfigFile::parseLimitExcept(const std::string &content)
 {
 	Log::debug("parseLimitExcept");
 
 	enum HTTP_METHOD	method = Http::_methodToEnum(content);
-
-	std::cout << "|" <<  content << "|" << std::endl;
-	std::cout << method << std::endl;
 
 	if (method == UNKNOWN)
 		return Log::error("limit_except : unknown method");
 
 	try
 	{
-		ADirective		*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
-		std::cout << "location uri : " << static_cast<Location*>(location)->getUri() << std::endl;
-		LimitExcept		directive(LOCATION_CONTEXT, method);
-		std::cout << "limit_except : " << directive.getMethod() << std::endl;
+		ADirective	*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+		LimitExcept	directive(LOCATION_CONTEXT, method);
 		location->addDirective(&directive);
-		std::cout << "limit_except : " << static_cast<LimitExcept*>(location->getDirectives()["limit_except"]->getBlocks().back())->getMethod() << std::endl;
 
 	}
 	catch (const std::exception &ex)
@@ -655,26 +670,6 @@ int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inpu
 		std::cerr << ex.what() << '\n';
 		return -1;
 	}
-
-	(void)inputFile;
-	// std::string	line, header, directiveContent;
-
-	// while (getline(inputFile, line))
-	// {
-	// 	std::cout << "line : " << line << std::endl;
-	// 	line = strip(line);
-	// 	if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
-	// 		continue;
-	// 	else if (isClosedBracket(line))
-	// 		break;
-	// 	header = firstToken(line);
-	// 	std::cout << "header : " << header << std::endl;
-	// 	if (header.empty())
-	// 		return Log::error("ConfigFile : parseLimitExcept : invalid header");
-	// 	directiveContent = secondToken(line);
-	// 	std::cout << "content : " << directiveContent << std::endl;
-	// 	this->parserRouter(inputFile, header, directiveContent, LIMITEXCEPT_CONTEXT);
-	// }
 
 	return 0;
 }
