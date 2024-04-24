@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 17:17:44 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 18:07:13 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ int	ConfigFile::parseConfigFile()
 		}
 		if (ser->getDirectives().find("location") != ser->getDirectives().end())
 		{
-			Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]);
+			Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]->getBlocks().back());
 			std::cout << "location uri : " << locBlock->getUri() << std::endl;
 			if (locBlock->getDirectives().find("limit_except") != locBlock->getDirectives().end())
 			{
@@ -647,7 +647,7 @@ int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inpu
 		LimitExcept		directive(LOCATION_CONTEXT, method);
 		std::cout << "limit_except : " << directive.getMethod() << std::endl;
 		location->addDirective(&directive);
-		std::cout << "limit_except : " << static_cast<LimitExcept*>(location->getDirectives()["limit_except"])->getMethod() << std::endl;
+		std::cout << "limit_except : " << static_cast<LimitExcept*>(location->getDirectives()["limit_except"]->getBlocks().back())->getMethod() << std::endl;
 
 	}
 	catch (const std::exception &ex)

@@ -124,7 +124,7 @@
     - [x] root
 
 [ ] location
-    - [ ] limit_except
+    - [x] limit_except
     - [ ] client_max_body_size
     - [ ] index
     - [ ] root
