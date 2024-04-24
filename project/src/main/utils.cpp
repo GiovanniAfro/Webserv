@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 21:34:48 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 23:30:27 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ std::vector<uint16_t> getContextValues(int directive) {
 			return std::vector<uint16_t>(1, GLOBAL_CONTEXT);
 
 		case INCLUDE_DIRECTIVE:
-			return std::vector<uint16_t>(1, GLOBAL_CONTEXT);
+			return std::vector<uint16_t>(1, HTTP_CONTEXT);
 
 		case SERVER_DIRECTIVE:
 			return std::vector<uint16_t>(1, HTTP_CONTEXT);
@@ -146,13 +146,14 @@ std::vector<uint16_t> getContextValues(int directive) {
 }
 
 // get index's directive context and compare with current context
-						  // http			// global	
+						  // include			// http	
 bool checkContext(int directiveContext, uint16_t currentContext)
 {
 	std::vector<uint16_t>	contextLevels = getContextValues(directiveContext);
 
-	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it) {
-		if ((*it) <= currentContext)
+	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it)
+	{
+		if ((*it) == currentContext)
 			return true;
 	}
 

@@ -16,6 +16,7 @@ server {
 	error_page 404 /404.html;
 	error_page 403 405 408 413 431 /40x.html;
 	error_page 500 /50x.html;
+		limit_except GET {
 
 	location /css/ {
 		# First attempt to serve request as file, then
@@ -29,6 +30,7 @@ server {
 		root /anvedi;
 		client_max_body_size 420;
 		alias /daje;
+	listen 127.0.0.1:1234;
 	}
 
 	# location /assets/ {
@@ -40,6 +42,7 @@ server {
 	autoindex on;
 
 }
+	server_name _;
 
 server {
 	listen 1111 8585 default_server;
