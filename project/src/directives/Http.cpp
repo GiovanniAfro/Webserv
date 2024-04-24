@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:42:17 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 22:13:49 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 14:09:12 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@ std::vector<HTTP_METHOD> allHttpMethods;
 
 std::vector<HTTP_STATUS> allHttpStatus;
 
-void initializeVectors() {
+void initializeHttpVectors()
+{
 	if (!(allHttpMethods.empty()))
 		return;
 	allHttpMethods.push_back(GET);
@@ -37,17 +38,16 @@ void initializeVectors() {
 	allHttpStatus.push_back(INTERNAL_SERVER_ERROR);
 }
 
-Http::Http() : ADirective("http", GLOBAL_CONTEXT) {
-	initializeVectors();
-}
+Http::Http() : ADirective("http", GLOBAL_CONTEXT)
+{ initializeHttpVectors(); }
 
-Http::Http(const Http &copy) : ADirective(copy) {
-	*this = copy;
-}
+Http::Http(const Http &copy) : ADirective(copy)
+{ *this = copy; }
 
 Http::~Http() {}
 
-Http &Http::operator=(const Http &other) {
+Http &Http::operator=(const Http &other)
+{
 	if (this != &other) {
 		ADirective::operator=(other);
 	}
@@ -55,11 +55,11 @@ Http &Http::operator=(const Http &other) {
 	return *this;
 }
 
-ADirective *Http::clone() const {
-	return new Http(*this);
-}
+ADirective *Http::clone() const
+{ return new Http(*this); }
 
-enum HTTP_METHOD	Http::_methodToEnum(const std::string &method) {
+enum HTTP_METHOD	Http::_methodToEnum(const std::string &method)
+{
 	if (method == "GET")
 		return GET;
 	else if (method == "POST")
@@ -70,7 +70,8 @@ enum HTTP_METHOD	Http::_methodToEnum(const std::string &method) {
 		return UNKNOWN;
 }
 
-enum HTTP_STATUS	Http::_statusToEnum(const std::string &status) {
+enum HTTP_STATUS	Http::_statusToEnum(const std::string &status)
+{
 	if (status == "200")
 		return OK;
 	else if (status == "400")
@@ -91,8 +92,10 @@ enum HTTP_STATUS	Http::_statusToEnum(const std::string &status) {
 		return INTERNAL_SERVER_ERROR;
 }
 
-std::string	Http::_statusToMessage(enum HTTP_STATUS status) {
-	switch (status) {
+std::string	Http::_statusToMessage(enum HTTP_STATUS status)
+{
+	switch (status)
+	{
 		case OK:
 			return "200 OK";
 		case BAD_REQUEST:
@@ -114,8 +117,10 @@ std::string	Http::_statusToMessage(enum HTTP_STATUS status) {
 	}
 }
 
-std::string	Http::_statusToString(enum HTTP_STATUS status) {
-	switch (status) {
+std::string	Http::_statusToString(enum HTTP_STATUS status)
+{
+	switch (status)
+	{
 		case OK:
 			return "200";
 		case BAD_REQUEST:

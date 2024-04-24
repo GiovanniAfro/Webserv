@@ -14,7 +14,7 @@ Index::Index(const std::string& content, uint16_t context)
 		// check _files's content? ...
 		_files.push_back(token);
 	}
-	if (_files.back()[0] == '/')	// isListenModifier()?
+	if (_files.back()[0] == '/')	// isLocationModifier()?
 	{
 		// expand
 		;

@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 12:17:30 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:08:24 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,20 +15,21 @@
 ConfigFile::ConfigFile() {}
 
 ConfigFile::ConfigFile(WebServer *server)
-	: _filePath("etc/webserv/webserv.conf") {
+: _filePath("etc/webserv/webserv.conf")
+{
 	std::ifstream	inputFile;
 
 	inputFile.open(this->_filePath);
-	if (!inputFile.is_open()) {
+	if (!inputFile.is_open())
 		throw std::runtime_error("webserv: ConfigFile: file does not exist");
-	}
 	inputFile.close();
 	_webServer = server;
 	_context = GLOBAL_CONTEXT;
 }
 
 ConfigFile::ConfigFile(const char *filePath, WebServer *server)
-	: _filePath(filePath) {
+: _filePath(filePath)
+{
 	std::ifstream	inputFile;
 
 	inputFile.open(this->_filePath);
@@ -40,13 +41,13 @@ ConfigFile::ConfigFile(const char *filePath, WebServer *server)
 	_context = GLOBAL_CONTEXT;
 }
 
-void	ConfigFile::setFilePath(const char *filePath) {
-	this->_filePath = filePath;
-}
+void	ConfigFile::setFilePath(const char *filePath)
+{ this->_filePath = filePath; }
 
 ConfigFile::~ConfigFile() {}
 
-int	ConfigFile::parseConfigFile() {
+int	ConfigFile::parseConfigFile()
+{
 	std::ifstream		inputFile;
 	std::string			line, header, content;
 	std::stringstream	streamBlock;
@@ -122,6 +123,11 @@ int	ConfigFile::parseConfigFile() {
 			Autoindex*	autoBlock = static_cast<Autoindex*>(ser->getDirectives()["autoindex"]);
 			std::cout << "autoindex : " << (autoBlock->getMode()? "on" : "off") << std::endl;
 		}
+		if (ser->getDirectives().find("location") != ser->getDirectives().end())
+		{
+			Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]);
+			std::cout << "location uri : " << locBlock->getUri() << std::endl;
+		}
 	}
 
 
@@ -192,11 +198,13 @@ int	ConfigFile::parseInclude() {
 		std::cout << include->getPath() << std::endl;
 
 		inputFile.open((include->getPath()).c_str());
-		if (!inputFile.is_open()) {
+		if (!inputFile.is_open())
+		{
 			std::cerr << "webserv: ConfigFile: file does not exist" << std::endl;
 			return -1;
 		}
-		while (getline(inputFile, line)) {
+		while (getline(inputFile, line))
+		{
 			std::cout << "line : " << line << std::endl;
 			line = strip(line);
 			if (line.empty() || isComment(line) || isBracket(line))
@@ -207,12 +215,7 @@ int	ConfigFile::parseInclude() {
 				return Log::error("ConfigFile : parseInclude : invalid header");
 			content = secondToken(line);
 			std::cout << "content : " << content << std::endl;
-			if (header == "server") {
-				this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
-			}
-			else {
-				this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
-			}
+			this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
 		}
 	}
 
@@ -495,7 +498,7 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context)
 		{
 			case '=':
 				if (response || codes.empty() || !isCode)
-					return Log::error("error_page : invalid content");
+					return Log::error("error_page : invalid response content");
 				isCode = false;
 				response = (atoi(token.c_str() + 1));
 				for (std::vector<HTTP_STATUS>::iterator it = allHttpStatus.begin(); it != allHttpStatus.end(); ++it) {
@@ -540,12 +543,56 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context)
 int	ConfigFile::parseLocation(const std::string &content, uint16_t context, std::ifstream& inputFile)
 {
 	Log::debug("parseLocation");
-	(void)content;
-	(void)context;
 	(void)inputFile;
 
-	// std::string	header, directiveContent;
+	if (content.empty())
+		return Log::error("location : empty content");
 
+	std::stringstream	iss(content);
+	std::string			token, modifier, uri;
+
+	while (iss >> token)
+	{
+		if (isLocationModifier(token))
+		{
+			if (!modifier.empty())
+				return Log::error("location : modifier is duplicated");
+			modifier = token;
+		}
+		uri = token;
+		break;
+	}
+
+	try
+	{
+		ADirective*	server = this->_webServer->getServers().back();
+		Location	location(context, Location::_modifierToEnum(modifier), uri);
+		server->addDirective(&location);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	std::string	line, header, directiveContent;
+
+	while (getline(inputFile, line))
+	{
+		std::cout << "line : " << line << std::endl;
+		line = strip(line);
+		if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
+			continue;
+		else if (isClosedBracket(line))
+			break;
+		header = firstToken(line);
+		std::cout << "header : " << header << std::endl;
+		if (header.empty())
+			return Log::error("ConfigFile : parseLocation : invalid header");
+		directiveContent = secondToken(line);
+		std::cout << "content : " << directiveContent << std::endl;
+		this->parserRouter(inputFile, header, directiveContent, LOCATION_CONTEXT);
+	}
 
 	return 0;
 }
@@ -556,7 +603,7 @@ int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
 
 	try
 	{
-		ADirective *server = this->_webServer->getServers().back();
+		ADirective*	server = this->_webServer->getServers().back();
 		Autoindex	autoIndex(context, content);
 		server->addDirective(&autoIndex);
 	}
@@ -574,6 +621,9 @@ int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inpu
 	Log::debug("parseLimitExcept");
 
 	enum HTTP_METHOD	method = Http::_methodToEnum(content);
+
+	std::cout << "|" <<  content << "|" << std::endl;
+	std::cout << method << std::endl;
 
 	if (method == UNKNOWN)
 		return Log::error("limit_except : unknown method");
@@ -603,7 +653,7 @@ int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inpu
 		header = firstToken(line);
 		std::cout << "header : " << header << std::endl;
 		if (header.empty())
-			return Log::error("ConfigFile : parseServers : invalid header");
+			return Log::error("ConfigFile : parseLimitExcept : invalid header");
 		directiveContent = secondToken(line);
 		std::cout << "content : " << directiveContent << std::endl;
 		// if (isContextDirective(header, LIMITEXCEPT_CONTEXT))

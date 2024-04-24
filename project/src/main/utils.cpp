@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 12:16:05 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:01:52 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,25 +51,6 @@ bool isComment(const std::string &s) {
 
 	return false;
 }
-
-bool isServerDirective(const std::string &s)
-{
-	const std::string	directiveNames[] = {"listen", "root", "server_name", "index", "error_page", "location"};
-
-	for (size_t i = 0; i < directiveNames->size(); ++i) {
-		if (s == directiveNames[i])
-			return true;
-	}
-
-	return false;
-}
-
-// bool	isContextDirective(const std::string& directiveName, uint16_t context)
-// {
-
-
-
-// }
 
 bool isDirective(const std::string &s)
 {
@@ -191,27 +172,33 @@ std::string	firstToken(const std::string &str) {
 	return "";
 }
 
-std::string	secondToken(const std::string &str) {
-	// istd::stringstream	iss(str);
-	// std::string			token;
-
-	// if (!(iss >> token) || !(iss >> token))
-	// 	return "";
-	// if (token.empty() || token.back() != ';')
-	// 	return "";
-	// return token.substr(0, token.size() - 1);
-
+std::string	secondToken(const std::string& str)
+{
 	size_t	start = firstToken(str).length();
 	if (!start)
 		return "";
 	while (str[start] && (str[start] == ' ' || str[start] == '\t'))
 		start++;
 
-	size_t	end = str.find_first_of(";{");
+	size_t	end = str.find_first_of(";{");	// + '\n' for context directives ?
 	if (end == std::string::npos)
 		return "";
 
+	size_t	whiteSpace = str.find_first_of(" \t", start);
+	if (whiteSpace != std::string::npos && whiteSpace < end)
+		end = whiteSpace;
+
 	return str.substr(start, end - start);
+}
+
+bool	isLocationModifier(const std::string& s)
+{
+	enum LOCATION_MODIFIER	modifier = Location::_modifierToEnum(s);
+
+	if (modifier != INVALID)
+		return true;
+
+	return false;
 }
 
 // bool	checkBrackets()

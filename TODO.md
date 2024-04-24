@@ -116,8 +116,7 @@
 ## Directives
 
 [ ] server
-    - [ ] server_name
-    - [ ] limit_except
+    - [x] server_name
     - [x] listen
     - [x] error_page
     - [x] index
@@ -125,6 +124,7 @@
     - [x] root
 
 [ ] location
+    - [ ] limit_except
     - [ ] client_max_body_size
     - [ ] index
     - [ ] root
@@ -169,7 +169,7 @@
 [ ] il file ".configfile.tmp" non viene eliminato se occorre un eccezione
     nel frattempo
 
-[ ] i commenti all'interno delle righe non vengono individuati
+[x] i commenti all'interno delle righe non vengono individuati
 
 [x] es. 	listen 1111     default_server; se spazi consecutivi => 0
 
