@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 15:08:24 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 17:17:44 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,9 +114,15 @@ int	ConfigFile::parseConfigFile()
 		}
 		if (ser->getDirectives().find("error_page") != ser->getDirectives().end())
 		{
-			ErrorPage*	errBlock = static_cast<ErrorPage*>(ser->getDirectives()["error_page"]);
-			for (std::vector<enum HTTP_STATUS>::iterator itErr = errBlock->getCodes().begin(); itErr != errBlock->getCodes().end(); ++itErr)
-				std::cout << "error_page code : " << *itErr << std::endl;
+			for (std::vector<ADirective*>::iterator it = ser->getDirectives()["error_page"]->getBlocks().begin(); it != ser->getDirectives()["error_page"]->getBlocks().end(); ++it)
+			{
+				ErrorPage*	errBlock = static_cast<ErrorPage*>(*it);
+				std::cout << "error_page codes : " << errBlock->getCodes().size() << std::endl;
+				std::cout << "error_page response : " << errBlock->getResponse() << std::endl;
+				std::cout << "error_page uri : " << errBlock->getUri() << std::endl;
+				for (std::vector<enum HTTP_STATUS>::iterator itErr = errBlock->getCodes().begin(); itErr != errBlock->getCodes().end(); ++itErr)
+					std::cout << "error_page code : " << *itErr << std::endl;
+			}
 		}
 		if (ser->getDirectives().find("autoindex") != ser->getDirectives().end())
 		{
@@ -127,6 +133,13 @@ int	ConfigFile::parseConfigFile()
 		{
 			Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]);
 			std::cout << "location uri : " << locBlock->getUri() << std::endl;
+			if (locBlock->getDirectives().find("limit_except") != locBlock->getDirectives().end())
+			{
+				LimitExcept* limBlock = static_cast<LimitExcept*>(locBlock->getDirectives()["limit_except"]);
+				std::cout << "limit_except : " << limBlock->getMethod() << std::endl;
+			}
+			else
+				std::cout << "NADA" << std::endl;
 		}
 	}
 
@@ -543,7 +556,6 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context)
 int	ConfigFile::parseLocation(const std::string &content, uint16_t context, std::ifstream& inputFile)
 {
 	Log::debug("parseLocation");
-	(void)inputFile;
 
 	if (content.empty())
 		return Log::error("location : empty content");
@@ -630,9 +642,13 @@ int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inpu
 
 	try
 	{
-		ADirective		*server = this->_webServer->getServers().back();
+		ADirective		*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+		std::cout << "location uri : " << static_cast<Location*>(location)->getUri() << std::endl;
 		LimitExcept		directive(LOCATION_CONTEXT, method);
-		server->addDirective(&directive);
+		std::cout << "limit_except : " << directive.getMethod() << std::endl;
+		location->addDirective(&directive);
+		std::cout << "limit_except : " << static_cast<LimitExcept*>(location->getDirectives()["limit_except"])->getMethod() << std::endl;
+
 	}
 	catch (const std::exception &ex)
 	{
@@ -640,25 +656,25 @@ int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inpu
 		return -1;
 	}
 
-	std::string	line, header, directiveContent;
+	(void)inputFile;
+	// std::string	line, header, directiveContent;
 
-	while (getline(inputFile, line))
-	{
-		std::cout << "line : " << line << std::endl;
-		line = strip(line);
-		if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
-			continue;
-		else if (isClosedBracket(line))
-			break;
-		header = firstToken(line);
-		std::cout << "header : " << header << std::endl;
-		if (header.empty())
-			return Log::error("ConfigFile : parseLimitExcept : invalid header");
-		directiveContent = secondToken(line);
-		std::cout << "content : " << directiveContent << std::endl;
-		// if (isContextDirective(header, LIMITEXCEPT_CONTEXT))
-			this->parserRouter(inputFile, header, directiveContent, LIMITEXCEPT_CONTEXT);
-	}
+	// while (getline(inputFile, line))
+	// {
+	// 	std::cout << "line : " << line << std::endl;
+	// 	line = strip(line);
+	// 	if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
+	// 		continue;
+	// 	else if (isClosedBracket(line))
+	// 		break;
+	// 	header = firstToken(line);
+	// 	std::cout << "header : " << header << std::endl;
+	// 	if (header.empty())
+	// 		return Log::error("ConfigFile : parseLimitExcept : invalid header");
+	// 	directiveContent = secondToken(line);
+	// 	std::cout << "content : " << directiveContent << std::endl;
+	// 	this->parserRouter(inputFile, header, directiveContent, LIMITEXCEPT_CONTEXT);
+	// }
 
 	return 0;
 }

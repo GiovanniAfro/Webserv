@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 15:01:52 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 16:58:13 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,11 +184,14 @@ std::string	secondToken(const std::string& str)
 	if (end == std::string::npos)
 		return "";
 
-	size_t	whiteSpace = str.find_first_of(" \t", start);
-	if (whiteSpace != std::string::npos && whiteSpace < end)
-		end = whiteSpace;
+	// if (str[end] == '{')
+	// {
+	// 	size_t	whiteSpace = str.find_first_of(" \t", start);
+	// 	if (whiteSpace != std::string::npos && whiteSpace < end)
+	// 		end = whiteSpace;
+	// }
 
-	return str.substr(start, end - start);
+	return strip(str.substr(start, end - start));
 }
 
 bool	isLocationModifier(const std::string& s)
