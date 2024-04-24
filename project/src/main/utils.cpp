@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 19:20:26 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 12:16:05 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ bool isComment(const std::string &s) {
 	return false;
 }
 
-bool isServerDirective(const std::string &s) {
+bool isServerDirective(const std::string &s)
+{
 	const std::string	directiveNames[] = {"listen", "root", "server_name", "index", "error_page", "location"};
 
 	for (size_t i = 0; i < directiveNames->size(); ++i) {
@@ -63,7 +64,15 @@ bool isServerDirective(const std::string &s) {
 	return false;
 }
 
-bool isDirective(const std::string &s) {
+// bool	isContextDirective(const std::string& directiveName, uint16_t context)
+// {
+
+
+
+// }
+
+bool isDirective(const std::string &s)
+{
 	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except"};
 
 	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i) {
@@ -145,7 +154,8 @@ std::vector<uint16_t> getContextValues(int directive) {
 
 // get index's directive context and compare with current context
 						  // http			// global	
-bool checkContext(int directiveContext, uint16_t currentContext) {
+bool checkContext(int directiveContext, uint16_t currentContext)
+{
 	std::vector<uint16_t>	contextLevels = getContextValues(directiveContext);
 
 	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it) {
@@ -156,7 +166,8 @@ bool checkContext(int directiveContext, uint16_t currentContext) {
 	return false;
 }
 
-int	whichDirective(const std::string &s) {
+int	whichDirective(const std::string &s)
+{
 	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except"};
 
 	for (int i = 0; i < NUM_DIRECTIVES; ++i) {
@@ -196,7 +207,7 @@ std::string	secondToken(const std::string &str) {
 	while (str[start] && (str[start] == ' ' || str[start] == '\t'))
 		start++;
 
-	size_t	end = str.find_first_of(";");
+	size_t	end = str.find_first_of(";{");
 	if (end == std::string::npos)
 		return "";
 

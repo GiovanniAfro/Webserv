@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 10:42:41 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:38:00 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/24 11:47:39 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ bool				isComment(const std::string &s);
 bool				isBracket(const std::string &s);
 bool				isClosedBracket(const std::string &s);
 bool				isServerDirective(const std::string &s);
+bool				isContextDirective(const std::string& directiveName, uint16_t context);
 bool				checkContext(int directiveContext, uint16_t currentContext);
 int					whichDirective(const std::string &s);
 std::string			strip(const std::string &str);

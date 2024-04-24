@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:31:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 19:19:07 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 11:36:53 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 #define HTTP_CONTEXT 1
 #define SERVER_CONTEXT 2
 #define LOCATION_CONTEXT 3
+#define LIMITEXCEPT_CONTEXT 4
 
 #define NUM_DIRECTIVES 11
 #define HTTP_DIRECTIVE 0
@@ -49,7 +50,8 @@
 #define AUTOINDEX_DIRECTIVE 9
 #define LIMITEXCEPT_DIRECTIVE 10
 
-class ADirective {
+class ADirective
+{
 	protected:
 		// typedef	vector<ADirective*>::iterator	DirIt;
 
@@ -67,10 +69,10 @@ class ADirective {
 		ADirective &operator=(const ADirective &other);
 		virtual ADirective *clone() const = 0;
 
-		const std::string &getType() const;
-		std::vector<ADirective *> &getBlocks();
-		std::map<std::string, ADirective *> &getDirectives();
-		size_t						getBlocksSize() const;
+		const std::string&						getType() const;
+		std::vector<ADirective *>&				getBlocks();
+		std::map<std::string, ADirective *>&	getDirectives();
+		size_t									getBlocksSize() const;
 
 		void	addBlock(ADirective *block);
 		void	addDirective(ADirective *directive);

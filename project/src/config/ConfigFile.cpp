@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 22:30:44 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 12:17:30 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,8 @@ int	ConfigFile::parseServers(std::ifstream &inputFile, std::string &line) {
 	Log::debug("parseServers");
 
 	this->_webServer->addServer();
-	while (getline(inputFile, line)) {
+	while (getline(inputFile, line))
+	{
 		std::cout << "line : " << line << std::endl;
 		line = strip(line);
 		if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
@@ -238,9 +239,8 @@ int	ConfigFile::parseServers(std::ifstream &inputFile, std::string &line) {
 			return Log::error("ConfigFile : parseServers : invalid header");
 		content = secondToken(line);
 		std::cout << "content : " << content << std::endl;
-		if (isServerDirective(header)) {
+		// if (isServerDirective(header))
 			this->parserRouter(inputFile, header, content, SERVER_CONTEXT);
-		}
 	}
 
 	return 0;
@@ -270,18 +270,17 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 		case ROOT_DIRECTIVE:
 			return this->parseRoot(content, context);
 		case SERVER_NAME_DIRECTIVE:
-			break;
+			return this->parseServerName(content);
 		case INDEX_DIRECTIVE:
 			return this->parseIndex(content, context);
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content, context);
 		case LOCATION_DIRECTIVE:
-			return this->parseLocation(content, context);
+			return this->parseLocation(content, context, inputFile);
 		case AUTOINDEX_DIRECTIVE:
 			return this->parseAutoIndex(content, context);
 		case LIMITEXCEPT_DIRECTIVE:
-		
-			break;
+			return this->parseLimitExcept(content, inputFile);
 		default:
 			break;
 	}
@@ -291,15 +290,14 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 
 int	ConfigFile::parseListen(const std::string &content)
 {
-	std::pair< std::string, std::set<uint16_t> >	addressPort;	// In the context of a listen directive, it's more common to have multiple ports per IP address
-	std::string										ipAddress;		// if ipAddress, addressPort instead of port
+	std::pair< std::string, std::set<uint16_t> >	addressPort;
+	std::string										ipAddress;
 	std::set<uint16_t>								ports;
 	bool											isDefault = false;
-
-	Log::debug("parseListen");
-
 	std::istringstream	iss(content);
 	std::string			token;
+
+	Log::debug("parseListen");
 
 	while (iss >> token)
 	{
@@ -402,7 +400,8 @@ int	ConfigFile::parseServerName(const std::string &content) {
 
 	Log::debug("parseServerName");
 
-	try {
+	try
+	{
 		ADirective *server = this->_webServer->getServers().back();
 		ServerName	directive(content);
 		server->addDirective(&directive);
@@ -538,16 +537,23 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context)
 	return 0;
 }
 
-int	ConfigFile::parseLocation(const std::string &content, uint16_t context) {
+int	ConfigFile::parseLocation(const std::string &content, uint16_t context, std::ifstream& inputFile)
+{
 	Log::debug("parseLocation");
 	(void)content;
 	(void)context;
+	(void)inputFile;
+
+	// std::string	header, directiveContent;
+
 
 	return 0;
 }
 
 int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
 {
+	Log::debug("parseAutoIndex");
+
 	try
 	{
 		ADirective *server = this->_webServer->getServers().back();
@@ -563,7 +569,46 @@ int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
 	return 0;
 }
 
-// int	ConfigFile::parseLimitExcept(const std::string &content)
-// {
+int	ConfigFile::parseLimitExcept(const std::string &content, std::ifstream& inputFile)
+{
+	Log::debug("parseLimitExcept");
 
-// }
+	enum HTTP_METHOD	method = Http::_methodToEnum(content);
+
+	if (method == UNKNOWN)
+		return Log::error("limit_except : unknown method");
+
+	try
+	{
+		ADirective		*server = this->_webServer->getServers().back();
+		LimitExcept		directive(LOCATION_CONTEXT, method);
+		server->addDirective(&directive);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	std::string	line, header, directiveContent;
+
+	while (getline(inputFile, line))
+	{
+		std::cout << "line : " << line << std::endl;
+		line = strip(line);
+		if (line.empty() || isComment(line)/*  || isBracket(line) */)	// isOpenBracket() enough?
+			continue;
+		else if (isClosedBracket(line))
+			break;
+		header = firstToken(line);
+		std::cout << "header : " << header << std::endl;
+		if (header.empty())
+			return Log::error("ConfigFile : parseServers : invalid header");
+		directiveContent = secondToken(line);
+		std::cout << "content : " << directiveContent << std::endl;
+		// if (isContextDirective(header, LIMITEXCEPT_CONTEXT))
+			this->parserRouter(inputFile, header, directiveContent, LIMITEXCEPT_CONTEXT);
+	}
+
+	return 0;
+}

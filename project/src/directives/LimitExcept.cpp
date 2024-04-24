@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:44:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 19:21:26 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 11:27:01 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ LimitExcept::LimitExcept(uint16_t context, enum HTTP_METHOD method)
 		if (*itMethod == _method)
 			methodOk = true;
 	if (!methodOk)
-		throw std::runtime_error("LimitExcept : invalid method");
+		throw std::runtime_error("limit_except : invalid method");
 }
 
 LimitExcept::LimitExcept(const LimitExcept &copy) : ADirective(copy)

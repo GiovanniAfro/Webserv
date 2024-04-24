@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:32:45 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 19:21:56 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 12:06:14 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class ConfigFile {
 		int	parseServerName(const std::string& content);
 		int	parseIndex(const std::string& content, uint16_t context);
 		int	parseErrorPage(const std::string& content, uint16_t context);
-		int	parseLocation(const std::string& content, uint16_t context);
+		int	parseLocation(const std::string& content, uint16_t context, std::ifstream& inputFile);
 		int	parseAutoIndex(const std::string& content, uint16_t context);
-		int	parseLimitExcept(const std::string& content);
+		int	parseLimitExcept(const std::string& content, std::ifstream& inputFile);
 };
