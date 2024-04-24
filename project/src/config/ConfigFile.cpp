@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 19:06:18 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 19:27:15 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -561,9 +561,17 @@ int	ConfigFile::parseErrorPage(const std::string &content, uint16_t context)
 
 	try
 	{
-		ADirective *server = this->_webServer->getServers().back();
+		ADirective*	contextDirective = NULL;
+
+		if (context == HTTP_CONTEXT)
+			contextDirective = this->_webServer->getConfigs()[0];
+		else if (context == SERVER_CONTEXT)
+			contextDirective = this->_webServer->getServers().back();
+		else if (context == LOCATION_CONTEXT)
+			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+
 		ErrorPage	errorPage(context, codes, static_cast<HTTP_STATUS>(response), uri);
-		server->addDirective(&errorPage);
+		contextDirective->addDirective(&errorPage);
 	}
 	catch (const std::exception &ex)
 	{
@@ -636,9 +644,17 @@ int	ConfigFile::parseAutoIndex(const std::string &content, uint16_t context)
 
 	try
 	{
-		ADirective*	server = this->_webServer->getServers().back();
-		Autoindex	autoIndex(context, content);
-		server->addDirective(&autoIndex);
+		ADirective*	contextDirective = NULL;
+
+		if (context == HTTP_CONTEXT)
+			contextDirective = this->_webServer->getConfigs()[0];
+		else if (context == SERVER_CONTEXT)
+			contextDirective = this->_webServer->getServers().back();
+		else if (context == LOCATION_CONTEXT)
+			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+
+		Autoindex	autoindex(context, content);
+		contextDirective->addDirective(&autoindex);
 	}
 	catch (const std::exception &ex)
 	{

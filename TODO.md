@@ -127,9 +127,10 @@
     - [x] limit_except
     - [ ] client_max_body_size
     - [x] index
-    - [ ] root
+    - [x] root
     - [ ] autoindex (check if definded by server on)
     - [ ] try_files
+    - [ ] alias
 
 [ ] redirect
 
