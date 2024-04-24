@@ -28,6 +28,7 @@ server {
 		index index2.html index2.htm index2.webserv-debian.html;
 		root /anvedi;
 		client_max_body_size 420;
+		alias /daje;
 	}
 
 	# location /assets/ {

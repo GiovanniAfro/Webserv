@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:44:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 11:27:01 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:41:52 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ LimitExcept::LimitExcept()
 : ADirective("limit_except", GLOBAL_CONTEXT)
 {}
 
-LimitExcept::LimitExcept(uint16_t context, enum HTTP_METHOD method)
-: ADirective("limit_except", context), _method(method)
+LimitExcept::LimitExcept(enum HTTP_METHOD method)
+: ADirective("limit_except", LOCATION_CONTEXT), _method(method)
 {
 	bool	methodOk = false;
 

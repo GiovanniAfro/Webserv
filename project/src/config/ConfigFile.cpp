@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 21:27:06 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:47:09 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,6 +167,11 @@ int	ConfigFile::parseConfigFile()
 				ClientMaxBodySize* clieBlock = static_cast<ClientMaxBodySize*>(locBlock->getDirectives()["client_max_body_size"]);
 				std::cout << "client_max_body_size : " << clieBlock->getSize() << std::endl;
 			}
+			if (locBlock->getDirectives().find("alias") != locBlock->getDirectives().end())
+			{
+				Alias* aliasBlock = static_cast<Alias*>(locBlock->getDirectives()["alias"]);
+				std::cout << "alias : " << aliasBlock->getPath() << std::endl;
+			}
 		}
 	}
 
@@ -326,6 +331,8 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 			return this->parseLimitExcept(content);
 		case CLIENTMAXBODYSIZE_DIRECTIVE:
 			return this->parseClientMaxBodySize(content, context);
+		case ALIAS_DIRECTIVE:
+			return this->parseAlias(content);
 		default:
 			break;
 	}
@@ -690,7 +697,7 @@ int	ConfigFile::parseLimitExcept(const std::string &content)
 	try
 	{
 		ADirective	*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
-		LimitExcept	directive(LOCATION_CONTEXT, method);
+		LimitExcept	directive(method);
 		location->addDirective(&directive);
 
 	}
@@ -738,6 +745,23 @@ int	ConfigFile::parseClientMaxBodySize(const std::string &content, uint16_t cont
 
 		ClientMaxBodySize	clientMaxBodySize(context, size);
 		contextDirective->addDirective(&clientMaxBodySize);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	return 0;
+}
+
+int	ConfigFile::parseAlias(const std::string &content)
+{
+	try
+	{
+		ADirective	*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+		Alias		alias(content);
+		location->addDirective(&alias);
 	}
 	catch (const std::exception &ex)
 	{
