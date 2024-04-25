@@ -6,22 +6,22 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:32:45 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 21:36:51 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/25 17:36:52 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "webserv.h"
-// #include "WebServer.hpp"
 
 class WebServer;
 
-class ConfigFile {
+class ConfigFile
+{
 	private:
-		const char			*_filePath;
-		WebServer*			_webServer;
-		uint16_t			_context;
+		const char*	_filePath;
+		WebServer*	_webServer;
+		uint16_t	_context;
 
 		ConfigFile();
 
@@ -47,6 +47,7 @@ class ConfigFile {
 		int	parseErrorPage(const std::string& content, uint16_t context);
 		int	parseLocation(const std::string& content, uint16_t context, std::ifstream& inputFile);
 		int	parseAutoIndex(const std::string& content, uint16_t context);
+		int	parseRewrite(const std::string& content, uint16_t context);
 		int	parseLimitExcept(const std::string& content);
 		int	parseClientMaxBodySize(const std::string& content, uint16_t context);
 		int	parseAlias(const std::string& content);

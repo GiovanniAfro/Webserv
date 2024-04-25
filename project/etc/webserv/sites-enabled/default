@@ -13,6 +13,8 @@ server {
 
 	server_name _;
 
+	rewrite /anvedi /aoh redirect;
+
 	error_page 404 /404.html;
 	error_page 403 405 408 413 431 /40x.html;
 	error_page 500 /50x.html;
@@ -30,7 +32,7 @@ server {
 		root /anvedi;
 		client_max_body_size 420;
 		alias /daje;
-	listen 127.0.0.1:1234;
+		rewrite /aloah /eoh redirect;
 	}
 
 	# location /assets/ {

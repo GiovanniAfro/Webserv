@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/25 11:55:50 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/25 17:34:47 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,8 @@ ConfigFile::ConfigFile(const char *filePath, WebServer *server)
 	std::ifstream	inputFile;
 
 	inputFile.open(this->_filePath);
-	if (!inputFile.is_open()) {
+	if (!inputFile.is_open())
 		throw std::runtime_error("webserv: ConfigFile: file does not exist");
-	}
 	inputFile.close();
 	_webServer = server;
 	_context = GLOBAL_CONTEXT;
@@ -53,12 +52,12 @@ int	ConfigFile::parseConfigFile()
 	std::stringstream	streamBlock;
 
 	Log::debug("parseConfigFile");
+
 	inputFile.open(this->_filePath);
-	if (!inputFile.is_open()) {
-		// return Log::error("webserv: ConfigFile: file does not exist");
-		return -1;
-	}
-	while (getline(inputFile, line)) {
+	if (!inputFile.is_open())
+		return Log::error("webserv: ConfigFile: file does not exist");
+	while (getline(inputFile, line))
+	{
 		std::cout << "line : " << line << std::endl;
 		line = strip(line);
 		if (line.empty() || isComment(line))
@@ -69,12 +68,11 @@ int	ConfigFile::parseConfigFile()
 		std::cout << "header : " << header << std::endl;
 		content = secondToken(line);
 		std::cout << "content : " << content << std::endl;
-		if (header == "http") {
+		if (header == "http")
+		{
 			this->_context = HTTP_CONTEXT;
 			this->parserRouter(inputFile, header, content, GLOBAL_CONTEXT);
-
 		}
-		//	check '{}'
 	}
 
 	this->parserRouter(inputFile, "include", line, HTTP_CONTEXT);
@@ -140,6 +138,12 @@ int	ConfigFile::parseConfigFile()
 			ClientMaxBodySize* clieBlock = static_cast<ClientMaxBodySize*>(ser->getDirectives()["client_max_body_size"]);
 			std::cout << "client_max_body_size : " << clieBlock->getSize() << std::endl;
 		}
+		Log::debug("REWRITE");
+		if (ser->getDirectives().find("client_max_body_size") != ser->getDirectives().end())
+		{
+				Rewrite* rewrBlock = static_cast<Rewrite*>(ser->getDirectives()["rewrite"]);
+				std::cout << "rewrite : " << rewrBlock->getUri() << std::endl;
+		}
 		Log::debug("LOCATIONS");
 		if (ser->getDirectives().find("location") != ser->getDirectives().end())
 		{
@@ -172,6 +176,11 @@ int	ConfigFile::parseConfigFile()
 				Alias* aliasBlock = static_cast<Alias*>(locBlock->getDirectives()["alias"]);
 				std::cout << "alias : " << aliasBlock->getPath() << std::endl;
 			}
+			if (locBlock->getDirectives().find("rewrite") != locBlock->getDirectives().end())
+			{
+				Rewrite* rewrBlock = static_cast<Rewrite*>(locBlock->getDirectives()["rewrite"]);
+				std::cout << "rewrite : " << rewrBlock->getUri() << std::endl;
+			}
 		}
 	}
 
@@ -179,13 +188,15 @@ int	ConfigFile::parseConfigFile()
 	return 0;
 }
 
-int	ConfigFile::parseHttp(std::ifstream &inputFile, std::string &line) {
+int	ConfigFile::parseHttp(std::ifstream &inputFile, std::string &line)
+{
 	std::string	header, content;
 
 	Log::debug("parseHttp");
 
 	this->_webServer->addConfig();
-	while (getline(inputFile, line)) {
+	while (getline(inputFile, line))
+	{
 		std::cout << "line : " << line << std::endl;
 		line = strip(line);
 		if (line.empty() || isComment(line) /* || isBracket(line) */)
@@ -198,21 +209,21 @@ int	ConfigFile::parseHttp(std::ifstream &inputFile, std::string &line) {
 			return Log::error("ConfigFile : parseHttp : invalid header");
 		content = secondToken(line);
 		std::cout << "content : " << content << std::endl;
-		if (header == "include") {
+		if (header == "include")
+		{
 			glob_t	globPaths;
 			glob(content.c_str(), GLOB_TILDE, NULL, &globPaths);
-			for (unsigned int i = 0; i < globPaths.gl_pathc; ++i) {
+			for (unsigned int i = 0; i < globPaths.gl_pathc; ++i)
+			{
 				std::cout << globPaths.gl_pathv[i] << std::endl;
 				Include	include(globPaths.gl_pathv[i]);
 				this->_webServer->getConfigs().back()->addDirective(&include);	// getConfigs()[0]
 			}
 			globfree(&globPaths);
 		}
-		else {
+		else
 			this->parserRouter(inputFile, header, content, HTTP_CONTEXT);
-		}
 	}
-	// this->_webServer->addConfig(&http);	// Http loses include blocks ???
 
 	return 0;
 }
@@ -221,24 +232,22 @@ int	ConfigFile::parseInclude() {
 	Include *include = NULL;
 
 	Log::debug("parseInclude");
-	// for (std::vector<ADirective*>::iterator it = _webServer->getConfigs().begin(); it != _webServer->getConfigs().end(); ++it)
-	// {}
+
 	if (_webServer->getConfigs()[0]->getDirectives().find("include") !=
-		_webServer->getConfigs()[0]->getDirectives().end()) {
+		_webServer->getConfigs()[0]->getDirectives().end())
+	{
 		include = static_cast<Include *>
 			(_webServer->getConfigs()[0]->getDirectives()["include"]);
 	}
-	else {
+	else
 		return -1;
-	}
 
-	for (std::vector<ADirective *>::iterator it = include->getBlocks().begin(); it != include->getBlocks().end(); ++it) {
+	for (std::vector<ADirective *>::iterator it = include->getBlocks().begin(); it != include->getBlocks().end(); ++it)
+	{
 		Include *include = static_cast<Include *>(*it);
 		std::ifstream	inputFile;
 		std::string		line, header, content;
 		std::vector<ADirective *>	includeBlocks(include->getBlocks());
-
-		// includeBlocks.pop
 
 		std::cout << include->getPath() << std::endl;
 
@@ -267,7 +276,8 @@ int	ConfigFile::parseInclude() {
 	return 0;
 }
 
-int	ConfigFile::parseServers(std::ifstream &inputFile, std::string &line) {
+int	ConfigFile::parseServers(std::ifstream &inputFile, std::string &line)
+{
 	std::string	header, content;
 
 	Log::debug("parseServers");
@@ -306,31 +316,34 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 		return Log::error("parserRouter : invalid header");
 	if (!checkContext(index, context))
 		return Log::error("parserRouter : invalid context");
-	switch (index) {
-		case HTTP_DIRECTIVE:
-			return this->parseHttp(inputFile, content);
+	switch (index)
+	{
 		case INCLUDE_DIRECTIVE:
 			return this->parseInclude();
+		case HTTP_DIRECTIVE:
+			return this->parseHttp(inputFile, content);
 		case SERVER_DIRECTIVE:
 			return this->parseServers(inputFile, content);
-		case LISTEN_DIRECTIVE:
-			return this->parseListen(content);
+		case LOCATION_DIRECTIVE:
+			return this->parseLocation(content, context, inputFile);
 		case ROOT_DIRECTIVE:
 			return this->parseRoot(content, context);
-		case SERVER_NAME_DIRECTIVE:
-			return this->parseServerName(content);
 		case INDEX_DIRECTIVE:
 			return this->parseIndex(content, context);
 		case ERRORPAGE_DIRECTIVE:
 			return this->parseErrorPage(content, context);
-		case LOCATION_DIRECTIVE:
-			return this->parseLocation(content, context, inputFile);
 		case AUTOINDEX_DIRECTIVE:
 			return this->parseAutoIndex(content, context);
-		case LIMITEXCEPT_DIRECTIVE:
-			return this->parseLimitExcept(content);
 		case CLIENTMAXBODYSIZE_DIRECTIVE:
 			return this->parseClientMaxBodySize(content, context);
+		case REWRITE_DIRECTIVE:
+			return this->parseRewrite(content, context);
+		case LISTEN_DIRECTIVE:
+			return this->parseListen(content);
+		case SERVER_NAME_DIRECTIVE:
+			return this->parseServerName(content);
+		case LIMITEXCEPT_DIRECTIVE:
+			return this->parseLimitExcept(content);
 		case ALIAS_DIRECTIVE:
 			return this->parseAlias(content);
 		default:
@@ -739,8 +752,6 @@ int	ConfigFile::parseClientMaxBodySize(const std::string &content, uint16_t cont
 		else if (context == LOCATION_CONTEXT)
 			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
 
-		// std::cout << "clientmax context : " << 
-
 		ClientMaxBodySize	clientMaxBodySize(context, size);
 		contextDirective->addDirective(&clientMaxBodySize);
 	}
@@ -760,6 +771,47 @@ int	ConfigFile::parseAlias(const std::string &content)
 		ADirective	*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
 		Alias		alias(content);
 		location->addDirective(&alias);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	return 0;
+}
+
+int	ConfigFile::parseRewrite(const std::string &content, uint16_t context)
+{
+	std::istringstream	iss(content);
+	std::string			token, uri, replacement;
+	bool				isRedirect = false;
+
+	while (iss >> token)
+	{
+		if (uri.empty())
+			uri = token;
+		else if (!uri.empty() && replacement.empty())
+			replacement = token;
+		else if (!uri.empty() && !replacement.empty() && token == "redirect")
+			isRedirect = true;
+		else
+			return Log::error("rewrite : invalid content");
+	}
+	if (uri.empty() || replacement.empty())
+		return Log::error("rewrite : invalid content");
+
+	try
+	{
+		ADirective*	contextDirective = NULL;
+
+		if (context == SERVER_CONTEXT)
+			contextDirective = this->_webServer->getServers().back();
+		else if (context == LOCATION_CONTEXT)
+			contextDirective = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+
+		Rewrite	rewrite(context, uri, replacement, isRedirect);
+		contextDirective->addDirective(&rewrite);
 	}
 	catch (const std::exception &ex)
 	{

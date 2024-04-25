@@ -115,7 +115,7 @@
 
 ## Directives
 
-[ ] server
+[x] server
     - [x] server_name
     - [x] listen
     - [x] error_page
@@ -124,16 +124,15 @@
     - [x] root
     - [x] client_max_body_size
 
-[ ] location
+[x] location
     - [x] limit_except
     - [x] client_max_body_size
     - [x] index
     - [x] root
-    - [ ] autoindex (check if definded by server on)
-    - [ ] try_files
+    - [x] autoindex (check if definded by server on)
     - [x] alias
 
-[ ] redirect
+[x] redirect
 
 ## anvannin
 
