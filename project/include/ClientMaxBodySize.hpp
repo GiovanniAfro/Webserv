@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:24 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 19:55:21 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/25 11:56:44 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,17 @@
 class ClientMaxBodySize : public ADirective
 {
 	private:
-		size_t	_size;
+		unsigned long long	_size;
 
 		ClientMaxBodySize();
 
 	public:
-		ClientMaxBodySize(uint16_t context, size_t size);
+		ClientMaxBodySize(uint16_t context, unsigned long long size);
 		ClientMaxBodySize(const ClientMaxBodySize& copy);
 		~ClientMaxBodySize();
 		ClientMaxBodySize&	operator=(const ClientMaxBodySize& other);
 
 		ADirective*	clone() const;
 
-		size_t	getSize() const;
+		unsigned long long	getSize() const;
 };
