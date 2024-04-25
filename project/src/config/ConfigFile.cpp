@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 21:47:09 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/25 11:55:50 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -716,18 +716,16 @@ int	ConfigFile::parseClientMaxBodySize(const std::string &content, uint16_t cont
 
 	std::stringstream	iss(content);
 	std::string			token;
-	int					size = 0;
+	unsigned long long	size = 0;
 
 	while (iss >> token)
 	{
 		if (size)
 			return Log::error("client_max_body_size : invalid content");
 		long long	num = std::strtol(token.c_str(), NULL, 10);
-		if ((num == LONG_MAX || num == LONG_MIN) && errno == ERANGE)
+		if (num < 0 || num == LONG_MAX || num == LONG_MIN)
 			return Log::error("client_max_body_size : invalid size");
-		if (num < std::numeric_limits<int>::min() || num > std::numeric_limits<int>::max())
-			return Log::error("client_max_body_size : invalid size");
-		size = static_cast<size_t>(num);
+		size = static_cast<unsigned long long>(num);
 	}
 
 	try

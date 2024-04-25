@@ -122,15 +122,16 @@
     - [x] index
     - [x] autoindex
     - [x] root
+    - [x] client_max_body_size
 
 [ ] location
     - [x] limit_except
-    - [ ] client_max_body_size
+    - [x] client_max_body_size
     - [x] index
     - [x] root
     - [ ] autoindex (check if definded by server on)
     - [ ] try_files
-    - [ ] alias
+    - [x] alias
 
 [ ] redirect
 

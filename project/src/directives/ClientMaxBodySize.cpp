@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:40:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 21:27:44 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/25 11:56:51 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ ClientMaxBodySize::ClientMaxBodySize()
 : ADirective("client_max_body_size", GLOBAL_CONTEXT)
 {}
 
-ClientMaxBodySize::ClientMaxBodySize(uint16_t context, size_t size)
+ClientMaxBodySize::ClientMaxBodySize(uint16_t context, unsigned long long size)
 : ADirective("client_max_body_size", context), _size(size)
 {}
 
@@ -40,5 +40,5 @@ ClientMaxBodySize &ClientMaxBodySize::operator=(const ClientMaxBodySize &other)
 ADirective *ClientMaxBodySize::clone() const
 { return new ClientMaxBodySize(*this); }
 
-size_t	ClientMaxBodySize::getSize() const
+unsigned long long	ClientMaxBodySize::getSize() const
 { return _size; }
