@@ -51,6 +51,7 @@
 #include <sys/stat.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "utils.hpp"
 
