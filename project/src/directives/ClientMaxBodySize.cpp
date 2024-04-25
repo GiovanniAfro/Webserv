@@ -3,29 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   ClientMaxBodySize.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:40:36 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:41:38 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:27:44 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ClientMaxBodySize.hpp"
 
 ClientMaxBodySize::ClientMaxBodySize()
-	: ADirective("ClientMaxBodySize", GLOBAL_CONTEXT) {}
+: ADirective("client_max_body_size", GLOBAL_CONTEXT)
+{}
 
 ClientMaxBodySize::ClientMaxBodySize(uint16_t context, size_t size)
-	: ADirective("ClientMaxBodySize", context), _size(size) {}
+: ADirective("client_max_body_size", context), _size(size)
+{}
 
 ClientMaxBodySize::ClientMaxBodySize(const ClientMaxBodySize &copy) 
-	: ADirective(copy) {
-	*this = copy;
-}
+: ADirective(copy)
+{ *this = copy; }
 
 ClientMaxBodySize::~ClientMaxBodySize() {}
 
-ClientMaxBodySize &ClientMaxBodySize::operator=(const ClientMaxBodySize &other) {
+ClientMaxBodySize &ClientMaxBodySize::operator=(const ClientMaxBodySize &other)
+{
 	if (this == &other)
 		return *this;
 
@@ -35,10 +37,8 @@ ClientMaxBodySize &ClientMaxBodySize::operator=(const ClientMaxBodySize &other) 
 	return *this;
 }
 
-ADirective *ClientMaxBodySize::clone() const {
-	return new ClientMaxBodySize(*this);
-}
+ADirective *ClientMaxBodySize::clone() const
+{ return new ClientMaxBodySize(*this); }
 
-size_t	ClientMaxBodySize::getSize() const {
-	return _size;
-}
+size_t	ClientMaxBodySize::getSize() const
+{ return _size; }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Alias.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 16:41:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:36:11 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:44:56 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class Alias : public ADirective {
 		Alias();
 
 	public:
-		Alias(uint16_t context, const std::string& path);
+		Alias(const std::string& path);
 		Alias(const Alias& copy);
 		~Alias();
 		Alias&	operator=(const Alias& other);

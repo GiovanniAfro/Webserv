@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 18:17:51 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/24 23:30:27 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ bool isComment(const std::string &s) {
 
 bool isDirective(const std::string &s)
 {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size", "alias"};
 
 	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i) {
 		if (s == directiveNames[i])
@@ -70,7 +70,7 @@ std::vector<uint16_t> getContextValues(int directive) {
 			return std::vector<uint16_t>(1, GLOBAL_CONTEXT);
 
 		case INCLUDE_DIRECTIVE:
-			return std::vector<uint16_t>(1, GLOBAL_CONTEXT);
+			return std::vector<uint16_t>(1, HTTP_CONTEXT);
 
 		case SERVER_DIRECTIVE:
 			return std::vector<uint16_t>(1, HTTP_CONTEXT);
@@ -137,19 +137,23 @@ std::vector<uint16_t> getContextValues(int directive) {
 			return values;
 		}
 
+		case ALIAS_DIRECTIVE:
+			return std::vector<uint16_t>(1, LOCATION_CONTEXT);
+
 		default:
 			return std::vector<uint16_t>();
 	}
 }
 
 // get index's directive context and compare with current context
-						  // http			// global	
+						  // include			// http	
 bool checkContext(int directiveContext, uint16_t currentContext)
 {
 	std::vector<uint16_t>	contextLevels = getContextValues(directiveContext);
 
-	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it) {
-		if ((*it) <= currentContext)
+	for (std::vector<uint16_t>::iterator it = contextLevels.begin(); it != contextLevels.end(); ++it)
+	{
+		if ((*it) == currentContext)
 			return true;
 	}
 
@@ -158,7 +162,7 @@ bool checkContext(int directiveContext, uint16_t currentContext)
 
 int	whichDirective(const std::string &s)
 {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size", "alias"};
 
 	for (int i = 0; i < NUM_DIRECTIVES; ++i) {
 
