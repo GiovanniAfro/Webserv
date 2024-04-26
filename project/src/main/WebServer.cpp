@@ -79,7 +79,7 @@ int	WebServer::startServers() {
 	this->_extractListenPorts();
 	struct pollfd						fds[_listenPorts.size()];
 	unsigned int						numFds = 0;
-	Socket *clientSocket;
+	Socket								*clientSocket;
 	std::string							request;
 	std::map<std::string, std::string>	response;
 
@@ -105,9 +105,11 @@ int	WebServer::startServers() {
 
 			// Accept connection and create new socket for client---------->
 			clientSocket = this->_sockets[i]->createClientSocket();
+			if (!clientSocket)
+				return Log::error("Client socket creation failed");
 
 			// Read the request ------------------------------------------->
-			request = this->_readRequests(clientSocket);
+			request = this->_readRequests(clientSocket->getSocket());
 			if (request.empty())
 				Log::error("Request reading failed");
 			else {
@@ -116,7 +118,6 @@ int	WebServer::startServers() {
 
 				// Process the requests ----------------------------------->
 				response = this->_processRequests();
-
 				if (response.empty())
 				{
 					Log::error("WebServer : empty response");
@@ -141,6 +142,7 @@ int	WebServer::startServers() {
 			delete clientSocket;
 			clientSocket = NULL;
 		}
+		// break;
 	}
 
 	return 0;
@@ -164,7 +166,7 @@ void	WebServer::_extractListenPorts() {
 	}
 }
 
-std::string	WebServer::_readRequests(Socket *clientSocket) {
+std::string	WebServer::_readRequests(int clientSocketFD) {
 	char				buf[4096]; // Buffer più grande per gestire la maggior parte delle richieste in un solo ciclo
 	std::string			request = "";
 	ssize_t				bytes_read;
@@ -172,10 +174,12 @@ std::string	WebServer::_readRequests(Socket *clientSocket) {
 	size_t				found_end;
 
 	while (true) {
-		bytes_read = recv(clientSocket->getSocket(), buf, sizeof(buf) - 1, 0); //La funzione recv può essere utilizzata anche per ricevere dati in modo non bloccante, utilizzando la flag MSG_DONTWAIT. Inoltre, la funzione recv può essere utilizzata per ricevere dati da più socket contemporaneamente, utilizzando la funzione select.
+		// La funzione recv può essere utilizzata anche per ricevere dati in modo non bloccante, utilizzando la flag MSG_DONTWAIT. Inoltre, la funzione recv può essere utilizzata per ricevere dati da più socket contemporaneamente, utilizzando la funzione select.
+		bytes_read = recv(clientSocketFD, buf, sizeof(buf) - 1, 0);
 
 		if (bytes_read > 0) {
-			buf[bytes_read] = '\0'; // Assicurati che la std::stringa sia terminata correttamente
+			// Assicurati che la std::stringa sia terminata correttamente
+			buf[bytes_read] = '\0';
 			request.append(buf);
 
 			// Controlla se hai ricevuto l'intero header della richiesta
@@ -195,13 +199,16 @@ std::string	WebServer::_readRequests(Socket *clientSocket) {
 
 					// Leggi il corpo della richiesta se non è stato già completamente ricevuto
 					while (request.size() < headers_length + static_cast<size_t>(content_length)) {
-						bytes_read = recv(clientSocket->getSocket(), buf, sizeof(buf) - 1, 0);
-						if (bytes_read <= 0) break; // Gestisci errori o chiusura connessione
+						bytes_read = recv(clientSocketFD, buf, sizeof(buf) - 1, 0);
+						// Gestisci errori o chiusura connessione
+						if (bytes_read <= 0)
+							break;
 						buf[bytes_read] = '\0';
-						request.append(buf);
+						request += buf;
 					}
 				}
-				break; // Hai trovato la fine dell'header e letto il corpo se necessario
+				// Hai trovato la fine dell'header e letto il corpo se necessario
+				break;
 			}
 		}
 		else if (bytes_read == 0) {
@@ -347,7 +354,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 			if (listen->getAddress().empty())
 				continue;
 
-			if (listen->getAddress() == requestIP && 
+			if (listen->getAddress() == requestIP &&
 				listen->getPorts().find(requestPort) != listen->getPorts().end())
 			{
 				isMatch = true;

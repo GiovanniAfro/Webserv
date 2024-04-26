@@ -155,9 +155,17 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 	* @brief Check if the method is allowed.
 	* @param method HTTP method.
 	* @return bool True if the method is allowed, false otherwise.
+	* @note In case the request contains a location context, check if the method is allowed
+			by the limit_except directive, otherwise check if the method is GET, POST or DELETE
 */
-bool Server::_isMethodAllowed(const std::string &method) {
-	if (method == "GET" || method == "POST" || method == "DELETE")
+bool Server::_isMethodAllowed(const std::string &method, std::map<std::string, ADirective *> locaDirs) {
+	if (locaDirs.find("limit_except") != locaDirs.end())
+	{
+		HTTP_METHOD locMethod = static_cast<LimitExcept *>(locaDirs["limit_except"])->getMethod();
+		if (locMethod == Http::_methodToEnum(method))
+			return true;
+	}
+	else if (method == "GET" || method == "POST" || method == "DELETE")
 		return true;
 	return false;
 }
@@ -191,31 +199,39 @@ bool	Server::_isFile(const std::string &path) {
 
 /*!
 	* @brief Check if the autoindex directive is set to on.
+	* @param servDirs Server directives.
+	* @param locaDirs Location directives.
 	* @return bool True if the autoindex directive is defined and set to on, false otherwise.
 */
-bool	Server::_isAutoIndex() {
+bool	Server::_isAutoIndex(std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
 	std::cout << "Checking autoindex" << std::endl;
-	std::map<std::string, ADirective *>	directives = this->getDirectives();
-	for (std::map<std::string, ADirective *>::iterator it = directives.begin(); it != directives.end(); ++it)
-		std::cout << it->first << std::endl;
+	Autoindex *autoindex = static_cast<Autoindex *>(servDirs["autoindex"]);
 
-	Autoindex *autoindex = static_cast<Autoindex *>(directives["autoindex"]);
+	if (locaDirs.find("autoindex") != locaDirs.end())
+	{
+		std::cout << "Location autoindex" << std::endl;
+		autoindex = static_cast<Autoindex *>(locaDirs["autoindex"]);
+	}
 
 	if (!autoindex)
 		return false;
 	return autoindex->getMode();
+	(void)locaDirs;
 }
 
 /*!
 	* @brief Get the index file.
 	* @param filePath Path to the file.
+	* @param servDirs Server directives.
+	* @param locaDirs Location directives.
 	* @return string Index file.
 	* @note If no index file is found, return an empty string.
 */
-std::string Server::_getIndex(std::string const &filePath) {
-	std::map<std::string, ADirective *>	directives = this->getDirectives();
+std::string Server::_getIndex(std::string const &filePath, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
+	Index *index = static_cast<Index *>(servDirs["index"]);
 
-	Index *index = static_cast<Index *>(directives["index"]);
+	if (locaDirs.find("index") != locaDirs.end())
+		index = static_cast<Index *>(locaDirs["index"]);
 
 	for (std::vector<std::string>::iterator it = index->getFiles().begin(); it != index->getFiles().end(); ++it)
 		if (_isFile(filePath + *it))
@@ -242,6 +258,8 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 		body += "<html><head><title>Directory listing</title></head><body><h1>Directory listing</h1><ul>";
 		while ((ent = readdir(dir)) != NULL)
 		{
+			if (ent->d_name[0] == '.')
+				continue;
 			body += "<li><a href=\"";
 			if (uri[uri.size() - 1] != '/')
 			{
@@ -264,37 +282,76 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 }
 // -------------------------------------------------------------------------->
 
+/*!
+	* @brief Get the root directive value.
+	* @param servDirs Server directives.
+	* @param locaDirs Location directives.
+	* @return string Root directive value
+	* @note Order of operations:
+			- If the root directive is defined in the location context, return the root
+			- If the root directive is defined in the server context, return the root
+			- If none of the above, return an empty string
+*/
+std::string Server::_getRoot(std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
+	std::string root = "";
+
+	if (locaDirs.find("root") != locaDirs.end())
+		root = static_cast<Root *>(locaDirs["root"])->getPath();
+	else if (servDirs.find("root") != servDirs.end())
+		root = static_cast<Root *>(servDirs["root"])->getPath();
+	return root;
+}
+
 std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request) {
-	std::map<std::string, ADirective *>	directives = this->getDirectives();
-	for (std::map<std::string, ADirective *>::iterator it = directives.begin(); it != directives.end(); ++it)
-		std::cout << it->first << std::endl;
-
-	if (directives.find("root") == directives.end())
-		return _responseBuilder(INTERNAL_SERVER_ERROR);
-
-	std::string	rootValue = static_cast<Root *>(this->getDirectives()["root"])->getPath();
-
-	if (rootValue.empty())
-		return _responseBuilder(INTERNAL_SERVER_ERROR);
-
+	std::map<std::string, ADirective *>	servDirs = this->getDirectives();
+	std::map<std::string, ADirective *>	locaDirs;
+	std::string path = "";
 	std::string	requestUri = request["uri"];
-	std::string	filePath = rootValue + requestUri;
+
+	// Check if the request URI matches a location context
+	Location *location = static_cast<Location *>(servDirs["location"]);
+	for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
+	{
+		if (request["uri"].find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
+		{
+			locaDirs = static_cast<Location *>(*it)->getDirectives();
+			location = static_cast<Location *>(*it);
+			break;
+		}
+	}
+
+	// If the alias directive is defined, use the alias path
+	// and append the request URI, minus the location URI to the path
+	if (locaDirs.find("alias") != locaDirs.end())
+	{
+		path = static_cast<Alias *>(locaDirs["alias"])->getPath();
+		requestUri = requestUri.substr(location->getUri().size());
+	}
+	else
+		path = _getRoot(servDirs, locaDirs);
+	if (path.empty())
+		return _responseBuilder(INTERNAL_SERVER_ERROR);
+
+	// Get the path to the file
+	std::string	filePath = path + requestUri;
+	if (!_isFile(filePath) && filePath[filePath.size() - 1] != '/')
+		filePath += "/";
 
 	// If the path is a folder, check for the index file and autoindex directive
 	if (_isFolder(filePath))
 	{
-		if (directives.find("index") != directives.end())
+		if (servDirs.find("index") != servDirs.end())
 		{
-			std::string index = _getIndex(filePath);
+			std::string index = _getIndex(filePath, servDirs, locaDirs);
 			std::cout << "Index: " << index << std::endl;
-			if (index.empty() && _isAutoIndex())
+			if (index.empty() && _isAutoIndex(servDirs, locaDirs))
 				return _directoryListing(filePath, request["uri"]);
 			else if (index.empty())
 				return _responseBuilder(FORBIDDEN);
 
 			filePath += index;
 		}
-		else if (_isAutoIndex())
+		else if (_isAutoIndex(servDirs, locaDirs))
 			return _directoryListing(filePath, request["uri"]);
 		else
 			return _responseBuilder(FORBIDDEN);
@@ -303,7 +360,7 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 		return _responseBuilder(NOT_FOUND);
 
 	// Allowed methods
-	if (!_isMethodAllowed(request.at("method"))) {
+	if (!_isMethodAllowed(request.at("method"), locaDirs)) {
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
 

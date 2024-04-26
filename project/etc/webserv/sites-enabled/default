@@ -8,6 +8,7 @@ server {
 
 	# Add index.php to the list if you are using PHP
 	index index.html index.htm index.webserv-debian.html;
+	autoindex on;
 
 	client_max_body_size 42;
 
@@ -28,23 +29,26 @@ server {
 			# allow 192.168.1.0/32;
 			# deny  all;
 		# }	# limit_except treated as non-context -> end with ';'
+		root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
+
 		index index2.html index2.htm index2.webserv-debian.html;
-		root /anvedi;
 		client_max_body_size 420;
 		alias /daje;
 		rewrite /aloah /eoh redirect;
 	}
 
-	# location /assets/ {
-	# 	# First attempt to serve request as file, then
-	# 	# as directory, then fall back to displaying a 404.
-	# 	try_files $uri $uri/ =404;
-	# }
+	location /location {
+		root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
+		alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www/location;
 
-	autoindex on;
+		index index2.html;
+		autoindex off;
+	}
 
+	location /upload {
+		limit_except POST
+	}
 }
-	server_name _;
 
 server {
 	listen 1111 8585 default_server;

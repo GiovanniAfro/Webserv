@@ -134,6 +134,36 @@
 
 [x] redirect
 
+## Requests
+
+[ ] Handle redirections
+
+[ ] Handle the directives in response based on context
+[ ] http
+    - [ ] include
+    - [ ] error_page
+    - [ ] client_max_body_size
+    - [ ] index
+    - [ ] autoindex
+    - [ ] root
+    - [ ] server
+        - [ ] server_name
+        - [x] listen
+        - [x] error_page
+        - [x] index
+        - [x] autoindex
+        - [x] root
+        - [ ] client_max_body_size
+        - [ ] location
+            - [x] limit_except
+            - [ ] error_page
+            - [ ] client_max_body_size
+            - [x] index
+            - [x] root
+            - [x] autoindex
+            - [ ] try_files
+            - [x] alias
+
 ## anvannin
 
 [x] Handle SIGINT signal
@@ -142,20 +172,7 @@
 
 [x] In case there are no root paths, return INTERNAL_SERVER_ERROR
 
-[ ] Handle index directive in case URI is a folder
-
-[ ] Allowed methods
-    - [ ] GET, POST, DELETE
-    - [ ] limit_except
-
-[ ] Handle location
-    - [ ] root overrides the server root
-    - [ ] index
-    - [ ] client_max_body_size
-
-[ ] Handle error pages
-
-[ ] Handle multiple locations
+[x] Handle index directive in case URI is a folder
 
 ## Bonus --------------------------------------------------------------------->
 
