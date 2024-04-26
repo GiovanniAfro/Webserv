@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/21 20:07:48 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:39:14 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@
 #include "Location.hpp"
 #include "Rewrite.hpp"
 #include "Index.hpp"
-
+#include "Cgi.hpp"
 #include "Log.hpp"
 #include "WebServer.hpp"
 #include "ConfigFile.hpp"
