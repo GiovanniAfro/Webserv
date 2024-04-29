@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerName.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:37:49 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:37:49 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/29 19:19:38 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,7 @@ class	ServerName : public ADirective {
 		ServerName(const ServerName &copy);
 		~ServerName();
 		ServerName &operator=(const ServerName &other);
+		ADirective*	clone() const;
 
-		ADirective *clone() const;
-
-		std::vector<std::string> &getNames();
+		std::vector<std::string>&	getNames();
 };

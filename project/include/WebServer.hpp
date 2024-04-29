@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:18 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:43:59 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:06:38 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,26 +19,27 @@ class	Server;
 class	ConfigFile;
 struct	Request;
 
-class	WebServer {
+class	WebServer
+{
 	private:
 		std::vector<ADirective *>	_configs;
 		std::vector<ADirective *>	_servers;
 		std::set<uint16_t>			_listenPorts;
 
 		std::vector<Socket *>		_sockets;
-		ConfigFile *_configFile;
+		ConfigFile*					_configFile;
 		Request						_clientRequest;
 
 		void								_extractListenPorts();
 		std::string							_readRequests(int clientSocketFD);
-		void								_parseRequest(const std::string &request);
-		Server								*_findVirtualServer();
-		void								_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort);
-		void								_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort);
-		void								_matchingServersIpPort(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort);
-		void								_matchingServersName(std::vector<ADirective *> &servers);
+		void								_parseRequest(const std::string& request);
+		Server*								_findVirtualServer();
+		void								_matchingServersPort(std::vector<ADirective *>& servers, uint16_t requestPort);
+		void								_matchingServersIp(std::vector<ADirective *>& servers, const std::string& requestIpAddress, uint16_t requestPort);
+		void								_matchingServersIpPort(std::vector<ADirective *>& servers, const std::string& requestIpAddress, uint16_t requestPort);
+		void								_matchingServersName(std::vector<ADirective *>& servers, const std::string& requestHost);
 		std::map<std::string, std::string>	_processRequests();
-		void								_sendResponse(Socket *client_socket, std::map<std::string, std::string> response);
+		void								_sendResponse(Socket* client_socket, std::map<std::string, std::string> response);
 
 	public:
 		static WebServer *instance;
@@ -46,18 +47,18 @@ class	WebServer {
 		WebServer();
 		~WebServer();
 
-		static WebServer *getInstance();
-		static void sigintHandler(int signum);
-		Http *getHttpDirective();
+		static WebServer*	getInstance();
+		static void			sigintHandler(int signum);
 
 		void	setConfigFile(ConfigFile &configFile);
 		void	addConfig();
 		void	addServer();
 
-		std::vector<ADirective *> &getConfigs();
-		std::vector<ADirective *> &getServers();
-		std::vector<Socket *> &getSockets();
+		std::vector<ADirective *>&	getConfigs();
+		std::vector<ADirective *>&	getServers();
+		std::vector<Socket *>&		getSockets();
 		Request						getRequest();
+		unsigned long long			getClientMaxBodySize();
 
 		int		startServers();
 		void	clearRequest();

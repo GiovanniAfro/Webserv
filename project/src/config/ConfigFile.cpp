@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/25 17:34:47 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:04:08 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,9 +145,13 @@ int	ConfigFile::parseConfigFile()
 				std::cout << "rewrite : " << rewrBlock->getUri() << std::endl;
 		}
 		Log::debug("LOCATIONS");
-		if (ser->getDirectives().find("location") != ser->getDirectives().end())
+		if (ser->getDirectives().find("location") == ser->getDirectives().end())
+			return 0;
+		for (std::vector<ADirective*>::iterator it = ser->getDirectives()["location"]->getBlocks().begin(); it != ser->getDirectives()["location"]->getBlocks().end(); ++it)
 		{
-			Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]->getBlocks().back());
+			// Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]->getBlocks().back());
+			Location*	locBlock = static_cast<Location*>(*it);
+
 			std::cout << "location uri : " << locBlock->getUri() << std::endl;
 			if (locBlock->getDirectives().find("limit_except") != locBlock->getDirectives().end())
 			{
@@ -181,6 +185,7 @@ int	ConfigFile::parseConfigFile()
 				Rewrite* rewrBlock = static_cast<Rewrite*>(locBlock->getDirectives()["rewrite"]);
 				std::cout << "rewrite : " << rewrBlock->getUri() << std::endl;
 			}
+			std::cout << std::endl;
 		}
 	}
 

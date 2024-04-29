@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 19:33:07 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:12:52 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,14 @@
 
 WebServer *WebServer::instance = NULL;
 
-WebServer::WebServer() {
+WebServer::WebServer()
+{
 	instance = this;
 	signal(SIGINT, sigintHandler);
 }
 
-WebServer::~WebServer() {
+WebServer::~WebServer()
+{
 	for (std::vector<ADirective *>::iterator it = _configs.begin(); it != _configs.end(); ++it)
 		delete (*it);
 	for (std::vector<ADirective *>::iterator it = _servers.begin(); it != _servers.end(); ++it)
@@ -30,19 +32,21 @@ WebServer::~WebServer() {
 		close(*it);
 }
 
-void WebServer::sigintHandler(int signum) {
-	if (signum == SIGINT) {
+void WebServer::sigintHandler(int signum)
+{
+	if (signum == SIGINT)
+	{
 		if (WebServer::instance)
 			WebServer::instance->~WebServer();
 		exit(0);
 	}
 }
 
-void	WebServer::setConfigFile(ConfigFile &configFile) {
-	_configFile = &configFile;
-}
+void	WebServer::setConfigFile(ConfigFile &configFile)
+{ _configFile = &configFile; }
 
-void	WebServer::addConfig() {
+void	WebServer::addConfig()
+{
 	_configs.push_back(new Http());
 	// if (!_configs.empty())
 	// {
@@ -50,7 +54,8 @@ void	WebServer::addConfig() {
 	// }
 }
 
-void	WebServer::addServer() {
+void	WebServer::addServer()
+{
 	// // Log::debug("addServer");
 	_servers.push_back(new Server());
 	// if (!_servers.empty())
@@ -59,23 +64,28 @@ void	WebServer::addServer() {
 	// }
 }
 
-std::vector<ADirective *> &WebServer::getConfigs() {
-	return _configs;
+std::vector<ADirective *> &WebServer::getConfigs()
+{ return _configs; }
+
+std::vector<ADirective *> &WebServer::getServers()
+{ return _servers; }
+
+std::vector<Socket *> &WebServer::getSockets()
+{ return _sockets; }
+
+Request	WebServer::getRequest()
+{ return _clientRequest; }
+
+unsigned long long	WebServer::getClientMaxBodySize()
+{
+	if (this->getConfigs()[0]->getDirectives().find("client_max_body_size") == this->getConfigs()[0]->getDirectives().end())
+		return CLIENT_MAX_BODY_SIZE;
+	
+	return static_cast<ClientMaxBodySize*>(this->getConfigs()[0]->getDirectives()["client_max_body_size"])->getSize();
 }
 
-std::vector<ADirective *> &WebServer::getServers() {
-	return _servers;
-}
-
-std::vector<Socket *> &WebServer::getSockets() {
-	return _sockets;
-}
-
-Request	WebServer::getRequest() {
-	return _clientRequest;
-}
-
-int	WebServer::startServers() {
+int	WebServer::startServers()
+{
 	this->_extractListenPorts();
 	struct pollfd						fds[_listenPorts.size()];
 	unsigned int						numFds = 0;
@@ -84,7 +94,8 @@ int	WebServer::startServers() {
 	std::map<std::string, std::string>	response;
 
 	// Creates sockets and adds them to the pollfd structure ------------------>
-	for (std::set<uint16_t>::iterator it = _listenPorts.begin(); it != _listenPorts.end(); ++it) {
+	for (std::set<uint16_t>::iterator it = _listenPorts.begin(); it != _listenPorts.end(); ++it)
+	{
 		Socket *newSocket = new Socket(*it);
 		this->_sockets.push_back(newSocket);
 		fds[numFds].fd = newSocket->getSocket();
@@ -93,13 +104,15 @@ int	WebServer::startServers() {
 	}
 
 	// Polling ---------------------------------------------------------------->
-	while (true) {
+	while (true)
+	{
 		int	pollStatus = poll(fds, numFds, -1);
 		if (pollStatus == -1)
 			return Log::error("Poll failed");
 
 		// Handle events on sockets ------------------------------------------->
-		for (unsigned int i = 0; i < numFds; ++i) {
+		for (unsigned int i = 0; i < numFds; ++i)
+		{
 			if (!(fds[i].revents & POLLIN))
 				continue;
 
@@ -112,7 +125,8 @@ int	WebServer::startServers() {
 			request = this->_readRequests(clientSocket->getSocket());
 			if (request.empty())
 				Log::error("Request reading failed");
-			else {
+			else
+			{
 				// Parse the request -------------------------------------->
 				this->_parseRequest(request);
 
@@ -148,17 +162,21 @@ int	WebServer::startServers() {
 	return 0;
 }
 
-void	WebServer::clearRequest() {
+void	WebServer::clearRequest()
+{
 	this->_clientRequest.request.clear();
 	this->_clientRequest.requestHeaders.clear();
 	this->_clientRequest.requestBody.clear();
 	this->_clientRequest.requestMethod = UNKNOWN;
 }
 
-void	WebServer::_extractListenPorts() {
-	for (std::vector<ADirective *>::iterator itServer = this->getServers().begin(); itServer != this->getServers().end(); ++itServer) {
+void	WebServer::_extractListenPorts()
+{
+	for (std::vector<ADirective *>::iterator itServer = this->getServers().begin(); itServer != this->getServers().end(); ++itServer)
+	{
 		std::vector<ADirective *>	listenBlocks = (*itServer)->getDirectives()["listen"]->getBlocks();
-		for (std::vector<ADirective *>::iterator itListen = listenBlocks.begin(); itListen != listenBlocks.end(); ++itListen) {
+		for (std::vector<ADirective *>::iterator itListen = listenBlocks.begin(); itListen != listenBlocks.end(); ++itListen)
+		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 			for (std::set<uint16_t>::iterator itPorts = listen->getPorts().begin(); itPorts != listen->getPorts().end(); ++itPorts)
 				_listenPorts.insert(*itPorts);
@@ -166,31 +184,37 @@ void	WebServer::_extractListenPorts() {
 	}
 }
 
-std::string	WebServer::_readRequests(int clientSocketFD) {
-	char				buf[4096]; // Buffer più grande per gestire la maggior parte delle richieste in un solo ciclo
+std::string	WebServer::_readRequests(int clientSocketFD)
+{
+	char				buf[this->getClientMaxBodySize()]; // Buffer più grande per gestire la maggior parte delle richieste in un solo ciclo
 	std::string			request = "";
 	ssize_t				bytes_read;
 	const std::string	request_end = "\r\n\r\n";
 	size_t				found_end;
 
-	while (true) {
+	while (true)
+	{
 		// La funzione recv può essere utilizzata anche per ricevere dati in modo non bloccante, utilizzando la flag MSG_DONTWAIT. Inoltre, la funzione recv può essere utilizzata per ricevere dati da più socket contemporaneamente, utilizzando la funzione select.
 		bytes_read = recv(clientSocketFD, buf, sizeof(buf) - 1, 0);
 
-		if (bytes_read > 0) {
+		if (bytes_read > 0)
+		{
 			// Assicurati che la std::stringa sia terminata correttamente
 			buf[bytes_read] = '\0';
 			request.append(buf);
 
 			// Controlla se hai ricevuto l'intero header della richiesta
 			found_end = request.find(request_end);
-			if (found_end != std::string::npos) {
+			if (found_end != std::string::npos)
+			{
 				// Se esiste un "Content-Length", devi leggere anche il corpo della richiesta
 				size_t content_length_pos = request.find("Content-Length: ");
-				if (content_length_pos != std::string::npos) {
+				if (content_length_pos != std::string::npos)
+				{
 					content_length_pos += strlen("Content-Length: ");
 					size_t content_length_end = request.find("\r\n", content_length_pos);
-					if (content_length_end != std::string::npos) {
+					if (content_length_end != std::string::npos)
+					{
 						Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 						return "";
 					}
@@ -198,7 +222,8 @@ std::string	WebServer::_readRequests(int clientSocketFD) {
 					size_t headers_length = found_end + 4; // +4 per la sequenza \r\n\r\n
 
 					// Leggi il corpo della richiesta se non è stato già completamente ricevuto
-					while (request.size() < headers_length + static_cast<size_t>(content_length)) {
+					while (request.size() < headers_length + static_cast<size_t>(content_length))
+					{
 						bytes_read = recv(clientSocketFD, buf, sizeof(buf) - 1, 0);
 						// Gestisci errori o chiusura connessione
 						if (bytes_read <= 0)
@@ -211,18 +236,21 @@ std::string	WebServer::_readRequests(int clientSocketFD) {
 				break;
 			}
 		}
-		else if (bytes_read == 0) {
+		else if (bytes_read == 0)
+		{
 			// La connessione è stata chiusa dal client
 			Log::info("Connection closed by remote host");
 			return "";
 		}
-		else {
+		else
+		{
 			// Gestisci errori di lettura
 			Log::error("Error reading from socket");
 			return "";
 		}
 	}
-	if (found_end == std::string::npos) {
+	if (found_end == std::string::npos)
+	{
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
@@ -230,7 +258,8 @@ std::string	WebServer::_readRequests(int clientSocketFD) {
 	return request;
 }
 
-void	WebServer::_parseRequest(const std::string &request) {
+void	WebServer::_parseRequest(const std::string &request)
+{
 	Http *http = static_cast<Http *>(this->getConfigs()[0]);
 	std::stringstream	requestStream(request);
 	std::string			line;
@@ -242,9 +271,11 @@ void	WebServer::_parseRequest(const std::string &request) {
 	this->_clientRequest.requestMethod = http->_methodToEnum(this->_clientRequest.request["method"]);
 
 	// Extract the request headers
-	while (getline(requestStream, line) && !line.empty()) {
+	while (getline(requestStream, line) && !line.empty())
+	{
 		std::string::size_type colonPos = line.find(": ");
-		if (colonPos != std::string::npos) {
+		if (colonPos != std::string::npos)
+		{
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
@@ -254,10 +285,12 @@ void	WebServer::_parseRequest(const std::string &request) {
 
 	// Extract the request body specified by the Content-Length header
 	std::map<std::string, std::string>::iterator it = this->_clientRequest.requestHeaders.find("Content-Length");
-	if (it != this->_clientRequest.requestHeaders.end()) {
+	if (it != this->_clientRequest.requestHeaders.end())
+	{
 		int contentLength = atoi(it->second.c_str());
 		this->_clientRequest.requestBody.reserve(static_cast<std::string::size_type>(contentLength));
-		while (contentLength > 0 && getline(requestStream, line)) {
+		while (contentLength > 0 && getline(requestStream, line))
+		{
 			this->_clientRequest.requestBody.append(line + "\n");
 			contentLength -= line.length() + 1; // +1 per il carattere di nuova linea che getline consuma
 		}
@@ -270,7 +303,8 @@ void	WebServer::_parseRequest(const std::string &request) {
 	- Instrada la richiesta al blocco server corretto.
 	- Il blocco server elabora la richiesta e ritorna la risposta.
  */
-std::map<std::string, std::string>	WebServer::_processRequests() {
+std::map<std::string, std::string>	WebServer::_processRequests()
+{
 	Server *server = _findVirtualServer();
 
 	if (!server)
@@ -279,34 +313,40 @@ std::map<std::string, std::string>	WebServer::_processRequests() {
 		return std::map<std::string, std::string>();
 	}
 
-	for (std::map<std::string, ADirective*>::iterator it = server->getDirectives().begin();it != server->getDirectives().end(); ++it)
-	{
-		Log::debug((*it).first);
-	}
+	// for (std::map<std::string, ADirective*>::iterator it = server->getDirectives().begin();it != server->getDirectives().end(); ++it)
+	// {
+	// 	Log::debug((*it).first);
+	// }
 
 	return server->processRequest(this->_clientRequest.request);
 }
 
-Server *WebServer::_findVirtualServer() {
+Server*	WebServer::_findVirtualServer()
+{
 	std::string					requestHost = this->_clientRequest.requestHeaders["Host"];
-	std::string					requestIP = requestHost.substr(0, requestHost.find(":")).c_str();
-	uint16_t					requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+	std::string					requestIpAddress = requestHost;
+	uint16_t					requestPort = 80;
 	std::vector<ADirective *>	matchingServers = this->getServers();
-	Server *virtualServer = NULL;
+	Server*						virtualServer = NULL;
 	std::stringstream			stream;
 
-	// // Log::debug("_findVirtualServer");
-	// // std::cout << "requestHost : " << requestHost << std::endl;
+	if (requestHost.find(":") != std::string::npos)
+	{
+		requestIpAddress = requestHost.substr(0, requestHost.find(":")).c_str();
+		requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
+	}
 
 	this->_matchingServersPort(matchingServers, requestPort);
 
-	this->_matchingServersIp(matchingServers, requestIP, requestPort);
+	this->_matchingServersIp(matchingServers, requestIpAddress, requestPort);
 
-	// this->_matchingServersIpPort(matchingServers, requestIP, requestPort);
+	if (matchingServers.size() > 1)
+		this->_matchingServersName(matchingServers, requestIpAddress);
 
-	// this->_matchingServersName(matchingServers);
-
-	if (matchingServers.size() == 0) {
+	if (matchingServers.size() == 0)
+	{
+		// First default virtual server? -> default Server* in WebServer
+		
 		Log::error("Matching virtual server not found");
 	}
 	else //if (matchingServers.size() > 1)
@@ -315,18 +355,21 @@ Server *WebServer::_findVirtualServer() {
 	return virtualServer;
 }
 
-void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort) {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ++itServer) {
+void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort)
+{
+	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
+	{
 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
 		bool		isMatch = false;
 
-		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
+		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen)
+		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 
-
-			for (std::set<uint16_t>::iterator itPort = listen->getPorts().begin(); itPort != listen->getPorts().end(); ++itPort) {
-
-				if ((*itPort) == requestPort) {
+			for (std::set<uint16_t>::iterator itPort = listen->getPorts().begin(); itPort != listen->getPorts().end(); ++itPort)
+			{
+				if ((*itPort) == requestPort)
+				{
 					isMatch = true;
 					break;
 				}
@@ -339,7 +382,7 @@ void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_
 	}
 }
 
-void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort)
+void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std::string &requestIpAddress, uint16_t requestPort)
 {
 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); )
 	{
@@ -350,11 +393,10 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 
-
 			if (listen->getAddress().empty())
 				continue;
 
-			if (listen->getAddress() == requestIP &&
+			if (listen->getAddress() == requestIpAddress &&
 				listen->getPorts().find(requestPort) != listen->getPorts().end())
 			{
 				isMatch = true;
@@ -368,55 +410,41 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 	}
 }
 
-// void	WebServer::_matchingServersIpPort(std::vector<ADirective *> &servers, const std::string &requestIP, uint16_t requestPort) {
-// 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
-// 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
-// 		bool		isMatch = false;
+void	WebServer::_matchingServersName(std::vector<ADirective *>& servers, const std::string& requestHost)
+{
+	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); )
+	{
+		if ((*itServer)->getDirectives().find("server_name") == (*itServer)->getDirectives().end())
+		{
+			if (requestHost.empty())	// Should not be
+			{
+				++itServer;
+				continue;
+			}
+			itServer = servers.erase(itServer);
+			continue;
+		}
 
-// 		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
-// 			Listen *listen = static_cast<Listen *>(*itListen);
+		ServerName*	serverName = static_cast<ServerName*>((*itServer)->getDirectives()["server_name"]);
+		bool		isMatch = false;
 
-// 			if (listen->getAddressPort().find(requestIP) != listen->getAddressPort().end()) {
-// 				for (std::set<uint16_t>::iterator itPort = listen->getAddressPort()[requestIP].begin(); itPort != listen->getAddressPort()[requestIP].end(); ++itPort) {
-// 					if ((*itPort) == requestPort) {
-// 						// Matching address:port
-// 						isMatch = true;
-// 						break;
-// 					}
-// 				}
-// 			}
-// 			if (isMatch == true)
-// 				break;
-// 		}
-// 		if (isMatch == false)
-// 			itServer = servers.erase(itServer);
-// 		else
-// 			++itServer;
-// 	}
+		for (std::vector<std::string>::iterator it = serverName->getNames().begin(); it != serverName->getNames().end(); ++it)
+		{
+			if (*it == requestHost)
+			{
+				isMatch = true;
+				break;
+			}
+		}
+		if (isMatch == false)
+			itServer = servers.erase(itServer);
+		else
+			++itServer;
+	}
+}
 
-// }
-
-// void	WebServer::_matchingServersName(std::vector<ADirective *> &servers) {
-// 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ) {
-// 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
-// 		bool		isMatch = false;
-
-// 		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen) {
-// 			// Listen*	listen = static_cast<Listen*>(*itListen);
-
-
-
-// 			if (isMatch == true)
-// 				break;
-// 		}
-// 		if (isMatch == false)
-// 			itServer = servers.erase(itServer);
-// 		else
-// 			++itServer;
-// 	}
-// }
-
-void	WebServer::_sendResponse(Socket *client_socket, std::map<std::string, std::string> response) {
+void	WebServer::_sendResponse(Socket *client_socket, std::map<std::string, std::string> response)
+{
 	HTTP_STATUS status = Http::_statusToEnum(response["status"]);
 
 	Log::response(this->_clientRequest.requestMethod, this->_clientRequest.request["httpVersion"],
@@ -434,7 +462,8 @@ void	WebServer::_sendResponse(Socket *client_socket, std::map<std::string, std::
 	// Se non si riesce ad inviare tutti i dati, impostare POLLOUT ed inviare
 	// i dati rimanenti appena e' possibile scrivere.
 
-	if (bytes_sent == -1) {
+	if (bytes_sent == -1)
+	{
 		Log::error("Sending the response failed");
 		client_socket->closeSocket();
 	}
