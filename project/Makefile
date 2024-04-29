@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+         #
+#    By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/12 14:53:55 by kichkiro          #+#    #+#              #
-#    Updated: 2024/04/22 00:23:53 by adi-nata         ###   ########.fr        #
+#    Updated: 2024/04/26 13:36:01 by kichkiro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,6 +29,8 @@ SRCS        := \
 				directives/Server.cpp \
 				directives/ServerName.cpp \
 				directives/Index.cpp\
+				\
+				cgi/Cgi.cpp \
 				\
 				logging/Log.cpp \
 				\

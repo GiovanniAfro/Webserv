@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/23 19:33:07 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:57:09 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,6 +262,10 @@ void	WebServer::_parseRequest(const std::string &request) {
 			contentLength -= line.length() + 1; // +1 per il carattere di nuova linea che getline consuma
 		}
 	}
+
+	// CGI Test --------------------------------------------------------------->
+	Cgi(this->_clientRequest, "");
+	// -------------------------------------------------------------------------
 }
 
 /*!
