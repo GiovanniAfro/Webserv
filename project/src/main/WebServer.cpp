@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/29 23:21:24 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:26:32 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,8 +213,7 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 				{
 					content_length_pos += strlen("Content-Length: ");
 					size_t content_length_end = request.find("\r\n", content_length_pos);
-					if (content_length_end == std::string::npos) {
-					if (content_length_end != std::string::npos)
+					if (content_length_end == std::string::npos)
 					{
 						Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 						return "";
