@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/29 23:12:52 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/04/29 23:21:24 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,6 +213,7 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 				{
 					content_length_pos += strlen("Content-Length: ");
 					size_t content_length_end = request.find("\r\n", content_length_pos);
+					if (content_length_end == std::string::npos) {
 					if (content_length_end != std::string::npos)
 					{
 						Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
@@ -254,7 +255,7 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	// std::cout << request << std::endl;
+	std::cout << request << std::endl;
 	return request;
 }
 
@@ -279,7 +280,7 @@ void	WebServer::_parseRequest(const std::string &request)
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
-			// // std::cout << headerName << " -> " << headerValue << std::endl;
+			std::cout << headerName << " -> " << headerValue << std::endl;
 		}
 	}
 
@@ -295,6 +296,10 @@ void	WebServer::_parseRequest(const std::string &request)
 			contentLength -= line.length() + 1; // +1 per il carattere di nuova linea che getline consuma
 		}
 	}
+
+	// CGI Test --------------------------------------------------------------->
+	Cgi(this->_clientRequest, "");
+	// -------------------------------------------------------------------------
 }
 
 /*!
@@ -318,7 +323,7 @@ std::map<std::string, std::string>	WebServer::_processRequests()
 	// 	Log::debug((*it).first);
 	// }
 
-	return server->processRequest(this->_clientRequest.request);
+	return server->processRequest(static_cast<Http *>(this->getConfigs()[0]), this->_clientRequest.request, this->_clientRequest.requestHeaders);
 }
 
 Server*	WebServer::_findVirtualServer()

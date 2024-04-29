@@ -145,7 +145,7 @@
     - [x] client_max_body_size
     - [ ] index
     - [ ] autoindex
-    - [ ] root
+    - [x] root
     - [ ] server
         - [ ] server_name
         - [x] listen
@@ -153,11 +153,11 @@
         - [x] index
         - [x] autoindex
         - [x] root
-        - [ ] client_max_body_size
+        - [x] client_max_body_size
         - [ ] location
             - [x] limit_except
             - [ ] error_page
-            - [ ] client_max_body_size
+            - [x] client_max_body_size
             - [x] index
             - [x] root
             - [x] autoindex

@@ -6,7 +6,7 @@ server {
 
 	root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
-	index index.html index.htm index.nginx-debian.html;
+	# index index.html index.htm index.nginx-debian.html;
 
 	server_name localhost;
 

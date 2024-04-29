@@ -13,6 +13,7 @@
 #pragma once
 
 #include "webserv.h"
+#define DEFAULT_MAX_BODY_SIZE 1048576
 
 class	Socket;
 class	Server;

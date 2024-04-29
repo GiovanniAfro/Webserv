@@ -284,25 +284,59 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 
 /*!
 	* @brief Get the root directive value.
+	* @param httpDirs HTTP directives.
 	* @param servDirs Server directives.
 	* @param locaDirs Location directives.
 	* @return string Root directive value
 	* @note Order of operations:
 			- If the root directive is defined in the location context, return the root
 			- If the root directive is defined in the server context, return the root
+			- If the root directive is defined in the http context, return the root
 			- If none of the above, return an empty string
 */
-std::string Server::_getRoot(std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
+std::string Server::_getRoot(std::map<std::string, ADirective *> httpDirs, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
 	std::string root = "";
 
 	if (locaDirs.find("root") != locaDirs.end())
 		root = static_cast<Root *>(locaDirs["root"])->getPath();
 	else if (servDirs.find("root") != servDirs.end())
 		root = static_cast<Root *>(servDirs["root"])->getPath();
+	else if (httpDirs.find("root") != httpDirs.end())
+		root = static_cast<Root *>(httpDirs["root"])->getPath();
 	return root;
 }
 
-std::map<std::string, std::string>	Server::processRequest(std::map<std::string, std::string> request) {
+/*!
+	* @brief Get the client_max_body_size directive value.
+	* @param request Request map.
+	* @param requestHeaders Request headers map.
+	* @param servDirs Server directives.
+	* @param locaDirs Location directives.
+	* @return bool True if the body size is exceeded, false otherwise.
+	* @note Check if the body size is exceeded in the following order:
+			- If the client_max_body_size directive is defined in the location context
+			- If the client_max_body_size directive is defined in the server context
+			- If the Content-Length header is defined in the request
+			- If the content length is greater than the client_max_body_size
+*/
+bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs)
+{
+	unsigned long long maxBodySize = DEFAULT_MAX_BODY_SIZE;
+
+	if (locaDirs.find("client_max_body_size") != locaDirs.end())
+		maxBodySize = static_cast<ClientMaxBodySize *>(locaDirs["client_max_body_size"])->getSize();
+	else if (servDirs.find("client_max_body_size") != servDirs.end())
+		maxBodySize = static_cast<ClientMaxBodySize *>(servDirs["client_max_body_size"])->getSize();
+
+	unsigned long long contentLength = request["body"].size();
+	if (requestHeaders.find("Content-Length") != request.end())
+		contentLength = strtoull(requestHeaders["Content-Length"].c_str(), NULL, 10);
+
+	return (contentLength > maxBodySize);
+}
+
+std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders) {
+	std::map<std::string, ADirective *>	httpDirs = http->getDirectives();
 	std::map<std::string, ADirective *>	servDirs = this->getDirectives();
 	std::map<std::string, ADirective *>	locaDirs;
 	std::string path = "";
@@ -320,6 +354,10 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 		}
 	}
 
+	// Check if the body size of the request is exceeded, in case of a POST request
+	if (request["method"] == "POST" && _isBodySizeExceeded(request, requestHeaders, servDirs, locaDirs))
+		return _responseBuilder(PAYLOAD_TOO_LARGE);
+
 	// If the alias directive is defined, use the alias path
 	// and append the request URI, minus the location URI to the path
 	if (locaDirs.find("alias") != locaDirs.end())
@@ -328,7 +366,7 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 		requestUri = requestUri.substr(location->getUri().size());
 	}
 	else
-		path = _getRoot(servDirs, locaDirs);
+		path = _getRoot(httpDirs, servDirs, locaDirs);
 	if (path.empty())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 
@@ -343,7 +381,6 @@ std::map<std::string, std::string>	Server::processRequest(std::map<std::string, 
 		if (servDirs.find("index") != servDirs.end())
 		{
 			std::string index = _getIndex(filePath, servDirs, locaDirs);
-			std::cout << "Index: " << index << std::endl;
 			if (index.empty() && _isAutoIndex(servDirs, locaDirs))
 				return _directoryListing(filePath, request["uri"]);
 			else if (index.empty())
