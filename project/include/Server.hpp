@@ -25,7 +25,6 @@ class Server : public ADirective {
 		std::map<std::string, std::string>	_processPost(std::map<std::string, std::string> request, std::string const &filepath);
 		std::map<std::string, std::string>	_processDelete(const std::string &filePath);
 
-		std::string _getRoot(std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs);
 
 		std::string _getErrorPage(HTTP_STATUS status);
 		std::map<std::string, std::string>	_responseBuilder(HTTP_STATUS status, const std::string &body = "", const std::string &contentType = "text/html");
@@ -39,6 +38,9 @@ class Server : public ADirective {
 		std::string	_getIndex(const std::string &path, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs);
 		std::map<std::string, std::string> _directoryListing(std::string const &path, std::string const &uri);
 
+		std::string _getRoot(std::map<std::string, ADirective *> httpDirs, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs);
+		bool	_isBodySizeExceeded(std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs);
+
 	public:
 		Server();
 		Server(const Server &copy);
@@ -47,5 +49,5 @@ class Server : public ADirective {
 
 		ADirective *clone() const;
 
-		std::map<std::string, std::string>	processRequest(std::map<std::string, std::string> request);
+		std::map<std::string, std::string>	processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders);
 };

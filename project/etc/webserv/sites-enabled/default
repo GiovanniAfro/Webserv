@@ -7,7 +7,7 @@ server {
 	root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
 	# Add index.php to the list if you are using PHP
-	index index.html index.htm index.webserv-debian.html;
+	# index index.html index.htm index.webserv-debian.html;
 	autoindex on;
 
 	client_max_body_size 42;
@@ -40,6 +40,8 @@ server {
 	location /location {
 		root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 		alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www/location;
+
+		try_files $uri $uri/ =404;
 
 		index index2.html;
 		autoindex off;
