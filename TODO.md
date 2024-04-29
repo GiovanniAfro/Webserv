@@ -142,7 +142,7 @@
 [ ] http
     - [ ] include
     - [ ] error_page
-    - [ ] client_max_body_size
+    - [x] client_max_body_size
     - [ ] index
     - [ ] autoindex
     - [ ] root
@@ -163,6 +163,11 @@
             - [x] autoindex
             - [ ] try_files
             - [x] alias
+
+## adi-nata
+[ ] "If no server_name is defined in a server block then nginx uses the empty name as the server name"
+
+[ ] const and reference all getters and others where possible
 
 ## anvannin
 
