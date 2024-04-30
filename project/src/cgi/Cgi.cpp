@@ -6,25 +6,19 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/26 04:12:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/27 20:41:57 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/30 22:28:36 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <map>
-#include <iostream>
-#include <unistd.h>
-#include <cstring>
-#include <sys/types.h>
-#include <sys/wait.h>
-
 #include "Cgi.hpp"
 
-Cgi::Cgi(Request &req, std::string path_info) {
+Cgi::Cgi(std::map<std::string, std::string> &req, std::map<std::string, 
+         std::string> req_head, std::string path_info) {
     this->_params["SCRIPT_FILENAME"] = "/home/kichkiro/42/webserv/project/var/www/cgi-bin/hello.py"; // Parse
-    this->_params["QUERY_STRING"] = ""; // TODO
-    this->_params["REQUEST_METHOD"] = req.request["method"];
-    this->_params["CONTENT_TYPE"] = req.requestHeaders["Content-Type"];
-    this->_params["CONTENT_LENGTH"] = req.requestHeaders["Content-Length"];
+    this->_params["QUERY_STRING"] = req["body"];
+    this->_params["REQUEST_METHOD"] = req_head["method"];
+    this->_params["CONTENT_TYPE"] = req_head["Content-Type"];
+    this->_params["CONTENT_LENGTH"] = req_head["Content-Length"];
     this->_params["SCRIPT_NAME"] = ""; // TODO
     this->_params["REQUEST_URI"] = ""; // TODO
     this->_params["DOCUMENT_URI"] = ""; // TODO
@@ -41,7 +35,10 @@ Cgi::Cgi(Request &req, std::string path_info) {
     this->_params["SERVER_PORT"] = ""; // TODO
     this->_params["SERVER_NAME"] = ""; // TODO
 
-    // std::cout << "DEBUG CGI:" << this->_params["SCRIPT_FILENAME"] << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["QUERY_STRING"] << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["REQUEST_METHOD"] << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["CONTENT_TYPE"] << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["CONTENT_LENGTH"] << std::endl;
     this->exec();
 }
 
@@ -52,7 +49,7 @@ std::string Cgi::exec(void) {
     char *envp[this->_params.size() + 1];
     int i = 0;
     char buffer[4096];
-    std::string result;
+    std::string cgi_out;
     ssize_t bytesRead;
     int status;
 
@@ -89,7 +86,7 @@ std::string Cgi::exec(void) {
     else {
         close(pipe_fds[1]);
         while ((bytesRead = read(pipe_fds[0], buffer, sizeof(buffer))) > 0) {
-            result.append(buffer, bytesRead);
+            cgi_out.append(buffer, bytesRead);
         }
         if (bytesRead == -1) {
             Log::error("CGI: Error reading from pipe");
@@ -97,8 +94,8 @@ std::string Cgi::exec(void) {
         }
         close(pipe_fds[0]);
         waitpid(pid, &status, 0);
-        std::cout << "---BEGIN RESULT---" << std::endl << result << "---END RESULT---"<< std::endl;
-        return result;
+        std::cout << "---BEGIN RESULT---" << std::endl << cgi_out << "---END RESULT---"<< std::endl;
+        return cgi_out;
     }
     return "";
 }

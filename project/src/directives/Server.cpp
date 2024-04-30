@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:48:00 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/04/30 22:25:38 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,7 +335,10 @@ bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std
 	return (contentLength > maxBodySize);
 }
 
-std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders) {
+std::map<std::string, std::string>	Server::processRequest(Http *http, 
+	std::map<std::string, std::string> request, 
+	std::map<std::string, std::string> requestHeaders) 
+	{
 	std::map<std::string, ADirective *>	httpDirs = http->getDirectives();
 	std::map<std::string, ADirective *>	servDirs = this->getDirectives();
 	std::map<std::string, ADirective *>	locaDirs;
@@ -400,6 +403,10 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<s
 	if (!_isMethodAllowed(request.at("method"), locaDirs)) {
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
+
+	// CGI Test --------------------------------------------------------------->
+	Cgi(request, requestHeaders, filePath);
+	// -------------------------------------------------------------------------
 
 	try {
 		if (request.at("method") == "GET")
