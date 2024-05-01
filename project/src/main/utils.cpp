@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/25 17:06:56 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:00:02 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,4 +287,15 @@ std::string	strReplace(std::string const &str, std::string const &from, std::str
 	}
 	std::cout << "New string: " << newStr << std::endl;
 	return newStr;
+}
+
+void split_path(const std::string &full_path, std::string &directory, std::string &filename) {
+    size_t found = full_path.find_last_of("/\\");
+    if (found != std::string::npos) {
+        directory = full_path.substr(0, found);
+        filename = full_path.substr(found + 1);
+    } else {
+        directory = "";
+        filename = full_path;
+    }
 }

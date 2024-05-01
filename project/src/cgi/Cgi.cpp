@@ -6,39 +6,35 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/26 04:12:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/30 22:28:36 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:24:28 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Cgi.hpp"
 
-Cgi::Cgi(std::map<std::string, std::string> &req, std::map<std::string, 
-         std::string> req_head, std::string path_info) {
-    this->_params["SCRIPT_FILENAME"] = "/home/kichkiro/42/webserv/project/var/www/cgi-bin/hello.py"; // Parse
-    this->_params["QUERY_STRING"] = req["body"];
-    this->_params["REQUEST_METHOD"] = req_head["method"];
+Cgi::Cgi(std::map<std::string, std::string> &req, std::map<std::string,
+    std::string> req_head, std::string path_info) {
+    split_path(path_info, this->_params["DOCUMENT_ROOT"],
+               this->_params["SCRIPT_NAME"]);
+    this->_request_body = "{key:val}";
+    this->_params["SCRIPT_FILENAME"] = path_info;
+    this->_params["REQUEST_METHOD"] = req["method"];
     this->_params["CONTENT_TYPE"] = req_head["Content-Type"];
     this->_params["CONTENT_LENGTH"] = req_head["Content-Length"];
-    this->_params["SCRIPT_NAME"] = ""; // TODO
-    this->_params["REQUEST_URI"] = ""; // TODO
-    this->_params["DOCUMENT_URI"] = ""; // TODO
-    this->_params["DOCUMENT_ROOT"] = path_info;
+    this->_params["REQUEST_URI"] = req["uri"];
     this->_params["SERVER_PROTOCOL"] = "HTTP/1.1";
     this->_params["REQUEST_SCHEME"] = "http";
     this->_params["HTTPS"] = "off";
     this->_params["GATEWAY_INTERF"] = "CGI/1.1";
     this->_params["SERVER_SOFTWARE"] = "webserv/1.0";
-    this->_params["REMOTE_ADDR"] = ""; // TODO
-    this->_params["REMOTE_PORT"] = ""; // TODO
-    this->_params["REMOTE_USER"] = ""; // TODO
-    this->_params["SERVER_ADDR"] = ""; // TODO
-    this->_params["SERVER_PORT"] = ""; // TODO
-    this->_params["SERVER_NAME"] = ""; // TODO
 
-    std::cout << "DEBUG CGI:" << this->_params["QUERY_STRING"] << std::endl;
+    // corpo della richiesta:
+
+    std::cout << "DEBUG CGI:" << path_info << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["REQUEST_URI"] << std::endl;
     std::cout << "DEBUG CGI:" << this->_params["REQUEST_METHOD"] << std::endl;
-    std::cout << "DEBUG CGI:" << this->_params["CONTENT_TYPE"] << std::endl;
-    std::cout << "DEBUG CGI:" << this->_params["CONTENT_LENGTH"] << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["DOCUMENT_ROOT"] << std::endl;
+    std::cout << "DEBUG CGI:" << this->_params["SCRIPT_NAME"] << std::endl;
     this->exec();
 }
 
@@ -74,14 +70,21 @@ std::string Cgi::exec(void) {
     }
     else if (!pid) {
         close(pipe_fds[0]);
-        if (dup2(pipe_fds[1], STDOUT_FILENO) == -1 || dup2(pipe_fds[1], STDERR_FILENO) == -1) {
+        // if (this->_params["REQUEST_METHOD"] == "POST") {
+        //     if (write(pipe_fds[1], this->_request_body.c_str(), 
+        //         this->_request_body.length()) == -1) {
+        //         Log::error("CGI: Error writing request body to pipe");
+        //         return "";
+        //     }
+        // }
+        if (dup2(pipe_fds[1], STDOUT_FILENO) == -1 || dup2(pipe_fds[1],
+                                                           STDERR_FILENO) == -1) {
             Log::error("CGI: Error duplicating pipe file descriptor");
             return "";
         }
         close(pipe_fds[1]);
-        if (execve(this->_params["SCRIPT_FILENAME"].c_str(), argv, envp) == -1) {
+        if (execve(this->_params["SCRIPT_FILENAME"].c_str(), argv, envp) == -1)
             exit(EXIT_FAILURE);
-        }
     }
     else {
         close(pipe_fds[1]);
@@ -94,7 +97,7 @@ std::string Cgi::exec(void) {
         }
         close(pipe_fds[0]);
         waitpid(pid, &status, 0);
-        std::cout << "---BEGIN RESULT---" << std::endl << cgi_out << "---END RESULT---"<< std::endl;
+        std::cout << "---BEGIN RESULT---" << std::endl << cgi_out << "---END RESULT---" << std::endl;
         return cgi_out;
     }
     return "";

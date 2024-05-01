@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:20:28 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/01 11:34:18 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -436,6 +436,12 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<s
 	if (!_isMethodAllowed(request.at("method"))) {
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
+
+	// CGI -------------------------------------------------------------------->
+	std::cout << "here ------------------------------------------" << std::endl;
+	Cgi(request, requestHeaders, filePath);
+	// -------------------------------------------------------------------------
+
 
 	try {
 		if (request.at("method") == "GET")

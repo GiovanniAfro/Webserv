@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 10:42:41 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 13:25:29 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/01 12:00:40 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,3 +41,4 @@ bool					isFolder(const std::string &path);
 bool					isFile(const std::string &path);
 std::string				strRemove(std::string const &str, std::string const &toRemove);
 std::string				strReplace(std::string const &str, std::string const &from, std::string const &to);
+void                    split_path(const std::string &full_path, std::string &directory, std::string &filename);

@@ -47,6 +47,10 @@ server {
 		# autoindex on;
 	}
 
+	location /cgi-bin {
+		root /home/kichkiro/42/webserv/project/var/www;
+	}
+
 	location /upload {
 		limit_except POST
 	}
