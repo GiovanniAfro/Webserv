@@ -137,10 +137,10 @@
 ## Requests
 
 [ ] http
-    - [ ] error_page
+    - [x] error_page
     - [x] client_max_body_size
-    - [ ] index
-    - [ ] autoindex
+    - [x] index
+    - [x] autoindex
     - [x] root
     - [ ] server
         - [x] listen
@@ -152,7 +152,7 @@
         - [x] rewrite
         - [ ] location
             - [x] limit_except
-            - [ ] error_page
+            - [x] error_page
             - [x] client_max_body_size
             - [x] index
             - [x] root

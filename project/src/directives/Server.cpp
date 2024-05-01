@@ -107,17 +107,32 @@ std::map<std::string, std::string>	Server::_processDelete(const std::string &fil
 	* @brief Get the error page.
 	* @param status HTTP_STATUS enum.
 	* @return string Error page.
-	* @note If the status is different from 200 OK, then try use error_page directive
+	* @note If the status is different from 200 OK, then try use error_page directive:
+			- If the error_page directive is defined in the location context, and the
+			  request matches the location URI, return the error page
+			- If the error_page directive is defined in the server context, return the error page
+			- If the error_page directive is defined in the http context, return the error page
+			- If none of the above, return the status message
 */
 std::string Server::_getErrorPage(HTTP_STATUS status) {
 	std::string errorPagePath = "", errorPageBody = "";
 	if (status != OK) {
-		ErrorPage *errorPage = static_cast<ErrorPage *>(this->getDirectives()["error_page"]);
+		ErrorPage *errorPage = static_cast<ErrorPage *>(_httpDirs["error_page"]);
+		std::cout << "HTTP error_page" << std::endl;
+
+		if (_servDirs.find("error_page") != _servDirs.end())
+			errorPage = static_cast<ErrorPage *>(_servDirs["error_page"]);
+		std::cout << "Server error_page" << std::endl;
+
+		if (_locaDirs.find("error_page") != _locaDirs.end())
+			errorPage = static_cast<ErrorPage *>(_locaDirs["error_page"]);
+		std::cout << "Location error_page" << std::endl;
+
 		if (errorPage) {
 			for (std::vector<HTTP_STATUS>::iterator it = errorPage->getCodes().begin(); it != errorPage->getCodes().end(); ++it) {
 				if (status == *it) {
-					Root *root = static_cast<Root *>(this->getDirectives()["root"]);
-					std::string errorPagePath = root->getPath() + errorPage->getUri();
+					std::string errorPagePath = _root + errorPage->getUri();
+					std::cout << "Error page path: " << errorPagePath << std::endl;
 					if (!errorPagePath.empty()) {
 						std::ifstream	file(errorPagePath.c_str());
 						if (file) {
@@ -130,6 +145,7 @@ std::string Server::_getErrorPage(HTTP_STATUS status) {
 			}
 		}
 	}
+
 	if (errorPageBody.empty() && status != OK)
 		return Http::_statusToMessage(status);
 	return errorPageBody;
@@ -146,7 +162,6 @@ std::string Server::_getErrorPage(HTTP_STATUS status) {
 std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, const std::string &body, const std::string &contentType) {
 	std::map<std::string, std::string> response;
 	response["status"] = Http::_statusToString(status);
-
 	switch (status)
 	{
 		case OK:
@@ -159,8 +174,6 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 			response["body"] = _getErrorPage(status);
 			break;
 	}
-
-	response["body"] = status == OK ? body : _getErrorPage(status);
 	response["Content-Type"] = contentType;
 	return response;
 }
@@ -172,10 +185,10 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 	* @note In case the request contains a location context, check if the method is allowed
 			by the limit_except directive, otherwise check if the method is GET, POST or DELETE
 */
-bool Server::_isMethodAllowed(const std::string &method, std::map<std::string, ADirective *> locaDirs) {
-	if (locaDirs.find("limit_except") != locaDirs.end())
+bool Server::_isMethodAllowed(const std::string &method) {
+	if (_locaDirs.find("limit_except") != _locaDirs.end())
 	{
-		HTTP_METHOD locMethod = static_cast<LimitExcept *>(locaDirs["limit_except"])->getMethod();
+		HTTP_METHOD locMethod = static_cast<LimitExcept *>(_locaDirs["limit_except"])->getMethod();
 		if (locMethod == Http::_methodToEnum(method))
 			return true;
 	}
@@ -187,61 +200,71 @@ bool Server::_isMethodAllowed(const std::string &method, std::map<std::string, A
 // Index and Autoindex ------------------------------------------------------>
 /*!
 	* @brief Check if the autoindex directive is set to on.
-	* @param servDirs Server directives.
-	* @param locaDirs Location directives.
 	* @return bool True if the autoindex directive is defined and set to on, false otherwise.
 */
-bool	Server::_isAutoIndex(std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
+bool	Server::_isAutoIndex() {
 	std::cout << "Checking autoindex" << std::endl;
-	Autoindex *autoindex = static_cast<Autoindex *>(servDirs["autoindex"]);
+	Autoindex *autoindex = static_cast<Autoindex *>(_httpDirs["autoindex"]);
+	std::cout << "HTTP autoindex" << std::endl;
 
-	if (locaDirs.find("autoindex") != locaDirs.end())
+	if (_servDirs.find("autoindex") != _servDirs.end())
+	{
+		std::cout << "Server autoindex" << std::endl;
+		autoindex = static_cast<Autoindex *>(_servDirs["autoindex"]);
+	}
+
+	if (_locaDirs.find("autoindex") != _locaDirs.end())
 	{
 		std::cout << "Location autoindex" << std::endl;
-		autoindex = static_cast<Autoindex *>(locaDirs["autoindex"]);
+		autoindex = static_cast<Autoindex *>(_locaDirs["autoindex"]);
 	}
 
 	if (!autoindex)
 		return false;
+
+	std::cout << "Autoindex mode: " << autoindex->getMode() << std::endl;
 	return autoindex->getMode();
-	(void)locaDirs;
 }
 
 /*!
 	* @brief Get the index file.
 	* @param filePath Path to the file.
-	* @param servDirs Server directives.
-	* @param locaDirs Location directives.
 	* @return string Index file.
 	* @note If no index file is found, return an empty string.
 */
-std::string Server::_getIndex(std::string const &filePath, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
-	Index *index = static_cast<Index *>(servDirs["index"]);
+std::string Server::_getIndex(std::string const &filePath) {
+	Index *index = static_cast<Index *>(_httpDirs["index"]);
+	std::string path = isFolder(filePath) ? filePath + "/" : filePath;
 
-	if (locaDirs.find("index") != locaDirs.end())
-		index = static_cast<Index *>(locaDirs["index"]);
+	if (_servDirs.find("index") != _servDirs.end())
+		index = static_cast<Index *>(_servDirs["index"]);
+
+	if (_locaDirs.find("index") != _locaDirs.end())
+		index = static_cast<Index *>(_locaDirs["index"]);
+
+	if (!index)
+		return "";
 
 	for (std::vector<std::string>::iterator it = index->getFiles().begin(); it != index->getFiles().end(); ++it)
-		if (isFile(filePath + *it))
+		if (isFile(path + *it))
 			return *it;
 	return "";
 }
 
 /*!
 	* @brief Build the directory listing.
-	* @param path Path to the directory.
+	* @param filePath Path to the directory.
 	* @param uri URI.
 	* @return map<string, string> Response map.
 	* @note If the directory cannot be opened, return 500 Internal Server Error
 */
-std::map<std::string, std::string> Server::_directoryListing(std::string const &path, std::string const &uri)
+std::map<std::string, std::string> Server::_directoryListing(std::string const &filePath, std::string const &uri)
 {
-	std::map<std::string, std::string>	response;
 	std::string							body;
 	DIR									*dir;
 	struct dirent						*ent;
 
-	if ((dir = opendir(path.c_str())) != NULL)
+	if ((dir = opendir(filePath.c_str())) != NULL)
 	{
 		body += "<html><head><title>Directory listing</title></head><body><h1>Directory listing</h1><ul>";
 		while ((ent = readdir(dir)) != NULL)
@@ -264,17 +287,12 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 
 		return _responseBuilder(OK, body, "text/html");
 	}
-	else
-		response = _responseBuilder(INTERNAL_SERVER_ERROR);
-	return response;
+	return _responseBuilder(INTERNAL_SERVER_ERROR);
 }
 // -------------------------------------------------------------------------->
 
 /*!
 	* @brief Get the root directive value.
-	* @param httpDirs HTTP directives.
-	* @param servDirs Server directives.
-	* @param locaDirs Location directives.
 	* @return string Root directive value
 	* @note Order of operations:
 			- If the root directive is defined in the location context, return the root
@@ -282,15 +300,15 @@ std::map<std::string, std::string> Server::_directoryListing(std::string const &
 			- If the root directive is defined in the http context, return the root
 			- If none of the above, return an empty string
 */
-std::string Server::_getRoot(std::map<std::string, ADirective *> httpDirs, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
+std::string Server::_getRoot() {
 	std::string root = "";
 
-	if (locaDirs.find("root") != locaDirs.end())
-		root = static_cast<Root *>(locaDirs["root"])->getPath();
-	else if (servDirs.find("root") != servDirs.end())
-		root = static_cast<Root *>(servDirs["root"])->getPath();
-	else if (httpDirs.find("root") != httpDirs.end())
-		root = static_cast<Root *>(httpDirs["root"])->getPath();
+	if (_locaDirs.find("root") != _locaDirs.end())
+		root = static_cast<Root *>(_locaDirs["root"])->getPath();
+	else if (_servDirs.find("root") != _servDirs.end())
+		root = static_cast<Root *>(_servDirs["root"])->getPath();
+	else if (_httpDirs.find("root") != _httpDirs.end())
+		root = static_cast<Root *>(_httpDirs["root"])->getPath();
 	return root;
 }
 
@@ -298,8 +316,6 @@ std::string Server::_getRoot(std::map<std::string, ADirective *> httpDirs, std::
 	* @brief Get the client_max_body_size directive value.
 	* @param request Request map.
 	* @param requestHeaders Request headers map.
-	* @param servDirs Server directives.
-	* @param locaDirs Location directives.
 	* @return bool True if the body size is exceeded, false otherwise.
 	* @note Check if the body size is exceeded in the following order:
 			- If the client_max_body_size directive is defined in the location context
@@ -307,14 +323,14 @@ std::string Server::_getRoot(std::map<std::string, ADirective *> httpDirs, std::
 			- If the Content-Length header is defined in the request
 			- If the content length is greater than the client_max_body_size
 */
-bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs)
+bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders)
 {
 	unsigned long long maxBodySize = DEFAULT_MAX_BODY_SIZE;
 
-	if (locaDirs.find("client_max_body_size") != locaDirs.end())
-		maxBodySize = static_cast<ClientMaxBodySize *>(locaDirs["client_max_body_size"])->getSize();
-	else if (servDirs.find("client_max_body_size") != servDirs.end())
-		maxBodySize = static_cast<ClientMaxBodySize *>(servDirs["client_max_body_size"])->getSize();
+	if (_locaDirs.find("client_max_body_size") != _locaDirs.end())
+		maxBodySize = static_cast<ClientMaxBodySize *>(_locaDirs["client_max_body_size"])->getSize();
+	else if (_servDirs.find("client_max_body_size") != _servDirs.end())
+		maxBodySize = static_cast<ClientMaxBodySize *>(_servDirs["client_max_body_size"])->getSize();
 
 	unsigned long long contentLength = request["body"].size();
 	if (requestHeaders.find("Content-Length") != request.end())
@@ -326,9 +342,6 @@ bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std
 /*!
 	* @brief Get the rewrite directive value.
 	* @param requestUri Request URI.
-	* @param path Path to the file.
-	* @param servDirs Server directives.
-	* @param locaDirs Location directives.
 	* @return string Rewrite directive value.
 	* @note Order of operations:
 			- If the rewrite directive is defined in the location context and matches the URI,
@@ -337,15 +350,15 @@ bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std
 				return the replacement URI
 			- If none of the above, return the request URI
 */
-std::string Server::_getRewrite(std::string const &requestUri, std::string const &path, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
-	Rewrite *rewrite = static_cast<Rewrite *>(servDirs["rewrite"]);
-	if (locaDirs.find("rewrite") != locaDirs.end())
-		rewrite = static_cast<Rewrite *>(locaDirs["rewrite"]);
+std::string Server::_getRewrite(std::string const &requestUri) {
+	Rewrite *rewrite = static_cast<Rewrite *>(_servDirs["rewrite"]);
+	if (_locaDirs.find("rewrite") != _locaDirs.end())
+		rewrite = static_cast<Rewrite *>(_locaDirs["rewrite"]);
 
 	if (requestUri != "" && requestUri != "/"
 		&& requestUri.find(rewrite->getUri()) != std::string::npos)
 	{
-		std::string tmp = strRemove(path + requestUri, rewrite->getUri());
+		std::string tmp = strRemove(_root + requestUri, rewrite->getUri());
 		if (rewrite->getReplacement()[0] != '/')
 			tmp = tmp + "/" + rewrite->getReplacement();
 
@@ -358,74 +371,69 @@ std::string Server::_getRewrite(std::string const &requestUri, std::string const
 }
 
 std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders) {
-	std::map<std::string, ADirective *>	httpDirs = http->getDirectives();
-	std::map<std::string, ADirective *>	servDirs = this->getDirectives();
-	std::map<std::string, ADirective *>	locaDirs;
+	_httpDirs = http->getDirectives();
+	_servDirs = this->getDirectives();
 	std::string path = "", requestUri = request["uri"];
 
 	// Check if the request URI matches a location context
-	Location *location = static_cast<Location *>(servDirs["location"]);
+	Location *location = static_cast<Location *>(_servDirs["location"]);
 	for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
 	{
 		if (requestUri.find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
 		{
-			locaDirs = static_cast<Location *>(*it)->getDirectives();
+			_locaDirs = static_cast<Location *>(*it)->getDirectives();
 			location = static_cast<Location *>(*it);
 			break;
 		}
 	}
 
 	// Check if the body size of the request is exceeded, in case of a POST request
-	if (request["method"] == "POST" && _isBodySizeExceeded(request, requestHeaders, servDirs, locaDirs))
+	if (request["method"] == "POST" && _isBodySizeExceeded(request, requestHeaders))
 		return _responseBuilder(PAYLOAD_TOO_LARGE);
 
 	// If the alias directive is defined, use the alias path
 	// and append the request URI, minus the location URI to the path
-	if (locaDirs.find("alias") != locaDirs.end())
+	if (_locaDirs.find("alias") != _locaDirs.end())
 	{
-		path = static_cast<Alias *>(locaDirs["alias"])->getPath();
+		_root = static_cast<Alias *>(_locaDirs["alias"])->getPath();
 		requestUri = requestUri.substr(location->getUri().size());
 	}
 	else
-		path = _getRoot(httpDirs, servDirs, locaDirs);
-	if (path.empty())
+		_root = _getRoot();
+	if (_root.empty())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 
 	// Check if the request URI matches a rewrite directive
-	requestUri = _getRewrite(request["uri"], path, servDirs, locaDirs);
+	requestUri = _getRewrite(request["uri"]);
 	if (requestUri != request["uri"])
 		return _responseBuilder(FOUND, requestUri);
 
 	// Get the path to the file
-	std::string	filePath = path + requestUri;
+	std::string	filePath = _root + requestUri;
 	if (!isFile(filePath) && filePath[filePath.size() - 1] != '/')
 		filePath += "/";
 	else if (filePath[filePath.size() - 1] == '/')
 		filePath = filePath.substr(0, filePath.size() - 1);
+	std::cout << "File path: " << filePath << std::endl;
 
 	// If the path is a folder, check for the index file and autoindex directive
 	if (isFolder(filePath))
 	{
-		if (servDirs.find("index") != servDirs.end())
-		{
-			std::string index = _getIndex(filePath, servDirs, locaDirs);
-			if (index.empty() && _isAutoIndex(servDirs, locaDirs))
-				return _directoryListing(filePath, requestUri);
-			else if (index.empty())
-				return _responseBuilder(FORBIDDEN);
+		std::string index = _getIndex(filePath);
+		std::cout << "Index: " << index << std::endl;
 
-			filePath += index;
-		}
-		else if (_isAutoIndex(servDirs, locaDirs))
+		if (index.empty() && _isAutoIndex())
 			return _directoryListing(filePath, requestUri);
-		else
+		else if (index.empty())
 			return _responseBuilder(FORBIDDEN);
+
+		filePath += isFolder(filePath) ? "/" + index : index;
 	}
 	else if (!isFile(filePath))
 		return _responseBuilder(NOT_FOUND);
 
 	// Allowed methods
-	if (!_isMethodAllowed(request.at("method"), locaDirs)) {
+	if (!_isMethodAllowed(request.at("method"))) {
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
 

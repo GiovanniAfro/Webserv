@@ -9,9 +9,8 @@ server {
 	#root /Users/madara/Documents/42/GitHub/webserv/project/var/www;
 	root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
-	# Add index.php to the list if you are using PHP
-	# index index.html index.htm index.webserv-debian.html;
-	autoindex on;
+	#index index.html index.htm index.webserv-debian.html;
+	#autoindex on;
 
 	client_max_body_size 42;
 
@@ -22,7 +21,6 @@ server {
 	error_page 404 /404.html;
 	error_page 403 405 408 413 431 /40x.html;
 	error_page 500 /50x.html;
-		limit_except GET {
 
 	location /css/ {
 		limit_except GET {
@@ -42,10 +40,11 @@ server {
 		#alias /Users/madara/Documents/42/GitHub/webserv/project/var/www/location;
 
 		root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
-		alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www/location;
+		alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
+		# error_page 404 /50x.html;
 
-		index index2.html;
-		autoindex off;
+		# index index2.html;
+		# autoindex on;
 	}
 
 	location /upload {
