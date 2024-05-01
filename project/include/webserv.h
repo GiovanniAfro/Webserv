@@ -77,6 +77,7 @@
 #include "WebServer.hpp"
 #include "ConfigFile.hpp"
 #include "Socket.hpp"
+#include "FastCGIPass.hpp"
 
 // Macros ---------------------------------------------------------------------->
 

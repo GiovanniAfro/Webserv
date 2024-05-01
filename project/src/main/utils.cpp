@@ -54,7 +54,7 @@ bool isComment(const std::string &s) {
 
 bool isDirective(const std::string &s)
 {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size", "alias", "rewrite"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size", "alias", "rewrite", "fastcgi_pass"};
 
 	for (unsigned int i = 0; i < NUM_DIRECTIVES; ++i) {
 		if (s == directiveNames[i])
@@ -148,6 +148,8 @@ std::vector<uint16_t> getContextValues(int directive) {
 			return values;
 		}
 
+		case FASTCGIPASS_DIRECTIVE:
+			return std::vector<uint16_t>(1, LOCATION_CONTEXT);
 		default:
 			return std::vector<uint16_t>();
 	}
@@ -168,7 +170,7 @@ bool checkContext(int directiveContext, uint16_t currentContext)
 
 int	whichDirective(const std::string &s)
 {
-	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size", "alias", "rewrite"};
+	const std::string	directiveNames[] = {"http", "include", "server", "listen", "root", "server_name", "index", "error_page", "location", "autoindex", "limit_except", "client_max_body_size", "alias", "rewrite", "fastcgi_pass"};
 
 	for (int i = 0; i < NUM_DIRECTIVES; ++i) {
 

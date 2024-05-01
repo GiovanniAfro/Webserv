@@ -51,4 +51,5 @@ class ConfigFile
 		int	parseLimitExcept(const std::string& content);
 		int	parseClientMaxBodySize(const std::string& content, uint16_t context);
 		int	parseAlias(const std::string& content);
+		int parseFastCGIPass(const std::string &content);
 };

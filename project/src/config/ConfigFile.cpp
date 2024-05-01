@@ -185,6 +185,11 @@ int	ConfigFile::parseConfigFile()
 				Rewrite* rewrBlock = static_cast<Rewrite*>(locBlock->getDirectives()["rewrite"]);
 				std::cout << "rewrite : " << rewrBlock->getUri() << std::endl;
 			}
+			if (locBlock->getDirectives().find("fastcgi_pass") != locBlock->getDirectives().end())
+			{
+				FastCGIPass* cgiBlock = static_cast<FastCGIPass*>(locBlock->getDirectives()["fastcgi_pass"]);
+				std::cout << "fastcgi_pass : " << cgiBlock->getMode() << std::endl;
+			}
 			std::cout << std::endl;
 		}
 	}
@@ -351,6 +356,8 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 			return this->parseLimitExcept(content);
 		case ALIAS_DIRECTIVE:
 			return this->parseAlias(content);
+		case FASTCGIPASS_DIRECTIVE:
+			return this->parseFastCGIPass(content);
 		default:
 			break;
 	}
@@ -817,6 +824,25 @@ int	ConfigFile::parseRewrite(const std::string &content, uint16_t context)
 
 		Rewrite	rewrite(context, uri, replacement, isRedirect);
 		contextDirective->addDirective(&rewrite);
+	}
+	catch (const std::exception &ex)
+	{
+		std::cerr << ex.what() << '\n';
+		return -1;
+	}
+
+	return 0;
+}
+
+int	ConfigFile::parseFastCGIPass(const std::string &content)
+{
+	Log::debug("parseFastCGIPass");
+
+	try
+	{
+		ADirective	*location = this->_webServer->getServers().back()->getDirectives()["location"]->getBlocks().back();
+		FastCGIPass	fastCGIPass(content);
+		location->addDirective(&fastCGIPass);
 	}
 	catch (const std::exception &ex)
 	{

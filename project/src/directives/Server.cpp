@@ -118,21 +118,17 @@ std::string Server::_getErrorPage(HTTP_STATUS status) {
 	std::string errorPagePath = "", errorPageBody = "";
 	if (status != OK) {
 		ErrorPage *errorPage = static_cast<ErrorPage *>(_httpDirs["error_page"]);
-		std::cout << "HTTP error_page" << std::endl;
 
 		if (_servDirs.find("error_page") != _servDirs.end())
 			errorPage = static_cast<ErrorPage *>(_servDirs["error_page"]);
-		std::cout << "Server error_page" << std::endl;
 
 		if (_locaDirs.find("error_page") != _locaDirs.end())
 			errorPage = static_cast<ErrorPage *>(_locaDirs["error_page"]);
-		std::cout << "Location error_page" << std::endl;
 
 		if (errorPage) {
 			for (std::vector<HTTP_STATUS>::iterator it = errorPage->getCodes().begin(); it != errorPage->getCodes().end(); ++it) {
 				if (status == *it) {
 					std::string errorPagePath = _root + errorPage->getUri();
-					std::cout << "Error page path: " << errorPagePath << std::endl;
 					if (!errorPagePath.empty()) {
 						std::ifstream	file(errorPagePath.c_str());
 						if (file) {
@@ -203,26 +199,17 @@ bool Server::_isMethodAllowed(const std::string &method) {
 	* @return bool True if the autoindex directive is defined and set to on, false otherwise.
 */
 bool	Server::_isAutoIndex() {
-	std::cout << "Checking autoindex" << std::endl;
 	Autoindex *autoindex = static_cast<Autoindex *>(_httpDirs["autoindex"]);
-	std::cout << "HTTP autoindex" << std::endl;
 
 	if (_servDirs.find("autoindex") != _servDirs.end())
-	{
-		std::cout << "Server autoindex" << std::endl;
 		autoindex = static_cast<Autoindex *>(_servDirs["autoindex"]);
-	}
 
 	if (_locaDirs.find("autoindex") != _locaDirs.end())
-	{
-		std::cout << "Location autoindex" << std::endl;
 		autoindex = static_cast<Autoindex *>(_locaDirs["autoindex"]);
-	}
 
 	if (!autoindex)
 		return false;
 
-	std::cout << "Autoindex mode: " << autoindex->getMode() << std::endl;
 	return autoindex->getMode();
 }
 
@@ -417,13 +404,11 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 		filePath += "/";
 	else if (filePath[filePath.size() - 1] == '/')
 		filePath = filePath.substr(0, filePath.size() - 1);
-	std::cout << "File path: " << filePath << std::endl;
 
 	// If the path is a folder, check for the index file and autoindex directive
 	if (isFolder(filePath))
 	{
 		std::string index = _getIndex(filePath);
-		std::cout << "Index: " << index << std::endl;
 
 		if (index.empty() && _isAutoIndex())
 			return _directoryListing(filePath, requestUri);
@@ -441,10 +426,15 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	}
 
 	// CGI -------------------------------------------------------------------->
-	std::cout << "here ------------------------------------------" << std::endl;
-	Cgi(request, requestHeaders, filePath);
-	// -------------------------------------------------------------------------
+	for (std::map<std::string, ADirective *>::iterator it = _locaDirs.begin(); it != _locaDirs.end(); ++it)
+		std::cout << "Location directive: " << it->first << std::endl;
 
+	std::cout << "here ------------------------------------------" << std::endl;
+	if (_locaDirs.find("fastcgi_pass") != _locaDirs.end())
+	{
+		Cgi cgi(request, requestHeaders, filePath);
+		return _responseBuilder(OK, cgi.exec());
+	}
 
 	try {
 		if (request.at("method") == "GET")

@@ -32,6 +32,7 @@ class	WebServer
 		Request						_clientRequest;
 
 		void								_extractListenPorts();
+		void								_closeConnection(std::string &request, std::map<std::string, std::string> &response, Socket *clientSocket);
 		std::string							_readRequests(int clientSocketFD);
 		void								_parseRequest(const std::string& request);
 		Server*								_findVirtualServer();

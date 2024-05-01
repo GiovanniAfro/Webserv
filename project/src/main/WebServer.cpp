@@ -123,7 +123,7 @@ int	WebServer::startServers()
 
 			// Read the request ------------------------------------------->
 			request = this->_readRequests(clientSocket->getSocket());
-			if (request.empty())
+			if (request.empty() || request == "request")
 				Log::error("Request reading failed");
 			else
 			{
@@ -135,11 +135,7 @@ int	WebServer::startServers()
 				if (response.empty())
 				{
 					Log::error("WebServer : empty response");
-					clientSocket->closeSocket();
-					delete clientSocket;
-					clientSocket = NULL;
-					// request.clear();
-					// response.clear();
+					_closeConnection(request, response, clientSocket);
 					continue;
 				}
 
@@ -155,30 +151,26 @@ int	WebServer::startServers()
 					if (response.empty())
 					{
 						Log::error("WebServer : empty response");
-						clientSocket->closeSocket();
-						delete clientSocket;
-						clientSocket = NULL;
-						// request.clear();
-						// response.clear();
+						_closeConnection(request, response, clientSocket);
 						continue;
 					}
 					this->_sendResponse(clientSocket, response);
 				}
-
-				// Empty the request and response -------------------------->
-				request.clear();
-				response.clear();
 			}
-
-			// Close the client socket ------------------------------------>
-			clientSocket->closeSocket();
-			delete clientSocket;
-			clientSocket = NULL;
+			_closeConnection(request, response, clientSocket);
 		}
-		// break;
 	}
 
 	return 0;
+}
+
+void	WebServer::_closeConnection(std::string &request, std::map<std::string, std::string> &response, Socket *clientSocket)
+{
+	response.clear();
+	request.clear();
+	clientSocket->closeSocket();
+	delete clientSocket;
+	clientSocket = NULL;
 }
 
 void	WebServer::clearRequest()
@@ -206,7 +198,7 @@ void	WebServer::_extractListenPorts()
 std::string	WebServer::_readRequests(int clientSocketFD)
 {
 	char				buf[this->getClientMaxBodySize()]; // Buffer più grande per gestire la maggior parte delle richieste in un solo ciclo
-	std::string			request = "";
+	std::string			request;
 	ssize_t				bytes_read;
 	const std::string	request_end = "\r\n\r\n";
 	size_t				found_end;
@@ -273,13 +265,14 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	std::cout << request << std::endl;
-	return request;
+	// std::cout << request << std::endl;
+	// return "request";
+	std::string r2 = request.substr(0, found_end + 4);
+	return r2;
 }
 
 void	WebServer::_parseRequest(const std::string &request)
 {
-	Http *http = static_cast<Http *>(this->getConfigs()[0]);
 	std::stringstream	requestStream(request);
 	std::string			line;
 	getline(requestStream, line);
@@ -290,7 +283,7 @@ void	WebServer::_parseRequest(const std::string &request)
 	firstLineStream >> this->_clientRequest.request["method"]
 					>> this->_clientRequest.request["uri"]
 					>> this->_clientRequest.request["httpVersion"];
-	this->_clientRequest.requestMethod = http->_methodToEnum(this->_clientRequest.request["method"]);
+	this->_clientRequest.requestMethod = Http::_methodToEnum(this->_clientRequest.request["method"]);
 
 	// Extract the request headers
 	while (getline(requestStream, line) && !line.empty())

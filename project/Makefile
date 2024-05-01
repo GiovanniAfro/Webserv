@@ -29,6 +29,7 @@ SRCS        := \
 				directives/Server.cpp \
 				directives/ServerName.cpp \
 				directives/Index.cpp\
+				directives/FastCGIPass.cpp \
 				\
 				cgi/Cgi.cpp \
 				\
