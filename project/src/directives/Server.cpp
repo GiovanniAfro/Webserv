@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/01 11:34:18 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/01 15:19:14 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -441,8 +441,7 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	}
 
 	// CGI -------------------------------------------------------------------->
-	std::cout << "here ------------------------------------------" << std::endl;
-	Cgi(request, requestHeaders, filePath);
+	Cgi(clientRequest, filePath).exec();
 	// -------------------------------------------------------------------------
 
 
