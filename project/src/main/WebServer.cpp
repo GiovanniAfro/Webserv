@@ -284,35 +284,46 @@ void	WebServer::_parseRequest(const std::string &request)
 	std::string			line;
 	getline(requestStream, line);
 	std::stringstream	firstLineStream(line);
+	int					contentLength = 0;
 
 	// Extract the request method, URI and HTTP version
-	firstLineStream >> this->_clientRequest.request["method"] >> this->_clientRequest.request["uri"] >> this->_clientRequest.request["httpVersion"];
+	firstLineStream >> this->_clientRequest.request["method"]
+					>> this->_clientRequest.request["uri"]
+					>> this->_clientRequest.request["httpVersion"];
 	this->_clientRequest.requestMethod = http->_methodToEnum(this->_clientRequest.request["method"]);
 
 	// Extract the request headers
 	while (getline(requestStream, line) && !line.empty())
 	{
+		if (line == "\r")
+			break;
+
 		std::string::size_type colonPos = line.find(": ");
 		if (colonPos != std::string::npos)
 		{
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 2);
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
-			std::cout << headerName << " -> " << headerValue << std::endl;
+
+			if (headerName == "Content-Length")
+				contentLength = atoi(headerValue.c_str());
+
+			// std::cout << headerName << " -> " << headerValue << std::endl;
 		}
 	}
 
 	// Extract the request body specified by the Content-Length header
-	std::map<std::string, std::string>::iterator it = this->_clientRequest.requestHeaders.find("Content-Length");
-	if (it != this->_clientRequest.requestHeaders.end())
+	this->_clientRequest.requestBody.reserve(static_cast<std::string::size_type>(contentLength));
+	while (contentLength > 0)
 	{
-		int contentLength = atoi(it->second.c_str());
-		this->_clientRequest.requestBody.reserve(static_cast<std::string::size_type>(contentLength));
-		while (contentLength > 0 && getline(requestStream, line))
-		{
-			this->_clientRequest.requestBody.append(line + "\n");
-			contentLength -= line.length() + 1; // +1 per il carattere di nuova linea che getline consuma
-		}
+		getline(requestStream, line);
+		// +1 per il carattere di nuova linea che getline consuma
+		contentLength -= line.length() + 1;
+
+		if (contentLength < 0)
+			this->_clientRequest.requestBody += line;
+		else
+			this->_clientRequest.requestBody += line + "\n";
 	}
 
 	// CGI Test --------------------------------------------------------------->
@@ -341,7 +352,7 @@ std::map<std::string, std::string>	WebServer::_processRequests()
 	// 	Log::debug((*it).first);
 	// }
 
-	return server->processRequest(static_cast<Http *>(this->getConfigs()[0]), this->_clientRequest.request, this->_clientRequest.requestHeaders);
+	return server->processRequest(static_cast<Http *>(this->getConfigs()[0]), this->_clientRequest);
 }
 
 Server*	WebServer::_findVirtualServer()

@@ -370,7 +370,10 @@ std::string Server::_getRewrite(std::string const &requestUri) {
 	return requestUri;
 }
 
-std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders) {
+std::map<std::string, std::string>	Server::processRequest(Http *http, Request clientRequest) {
+	std::map<std::string, std::string> request = clientRequest.request;
+	std::map<std::string, std::string> requestHeaders = clientRequest.requestHeaders;
+
 	_httpDirs = http->getDirectives();
 	_servDirs = this->getDirectives();
 	std::string path = "", requestUri = request["uri"];
