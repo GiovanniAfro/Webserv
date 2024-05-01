@@ -127,7 +127,7 @@ std::vector<uint16_t> getContextValues(int directive) {
 
 		case LIMITEXCEPT_DIRECTIVE:
 			return std::vector<uint16_t>(1, LOCATION_CONTEXT);
-		
+
 		case CLIENTMAXBODYSIZE_DIRECTIVE:
 		{
 			std::vector<uint16_t> values;
@@ -227,3 +227,64 @@ bool	isLocationModifier(const std::string& s)
 // {
 
 // }
+
+/*!
+	* @brief Check if the path is a folder.
+	* @param path Path to the file.
+	* @return bool True if the path is a folder, false otherwise.
+*/
+bool	isFolder(const std::string &path)
+{
+	struct stat buffer;
+
+	if (stat(path.c_str(), &buffer) == 0)
+		return S_ISDIR(buffer.st_mode);
+	return false;
+}
+
+/*!
+	* @brief Check if the path is a file.
+	* @param path Path to the file.
+	* @return bool True if the path is a file, false otherwise.
+*/
+bool	isFile(const std::string &path) {
+	struct stat buffer;
+
+	if (stat(path.c_str(), &buffer) == 0)
+		return S_ISREG(buffer.st_mode);
+	return false;
+}
+
+std::string	strRemove(std::string const &str, std::string const &toRemove)
+{
+	std::string newStr = "";
+	std::cout << "Removing " << toRemove << std::endl;
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+	{
+		if (str.substr(it - str.begin(), toRemove.size()) == toRemove)
+		{
+			it += toRemove.size() - 1;
+		}
+		else
+			newStr += *it;
+	}
+	return newStr;
+}
+
+std::string	strReplace(std::string const &str, std::string const &from, std::string const &to)
+{
+	std::string newStr = "";
+	std::cout << "Replacing " << from << " with " << to << std::endl;
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+	{
+		if (str.substr(it - str.begin(), from.size()) == from)
+		{
+			newStr += to;
+			it += from.size() - 1;
+		}
+		else
+			newStr += *it;
+	}
+	std::cout << "New string: " << newStr << std::endl;
+	return newStr;
+}

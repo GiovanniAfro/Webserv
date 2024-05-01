@@ -146,6 +146,20 @@ std::string Server::_getErrorPage(HTTP_STATUS status) {
 std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, const std::string &body, const std::string &contentType) {
 	std::map<std::string, std::string> response;
 	response["status"] = Http::_statusToString(status);
+
+	switch (status)
+	{
+		case OK:
+			response["body"] = body;
+			break;
+		case FOUND:
+			response["Location"] = body;
+			break;
+		default:
+			response["body"] = _getErrorPage(status);
+			break;
+	}
+
 	response["body"] = status == OK ? body : _getErrorPage(status);
 	response["Content-Type"] = contentType;
 	return response;
@@ -171,32 +185,6 @@ bool Server::_isMethodAllowed(const std::string &method, std::map<std::string, A
 }
 
 // Index and Autoindex ------------------------------------------------------>
-/*!
-	* @brief Check if the path is a folder.
-	* @param path Path to the file.
-	* @return bool True if the path is a folder, false otherwise.
-*/
-bool	Server::_isFolder(const std::string &path) {
-	struct stat buffer;
-
-	if (stat(path.c_str(), &buffer) == 0)
-		return S_ISDIR(buffer.st_mode);
-	return false;
-}
-
-/*!
-	* @brief Check if the path is a file.
-	* @param path Path to the file.
-	* @return bool True if the path is a file, false otherwise.
-*/
-bool	Server::_isFile(const std::string &path) {
-	struct stat buffer;
-
-	if (stat(path.c_str(), &buffer) == 0)
-		return S_ISREG(buffer.st_mode);
-	return false;
-}
-
 /*!
 	* @brief Check if the autoindex directive is set to on.
 	* @param servDirs Server directives.
@@ -234,7 +222,7 @@ std::string Server::_getIndex(std::string const &filePath, std::map<std::string,
 		index = static_cast<Index *>(locaDirs["index"]);
 
 	for (std::vector<std::string>::iterator it = index->getFiles().begin(); it != index->getFiles().end(); ++it)
-		if (_isFile(filePath + *it))
+		if (isFile(filePath + *it))
 			return *it;
 	return "";
 }
@@ -335,18 +323,51 @@ bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std
 	return (contentLength > maxBodySize);
 }
 
+/*!
+	* @brief Get the rewrite directive value.
+	* @param requestUri Request URI.
+	* @param path Path to the file.
+	* @param servDirs Server directives.
+	* @param locaDirs Location directives.
+	* @return string Rewrite directive value.
+	* @note Order of operations:
+			- If the rewrite directive is defined in the location context and matches the URI,
+				return the replacement URI
+			- If the rewrite directive is defined in the server context and matches the URI,
+				return the replacement URI
+			- If none of the above, return the request URI
+*/
+std::string Server::_getRewrite(std::string const &requestUri, std::string const &path, std::map<std::string, ADirective *> servDirs, std::map<std::string, ADirective *> locaDirs) {
+	Rewrite *rewrite = static_cast<Rewrite *>(servDirs["rewrite"]);
+	if (locaDirs.find("rewrite") != locaDirs.end())
+		rewrite = static_cast<Rewrite *>(locaDirs["rewrite"]);
+
+	if (requestUri != "" && requestUri != "/"
+		&& requestUri.find(rewrite->getUri()) != std::string::npos)
+	{
+		std::string tmp = strRemove(path + requestUri, rewrite->getUri());
+		if (rewrite->getReplacement()[0] != '/')
+			tmp = tmp + "/" + rewrite->getReplacement();
+
+		if (isFile(tmp))
+			return strReplace(requestUri, rewrite->getUri(), "/" + rewrite->getReplacement());
+		else if (isFolder(tmp))
+			return strReplace(requestUri, rewrite->getUri(), rewrite->getReplacement());
+	}
+	return requestUri;
+}
+
 std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders) {
 	std::map<std::string, ADirective *>	httpDirs = http->getDirectives();
 	std::map<std::string, ADirective *>	servDirs = this->getDirectives();
 	std::map<std::string, ADirective *>	locaDirs;
-	std::string path = "";
-	std::string	requestUri = request["uri"];
+	std::string path = "", requestUri = request["uri"];
 
 	// Check if the request URI matches a location context
 	Location *location = static_cast<Location *>(servDirs["location"]);
 	for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
 	{
-		if (request["uri"].find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
+		if (requestUri.find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
 		{
 			locaDirs = static_cast<Location *>(*it)->getDirectives();
 			location = static_cast<Location *>(*it);
@@ -370,36 +391,46 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, std::map<s
 	if (path.empty())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 
+	// Check if the request URI matches a rewrite directive
+	requestUri = _getRewrite(request["uri"], path, servDirs, locaDirs);
+	if (requestUri != request["uri"])
+		return _responseBuilder(FOUND, requestUri);
+
 	// Get the path to the file
 	std::string	filePath = path + requestUri;
-	if (!_isFile(filePath) && filePath[filePath.size() - 1] != '/')
+	if (!isFile(filePath) && filePath[filePath.size() - 1] != '/')
 		filePath += "/";
+	else if (filePath[filePath.size() - 1] == '/')
+		filePath = filePath.substr(0, filePath.size() - 1);
 
 	// If the path is a folder, check for the index file and autoindex directive
-	if (_isFolder(filePath))
+	if (isFolder(filePath))
 	{
 		if (servDirs.find("index") != servDirs.end())
 		{
 			std::string index = _getIndex(filePath, servDirs, locaDirs);
 			if (index.empty() && _isAutoIndex(servDirs, locaDirs))
-				return _directoryListing(filePath, request["uri"]);
+				return _directoryListing(filePath, requestUri);
 			else if (index.empty())
 				return _responseBuilder(FORBIDDEN);
 
 			filePath += index;
 		}
 		else if (_isAutoIndex(servDirs, locaDirs))
-			return _directoryListing(filePath, request["uri"]);
+			return _directoryListing(filePath, requestUri);
 		else
 			return _responseBuilder(FORBIDDEN);
 	}
-	else if (!_isFile(filePath))
+	else if (!isFile(filePath))
 		return _responseBuilder(NOT_FOUND);
 
 	// Allowed methods
 	if (!_isMethodAllowed(request.at("method"), locaDirs)) {
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
+
+	// CGI
+
 
 	try {
 		if (request.at("method") == "GET")

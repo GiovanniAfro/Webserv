@@ -74,6 +74,8 @@ enum HTTP_STATUS	Http::_statusToEnum(const std::string &status)
 {
 	if (status == "200")
 		return OK;
+	else if (status == "302")
+		return FOUND;
 	else if (status == "400")
 		return BAD_REQUEST;
 	else if (status == "403")
@@ -98,6 +100,8 @@ std::string	Http::_statusToMessage(enum HTTP_STATUS status)
 	{
 		case OK:
 			return "200 OK";
+		case FOUND:
+			return "302 Found";
 		case BAD_REQUEST:
 			return "400 Bad Request";
 		case FORBIDDEN:
@@ -123,6 +127,8 @@ std::string	Http::_statusToString(enum HTTP_STATUS status)
 	{
 		case OK:
 			return "200";
+		case FOUND:
+			return "302";
 		case BAD_REQUEST:
 			return "400";
 		case FORBIDDEN:

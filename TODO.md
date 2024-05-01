@@ -136,24 +136,20 @@
 
 ## Requests
 
-[ ] Handle redirections
-
-[ ] Handle the directives in response based on context
 [ ] http
-    - [ ] include
     - [ ] error_page
     - [x] client_max_body_size
     - [ ] index
     - [ ] autoindex
     - [x] root
     - [ ] server
-        - [ ] server_name
         - [x] listen
         - [x] error_page
         - [x] index
         - [x] autoindex
         - [x] root
         - [x] client_max_body_size
+        - [x] rewrite
         - [ ] location
             - [x] limit_except
             - [ ] error_page
@@ -161,8 +157,9 @@
             - [x] index
             - [x] root
             - [x] autoindex
-            - [ ] try_files
+            - [x] rewrite
             - [x] alias
+            - [ ] fastcgi_pass
 
 ## adi-nata
 [ ] "If no server_name is defined in a server block then nginx uses the empty name as the server name"

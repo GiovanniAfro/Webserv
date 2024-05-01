@@ -26,13 +26,18 @@
 
 // Functions ------------------------------------------------------------------>
 
-bool				isComment(const std::string &s);
-bool				isBracket(const std::string &s);
-bool				isClosedBracket(const std::string &s);
-bool				checkContext(int directiveContext, uint16_t currentContext);
-bool				isLocationModifier(const std::string& s);
-int					whichDirective(const std::string &s);
-std::string			strip(const std::string &str);
-std::string			firstToken(const std::string &str);
-std::string			secondToken(const std::string &str);
+bool					isComment(const std::string &s);
+bool					isBracket(const std::string &s);
+bool					isClosedBracket(const std::string &s);
+bool					checkContext(int directiveContext, uint16_t currentContext);
+bool					isLocationModifier(const std::string& s);
+int						whichDirective(const std::string &s);
+std::string				strip(const std::string &str);
+std::string				firstToken(const std::string &str);
+std::string				secondToken(const std::string &str);
 std::vector<uint16_t>	getContextValues(int directive);
+
+bool					isFolder(const std::string &path);
+bool					isFile(const std::string &path);
+std::string				strRemove(std::string const &str, std::string const &toRemove);
+std::string				strReplace(std::string const &str, std::string const &from, std::string const &to);
