@@ -25,6 +25,7 @@ extern std::vector<HTTP_METHOD>	allHttpMethods;
 
 enum HTTP_STATUS {
 	OK = 200,
+	FOUND = 302,
 	BAD_REQUEST = 400,
 	FORBIDDEN = 403,
 	NOT_FOUND = 404,

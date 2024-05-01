@@ -6,47 +6,45 @@ server {
 	listen 127.0.0.1:1111;
 	listen 127.0.0.1:1234;
 
-	root /Users/madara/Documents/42/GitHub/webserv/project/var/www;
+	#root /Users/madara/Documents/42/GitHub/webserv/project/var/www;
+	root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
-	# Add index.php to the list if you are using PHP
-	# index index.html index.htm index.webserv-debian.html;
-	autoindex on;
+	#index index.html index.htm index.webserv-debian.html;
+	#autoindex on;
 
 	client_max_body_size 42;
 
 	server_name www.webserv.eth;
 
-	rewrite /anvedi /aoh redirect;
+	rewrite /redirectme /location redirect;
 
 	error_page 404 /404.html;
 	error_page 403 405 408 413 431 /40x.html;
 	error_page 500 /50x.html;
-		limit_except GET {
 
 	location /css/ {
-		# First attempt to serve request as file, then
-		# as directory, then fall back to displaying a 404.
-		# try_files $uri $uri/ =404;
 		limit_except GET {
-			# allow 192.168.1.0/32;
-			# deny  all;
-		# }	# limit_except treated as non-context -> end with ';'
-		root /Users/madara/Documents/42/GitHub/webserv/project/var/www;
+
+		#root /Users/madara/Documents/42/GitHub/webserv/project/var/www;
+		root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
+
+		rewrite /redirectme style.css redirect;
 
 		index index2.html index2.htm index2.webserv-debian.html;
 		client_max_body_size 420;
-		alias /daje;
-		rewrite /aloah /eoh redirect;
+		#alias /daje;
 	}
 
 	location /location {
-		root /Users/madara/Documents/42/GitHub/webserv/project/var/www/html;
-		alias /Users/madara/Documents/42/GitHub/webserv/project/var/www/location;
+		#root /Users/madara/Documents/42/GitHub/webserv/project/var/www/html;
+		#alias /Users/madara/Documents/42/GitHub/webserv/project/var/www/location;
 
-		try_files $uri $uri/ =404;
+		root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
+		alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
+		# error_page 404 /50x.html;
 
-		index index2.html;
-		autoindex off;
+		# index index2.html;
+		# autoindex on;
 	}
 
 	location /upload {

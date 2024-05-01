@@ -43,7 +43,7 @@ void Log::response(int method, std::string httpVersion, std::string uri, int sta
 		case 200:
 			std::cout << GREEN;
 			break;
-		case 400:
+		case 400: case 302:
 			std::cout << YELLOW;
 			break;
 		default:

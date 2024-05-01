@@ -80,7 +80,7 @@ unsigned long long	WebServer::getClientMaxBodySize()
 {
 	if (this->getConfigs()[0]->getDirectives().find("client_max_body_size") == this->getConfigs()[0]->getDirectives().end())
 		return CLIENT_MAX_BODY_SIZE;
-	
+
 	return static_cast<ClientMaxBodySize*>(this->getConfigs()[0]->getDirectives()["client_max_body_size"])->getSize();
 }
 
@@ -145,6 +145,25 @@ int	WebServer::startServers()
 
 				// Send the response -------------------------------------->
 				this->_sendResponse(clientSocket, response);
+
+				// If the response is a redirection, close the client socket
+				// then create a new socket and send the redirection response
+				if (response["status"] == "302")
+				{
+					_clientRequest.request["uri"] = response["Location"];
+					response = this->_processRequests();
+					if (response.empty())
+					{
+						Log::error("WebServer : empty response");
+						clientSocket->closeSocket();
+						delete clientSocket;
+						clientSocket = NULL;
+						// request.clear();
+						// response.clear();
+						continue;
+					}
+					this->_sendResponse(clientSocket, response);
+				}
 
 				// Empty the request and response -------------------------->
 				request.clear();
@@ -346,7 +365,7 @@ Server*	WebServer::_findVirtualServer()
 	if (matchingServers.size() == 0)
 	{
 		// First default virtual server? -> default Server* in WebServer
-		
+
 		Log::error("Matching virtual server not found");
 	}
 	else //if (matchingServers.size() > 1)
