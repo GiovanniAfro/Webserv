@@ -53,5 +53,5 @@ class Server : public ADirective {
 
 		ADirective *clone() const;
 
-		std::map<std::string, std::string>	processRequest(Http *http, std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders);
+		std::map<std::string, std::string>	processRequest(Http *http, Request clientRequest);
 };
