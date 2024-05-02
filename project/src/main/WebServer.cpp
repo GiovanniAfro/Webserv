@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/30 22:20:54 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/02 18:51:11 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ int	WebServer::startServers()
 	this->_extractListenPorts();
 	struct pollfd						fds[_listenPorts.size()];
 	unsigned int						numFds = 0;
-	Socket								*clientSocket;
+	Socket*								clientSocket;
 	std::string							request;
 	std::map<std::string, std::string>	response;
 
@@ -106,6 +106,7 @@ int	WebServer::startServers()
 	// Polling ---------------------------------------------------------------->
 	while (true)
 	{
+		// When ctrl-c signal : here
 		int	pollStatus = poll(fds, numFds, -1);
 		if (pollStatus == -1)
 			return Log::error("Poll failed");
@@ -265,10 +266,10 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 		Log::error("Richiesta malformata: impossibile trovare la fine dell'header Content-Lenght");
 		return "";
 	}
-	// std::cout << request << std::endl;
-	// return "request";
-	std::string r2 = request.substr(0, found_end + 4);
-	return r2;
+	std::cout << request << std::endl;
+	return request;
+	// std::string r2 = request.substr(0, found_end + 4);
+	// return r2;
 }
 
 void	WebServer::_parseRequest(const std::string &request)

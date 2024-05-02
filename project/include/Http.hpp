@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:33:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:35:44 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/02 18:11:39 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,17 @@ enum HTTP_STATUS {
 };
 extern std::vector<HTTP_STATUS>	allHttpStatus;
 
-struct	Request {
+struct	Request
+{
 	std::map<std::string, std::string>	request;
 	std::map<std::string, std::string>	requestHeaders;
 	std::string 						requestBody;
+	std::string 						requestString;
 	enum HTTP_METHOD					requestMethod;
 };
 
-class Http : public ADirective {
+class Http : public ADirective
+{
 	private:
 
 

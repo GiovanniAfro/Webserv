@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:18 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/29 23:06:38 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/02 18:49:33 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,11 @@ struct	Request;
 class	WebServer
 {
 	private:
-		std::vector<ADirective *>	_configs;
-		std::vector<ADirective *>	_servers;
+		std::vector<ADirective*>	_configs;
+		std::vector<ADirective*>	_servers;
 		std::set<uint16_t>			_listenPorts;
 
-		std::vector<Socket *>		_sockets;
+		std::vector<Socket*>		_sockets;
 		ConfigFile*					_configFile;
 		Request						_clientRequest;
 

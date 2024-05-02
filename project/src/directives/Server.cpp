@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 13:47:51 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/02 19:15:23 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,17 +53,27 @@ std::map<std::string, std::string>	Server::_processGet(const std::string &filePa
 	return _responseBuilder(NOT_FOUND);
 }
 
-std::map<std::string, std::string>	Server::_processPost(std::map<std::string, std::string> request, std::string const &filepath) {
+std::map<std::string, std::string>	Server::_processPost(std::map<std::string, std::string> request, std::string const &filepath)
+{
+	Log::debug("PROCESSPOST");
 	std::string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
+	std::cout << filepath << std::endl;
+	std::cout << request["X-File-Name"] << std::endl;
+	std::cout << request["Content-Type"] << std::endl;
 
 	// Controlla se l'header del nome del file e il Content-Type sono presenti
-	if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end()) {
+	if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end())
+	{
 		std::string fileName = request[fileNameHeader];
+		std::cout << "fileName : " << fileName << std::endl;
 		std::string contentType = request["Content-Type"];
+		std::cout << "contentType : " << contentType << std::endl;
 		std::string uploadDir = filepath + "/" + fileName; // Percorso dove salvare il file
+		std::cout << "uploadDir : " << uploadDir << std::endl;
 
 		// Gestione basata sul Content-Type
-		if (contentType == "text/plain" || contentType == "application/octet-stream") { // Esempi di Content-Type supportati
+		if (contentType == "text/plain" || contentType == "application/octet-stream")
+		{ // Esempi di Content-Type supportati
 			std::ofstream outFile(uploadDir.c_str(), std::ofstream::binary);
 			if (!outFile)
 				return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
@@ -357,7 +367,8 @@ std::string Server::_getRewrite(std::string const &requestUri) {
 	return requestUri;
 }
 
-std::map<std::string, std::string>	Server::processRequest(Http *http, Request clientRequest) {
+std::map<std::string, std::string>	Server::processRequest(Http *http, Request clientRequest)
+{
 	std::map<std::string, std::string> request = clientRequest.request;
 	std::map<std::string, std::string> requestHeaders = clientRequest.requestHeaders;
 
@@ -405,8 +416,10 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	else if (filePath[filePath.size() - 1] == '/')
 		filePath = filePath.substr(0, filePath.size() - 1);
 
+
+
 	// If the path is a folder, check for the index file and autoindex directive
-	if (isFolder(filePath))
+	if (isFolder(filePath) && request["method"] == "GET")
 	{
 		std::string index = _getIndex(filePath);
 
@@ -417,7 +430,7 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 
 		filePath += isFolder(filePath) ? "/" + index : index;
 	}
-	else if (!isFile(filePath))
+	else if (!isFile(filePath) && request["method"] == "GET")
 		return _responseBuilder(NOT_FOUND);
 
 	// Allowed methods
@@ -432,7 +445,7 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	std::cout << "here ------------------------------------------" << std::endl;
 	if (_locaDirs.find("fastcgi_pass") != _locaDirs.end())
 	{
-		Cgi cgi(request, requestHeaders, filePath);
+		Cgi cgi(clientRequest, filePath);
 		return _responseBuilder(OK, cgi.exec());
 	}
 
