@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 18:51:11 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/02 20:08:46 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,6 +299,14 @@ void	WebServer::_parseRequest(const std::string &request)
 			std::string headerValue = line.substr(colonPos + 2);
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
 
+			if (headerName == "Content-Type" && headerValue.find(";"))
+			{
+				std::string::size_type semicolonPos = line.find("; ");
+				std::string boundary = line.substr(semicolonPos + 2);
+				this->_clientRequest.requestHeaders["boundary"] = boundary.substr(boundary.find_last_of("=") + 1);
+				// std::cout << "boundray" << " -> " << this->_clientRequest.requestHeaders["boundary"] << std::endl; 
+			}
+
 			if (headerName == "Content-Length")
 				contentLength = atoi(headerValue.c_str());
 
@@ -314,7 +322,21 @@ void	WebServer::_parseRequest(const std::string &request)
 		// +1 per il carattere di nuova linea che getline consuma
 		contentLength -= line.length() + 1;
 
-		if (contentLength < 0)
+		if (line == this->_clientRequest.requestHeaders["boundary"])
+		{
+			std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl;
+			std::string::size_type colonPos = line.find(": ");
+			if (colonPos != std::string::npos)
+			{
+				std::string headerName = line.substr(0, colonPos);
+				std::string headerValue = line.substr(colonPos + 2);
+				this->_clientRequest.requestFileHeaders[headerName] = headerValue;
+				std::cout << "File Headers" << std::endl;
+				std::cout << headerName << " -> " << headerValue << std::endl;	
+			}
+
+		}
+		else if (contentLength < 0)
 			this->_clientRequest.requestBody += line;
 		else
 			this->_clientRequest.requestBody += line + "\n";

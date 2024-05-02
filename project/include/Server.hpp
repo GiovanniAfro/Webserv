@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:37:25 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:37:35 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/02 19:23:27 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Server : public ADirective {
 
 		// HTTP methods
 		std::map<std::string, std::string>	_processGet(const std::string &filePath);
-		std::map<std::string, std::string>	_processPost(std::map<std::string, std::string> request, std::string const &filepath);
+		std::map<std::string, std::string>	_processPost(Request clientRequest, std::string const &filepath);
 		std::map<std::string, std::string>	_processDelete(const std::string &filePath);
 
 

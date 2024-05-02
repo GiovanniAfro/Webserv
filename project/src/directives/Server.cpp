@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 19:15:23 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/02 20:08:09 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,23 +53,26 @@ std::map<std::string, std::string>	Server::_processGet(const std::string &filePa
 	return _responseBuilder(NOT_FOUND);
 }
 
-std::map<std::string, std::string>	Server::_processPost(std::map<std::string, std::string> request, std::string const &filepath)
+std::map<std::string, std::string>	Server::_processPost(Request clientRequest, std::string const &filepath)
 {
 	Log::debug("PROCESSPOST");
+	std::map<std::string, std::string> request = clientRequest.request;
+	std::map<std::string, std::string> fileHeaders = clientRequest.requestFileHeaders;
+
 	std::string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
-	std::cout << filepath << std::endl;
-	std::cout << request["X-File-Name"] << std::endl;
-	std::cout << request["Content-Type"] << std::endl;
 
 	// Controlla se l'header del nome del file e il Content-Type sono presenti
-	if (request.find(fileNameHeader) != request.end() && request.find("Content-Type") != request.end())
+	if (fileHeaders.find(fileNameHeader) != fileHeaders.end() && fileHeaders.find("Content-Type") != fileHeaders.end())
 	{
-		std::string fileName = request[fileNameHeader];
+		std::string fileName = fileHeaders[fileNameHeader];
 		std::cout << "fileName : " << fileName << std::endl;
-		std::string contentType = request["Content-Type"];
+		std::string contentType = fileHeaders["Content-Type"];
 		std::cout << "contentType : " << contentType << std::endl;
-		std::string uploadDir = filepath + "/" + fileName; // Percorso dove salvare il file
+		std::string uploadDir = filepath + fileName; // Percorso dove salvare il file
 		std::cout << "uploadDir : " << uploadDir << std::endl;
+
+		contentType = contentType.substr(0, contentType.find(";"));
+		std::cout << "contentType : " << contentType << std::endl;
 
 		// Gestione basata sul Content-Type
 		if (contentType == "text/plain" || contentType == "application/octet-stream")
@@ -78,7 +81,7 @@ std::map<std::string, std::string>	Server::_processPost(std::map<std::string, st
 			if (!outFile)
 				return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
 
-			std::string	body = request.at("body");
+			std::string	body = clientRequest.requestBody;
 			if (body.size() > static_cast<std::size_t>(std::numeric_limits<std::streamsize>::max()))
 				return _responseBuilder(INTERNAL_SERVER_ERROR, "File size is too large.");
 			outFile.write(body.data(), static_cast<std::streamsize>(body.size()));
@@ -439,10 +442,10 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	}
 
 	// CGI -------------------------------------------------------------------->
-	for (std::map<std::string, ADirective *>::iterator it = _locaDirs.begin(); it != _locaDirs.end(); ++it)
-		std::cout << "Location directive: " << it->first << std::endl;
+	// for (std::map<std::string, ADirective *>::iterator it = _locaDirs.begin(); it != _locaDirs.end(); ++it)
+	// 	std::cout << "Location directive: " << it->first << std::endl;
 
-	std::cout << "here ------------------------------------------" << std::endl;
+	// std::cout << "here ------------------------------------------" << std::endl;
 	if (_locaDirs.find("fastcgi_pass") != _locaDirs.end())
 	{
 		Cgi cgi(clientRequest, filePath);
@@ -453,7 +456,7 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 		if (request.at("method") == "GET")
 			return _processGet(filePath);
 		else if (request.at("method") == "POST")
-			return _processPost(request, filePath);
+			return _processPost(clientRequest, filePath);
 		else if (request.at("method") == "DELETE")
 			return _processDelete(filePath);
 		else

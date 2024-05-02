@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:33:13 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 18:11:39 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/02 19:58:16 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ struct	Request
 {
 	std::map<std::string, std::string>	request;
 	std::map<std::string, std::string>	requestHeaders;
+	std::map<std::string, std::string>	requestFileHeaders;
 	std::string 						requestBody;
 	std::string 						requestString;
 	enum HTTP_METHOD					requestMethod;
