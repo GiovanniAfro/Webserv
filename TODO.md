@@ -142,7 +142,7 @@
     - [x] index
     - [x] autoindex
     - [x] root
-    - [ ] server
+    - [x] server
         - [x] listen
         - [x] error_page
         - [x] index
@@ -150,7 +150,7 @@
         - [x] root
         - [x] client_max_body_size
         - [x] rewrite
-        - [ ] location
+        - [x] location
             - [x] limit_except
             - [x] error_page
             - [x] client_max_body_size
@@ -159,12 +159,16 @@
             - [x] autoindex
             - [x] rewrite
             - [x] alias
-            - [ ] fastcgi_pass
+            - [x] fastcgi_pass
 
 ## adi-nata
 [ ] "If no server_name is defined in a server block then nginx uses the empty name as the server name"
 
 [ ] const and reference all getters and others where possible
+
+[ ] Handle boundary=------------------------.... in WebServer::_parseRequest
+
+[ ] Parse file headers and save them in clientRequest.requestFileHeaders and file content
 
 ## anvannin
 
