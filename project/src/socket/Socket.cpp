@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:31 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:49:33 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/03 12:29:28 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,11 +119,14 @@ Socket *Socket::createClientSocket() {
     if (client_socket == -1) {
         Log::error("Acceptance failed");
         close(this->_socket);
-        exit(EXIT_FAILURE);
+        return NULL;
     }
     return new Socket(client_socket);
 }
 
 void	Socket::closeSocket() {
-    close(_socket);
+    if (_socket != -1){
+        close(_socket);
+        _socket = -1;
+    }
 }

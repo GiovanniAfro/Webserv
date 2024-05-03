@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/26 13:04:08 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/03 12:04:31 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,6 +321,7 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 	int	index = whichDirective(header);
 
 	std::cout << index << std::endl;
+	std::cout << "'" << content << "'" << std::endl;
 
 	if (index < 0)
 		return Log::error("parserRouter : invalid header");
@@ -715,6 +716,8 @@ int	ConfigFile::parseLimitExcept(const std::string &content)
 	Log::debug("parseLimitExcept");
 
 	enum HTTP_METHOD	method = Http::_methodToEnum(content);
+	std::cout<< " '" << method << "'" << std::endl;
+	std::cout<< " '" << content << "'" << std::endl;
 
 	if (method == UNKNOWN)
 		return Log::error("limit_except : unknown method");

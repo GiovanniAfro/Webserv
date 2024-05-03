@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:19:15 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/03 12:56:08 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "WebServer.hpp"
 
 int	main(int ac, char **av) {
+	signal(SIGINT, WebServer::sigintHandler);
 	WebServer	webServer;
 	ConfigFile	file(&webServer);
 

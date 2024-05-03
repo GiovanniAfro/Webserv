@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Http.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:42:17 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/24 14:09:12 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/03 11:59:49 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ ADirective *Http::clone() const
 
 enum HTTP_METHOD	Http::_methodToEnum(const std::string &method)
 {
+	std::cout << "'" << method << "'" << std::endl;
 	if (method == "GET")
 		return GET;
 	else if (method == "POST")

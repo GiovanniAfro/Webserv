@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 20:08:46 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/03 12:58:39 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 WebServer *WebServer::instance = NULL;
 
-WebServer::WebServer()
+WebServer::WebServer() : _shutdownFlag(false)
 {
 	instance = this;
 	signal(SIGINT, sigintHandler);
@@ -32,15 +32,14 @@ WebServer::~WebServer()
 		close(*it);
 }
 
-void WebServer::sigintHandler(int signum)
-{
-	if (signum == SIGINT)
-	{
-		if (WebServer::instance)
-			WebServer::instance->~WebServer();
-		exit(0);
-	}
+void WebServer::sigintHandler(int signum) {
+    if (signum == SIGINT) {
+        std::cout << "Shutdown signal received, shutting down..." << std::endl;
+		if (instance)
+        	WebServer::instance->_shutdownFlag = true;  // Imposta una flag per fermare il loop del server.
+    }
 }
+
 
 void	WebServer::setConfigFile(ConfigFile &configFile)
 { _configFile = &configFile; }
@@ -104,7 +103,7 @@ int	WebServer::startServers()
 	}
 
 	// Polling ---------------------------------------------------------------->
-	while (true)
+	while (!_shutdownFlag)
 	{
 		// When ctrl-c signal : here
 		int	pollStatus = poll(fds, numFds, -1);
@@ -122,6 +121,7 @@ int	WebServer::startServers()
 			if (!clientSocket)
 				return Log::error("Client socket creation failed");
 
+				
 			// Read the request ------------------------------------------->
 			request = this->_readRequests(clientSocket->getSocket());
 			if (request.empty() || request == "request")
