@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/03 12:58:39 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/03 14:56:45 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,9 +107,17 @@ int	WebServer::startServers()
 	{
 		// When ctrl-c signal : here
 		int	pollStatus = poll(fds, numFds, -1);
-		if (pollStatus == -1)
-			return Log::error("Poll failed");
-
+		if (pollStatus == -1) {
+    		if (errno == EINTR) {
+        		// Gestione dell'interruzione (es. pulizia e chiusura)
+        		Log::info("Poll interrupted by signal, shutting down gracefully.");
+        		return 0; // o un altro codice che gestisce la chiusura ordinata
+    		} else {
+        		// Log dell'errore effettivo
+        		Log::error("Poll failed due to system error: ");
+        		return -1; // Indica un errore serio che non può essere ignorato
+    		}
+		}
 		// Handle events on sockets ------------------------------------------->
 		for (unsigned int i = 0; i < numFds; ++i)
 		{

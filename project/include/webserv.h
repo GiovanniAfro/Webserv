@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 09:51:48 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/26 13:39:14 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/03 14:55:08 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <limits.h>
+#include <cerrno>
 
 #include "utils.hpp"
 
