@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:37:25 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 19:23:27 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/04 14:31:42 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@ class Server : public ADirective {
 		std::map <std::string, ADirective *>	_locaDirs;
 		std::string								_root;
 
+
+		std::string 						extractBoundary(const std::string& contentType);
+		std::string							extractFileName(const std::string& body, const std::string& boundary);
+		std::string							extractFileContent(const std::string& body, const std::string& boundary);
 		// HTTP methods
 		std::map<std::string, std::string>	_processGet(const std::string &filePath);
 		std::map<std::string, std::string>	_processPost(Request clientRequest, std::string const &filepath);

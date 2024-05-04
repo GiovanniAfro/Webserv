@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/02 20:08:09 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/04 16:00:16 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,86 @@ ADirective *Server::clone() const {
 	*       If the file is successfully read, return 200 OK
 	*       If the file does not exist, return 404 Not Found
 */
+
+std::string Server::extractFileContent(const std::string& body, const std::string& boundary) {
+    std::string boundaryDelimiter = "--" + boundary;
+    size_t firstBoundaryPos = body.find(boundaryDelimiter);
+    if (firstBoundaryPos == std::string::npos) {
+        return "";  // Boundary non trovato
+    }
+
+    // Trova la fine dell'header del file
+    size_t startContentPos = body.find("\r\n\r\n", firstBoundaryPos);
+    if (startContentPos == std::string::npos) {
+        return "";  // Fine dell'header non trovata
+    }
+    startContentPos += 4;  // Sposta l'indice oltre "\r\n\r\n"
+
+    // Trova il prossimo boundary che segna la fine del contenuto del file
+    size_t endContentPos = body.find(boundaryDelimiter, startContentPos);
+    if (endContentPos == std::string::npos) {
+        return "";  // Fine del contenuto non trovata
+    }
+
+    // Estrai il contenuto tra la fine dell'header e l'inizio del prossimo boundary
+    return body.substr(startContentPos, endContentPos - startContentPos - 2);  // -2 per rimuovere il "\r\n" prima del boundary
+}
+
+std::string Server::extractFileName(const std::string& body, const std::string& boundary) {
+    // Cerca il boundary nel corpo della richiesta
+    std::string boundaryDelimiter = "--" + boundary;
+    size_t boundaryPos = body.find(boundaryDelimiter);
+    if (boundaryPos == std::string::npos) {
+        return "";  // Boundary non trovato, impossibile analizzare la richiesta
+    }
+
+    // Trova la prima occorrenza di "Content-Disposition" dopo il boundary
+    size_t dispositionPos = body.find("Content-Disposition: form-data;", boundaryPos);
+    if (dispositionPos == std::string::npos) {
+        return "";  // "Content-Disposition" non trovato
+    }
+
+    // Cerca "filename=" che dovrebbe seguire il "Content-Disposition"
+    size_t filenamePos = body.find("filename=\"", dispositionPos);
+    if (filenamePos == std::string::npos) {
+        return "";  // "filename=" non trovato
+    }
+    filenamePos += 10;  // Salta la lunghezza di "filename=\""
+
+    // Trova la fine del nome del file
+    size_t filenameEndPos = body.find("\"", filenamePos);
+    if (filenameEndPos == std::string::npos) {
+        return "";  // Terminatore del nome del file non trovato
+    }
+
+    // Estrai e restituisci il nome del file
+    return body.substr(filenamePos, filenameEndPos - filenamePos);
+}
+
+std::string Server::extractBoundary(const std::string& contentType) {
+    std::string boundaryPrefix = "boundary=";
+    size_t startPos = contentType.find(boundaryPrefix);
+    if (startPos == std::string::npos) {
+        return ""; // Boundary non trovato
+    }
+    
+    startPos += boundaryPrefix.length(); // Sposta l'indice all'inizio del valore di boundary
+    size_t endPos = contentType.find(";", startPos); // Cerca la fine del valore di boundary
+    if (endPos == std::string::npos) {
+        endPos = contentType.length(); // Se non c'è ';', il boundary va fino alla fine della stringa
+    }
+
+    // Rimuovi gli spazi bianchi all'inizio e alla fine del boundary
+    while (startPos < endPos && std::isspace(contentType[startPos])) {
+        startPos++;
+    }
+    while (endPos > startPos && std::isspace(contentType[endPos - 1])) {
+        endPos--;
+    }
+
+    return contentType.substr(startPos, endPos - startPos);
+}
+
 std::map<std::string, std::string>	Server::_processGet(const std::string &filePath) {
 	std::ifstream	file(filePath.c_str());
 
@@ -53,48 +133,59 @@ std::map<std::string, std::string>	Server::_processGet(const std::string &filePa
 	return _responseBuilder(NOT_FOUND);
 }
 
-std::map<std::string, std::string>	Server::_processPost(Request clientRequest, std::string const &filepath)
-{
-	Log::debug("PROCESSPOST");
-	std::map<std::string, std::string> request = clientRequest.request;
-	std::map<std::string, std::string> fileHeaders = clientRequest.requestFileHeaders;
+std::map<std::string, std::string> Server::_processPost(Request clientRequest, std::string const &filepath) {
+    //Log::debug("PROCESSPOST");
+    std::map<std::string, std::string> request = clientRequest.request;
+    std::map<std::string, std::string> fileHeaders = clientRequest.requestHeaders;
+	
+	// Stampa tutti gli header del file
+	std::cout << "File Headers:" << std::endl;
+	std::cout << clientRequest.requestHeaders["Content-Type"] << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = fileHeaders.begin(); it != fileHeaders.end(); ++it) {
+    	std::cout << it->first << ": " << it->second << std::endl;
+	} 
 
-	std::string fileNameHeader = "X-File-Name"; // Nome dell'header personalizzato per il nome del file
 
-	// Controlla se l'header del nome del file e il Content-Type sono presenti
-	if (fileHeaders.find(fileNameHeader) != fileHeaders.end() && fileHeaders.find("Content-Type") != fileHeaders.end())
-	{
-		std::string fileName = fileHeaders[fileNameHeader];
-		std::cout << "fileName : " << fileName << std::endl;
-		std::string contentType = fileHeaders["Content-Type"];
-		std::cout << "contentType : " << contentType << std::endl;
-		std::string uploadDir = filepath + fileName; // Percorso dove salvare il file
-		std::cout << "uploadDir : " << uploadDir << std::endl;
+    std::string contentType = fileHeaders["Content-Type"];
+    std::string boundary = extractBoundary(contentType);
+	std::cout << ": " << fileHeaders.at("Content-Type") << " ;" << std::endl;
+	std::cout << ": " << contentType << " ;" << std::endl;
+    if (boundary.empty()) {
+        return _responseBuilder(BAD_REQUEST, "Boundary non trovato nel Content-Type.");
+    }
 
-		contentType = contentType.substr(0, contentType.find(";"));
-		std::cout << "contentType : " << contentType << std::endl;
+    // Estrai il nome del file dal corpo della richiesta
+    std::string fileName = extractFileName(clientRequest.requestBody, boundary);
+    if (fileName.empty()) {
+        return _responseBuilder(BAD_REQUEST, "Nome del file mancante nel corpo della richiesta.");
+    }
 
-		// Gestione basata sul Content-Type
-		if (contentType == "text/plain" || contentType == "application/octet-stream")
-		{ // Esempi di Content-Type supportati
-			std::ofstream outFile(uploadDir.c_str(), std::ofstream::binary);
-			if (!outFile)
-				return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+    std::string fullPath = filepath + fileName;
 
-			std::string	body = clientRequest.requestBody;
-			if (body.size() > static_cast<std::size_t>(std::numeric_limits<std::streamsize>::max()))
-				return _responseBuilder(INTERNAL_SERVER_ERROR, "File size is too large.");
-			outFile.write(body.data(), static_cast<std::streamsize>(body.size()));
-			outFile.close();
+    // Verifica la sicurezza del path del file
+    if (fileName.find("..") != std::string::npos) {
+        return _responseBuilder(BAD_REQUEST, "Percorso del file non valido.");
+    }
 
-			return _responseBuilder(OK, "File caricato con successo.");
-		}
-		else
-			return _responseBuilder(BAD_REQUEST, "Content-Type non supportato.");
-	}
-	else
-		return _responseBuilder(BAD_REQUEST, "Header del nome del file mancante o Content-Type mancante.");
+    // Apertura del file per la scrittura
+    std::ofstream outFile(fullPath.c_str(), std::ofstream::binary);
+    if (!outFile) {
+        return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+    }
+
+    // Estrai il contenuto del file dal corpo della richiesta
+    std::string fileContent = extractFileContent(clientRequest.requestBody, boundary);
+    if (fileContent.empty()) {
+        outFile.close();
+        return _responseBuilder(BAD_REQUEST, "Contenuto del file mancante.");
+    }
+
+    outFile.write(fileContent.data(), fileContent.size());
+    outFile.close();
+
+    return _responseBuilder(OK, "File caricato con successo.");
 }
+
 
 /*!
 	* @brief Process the DELETE request.
