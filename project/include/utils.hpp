@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 10:42:41 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/01 12:00:40 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/04 23:16:20 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ bool					isBracket(const std::string &s);
 bool					isClosedBracket(const std::string &s);
 bool					checkContext(int directiveContext, uint16_t currentContext);
 bool					isLocationModifier(const std::string& s);
+bool					isIPAddress(const std::string& s);
 int						whichDirective(const std::string &s);
 std::string				strip(const std::string &str);
 std::string				firstToken(const std::string &str);

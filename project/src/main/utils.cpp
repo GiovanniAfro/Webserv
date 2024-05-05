@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/01 12:00:02 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/04 23:17:33 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,14 @@ bool isDirective(const std::string &s)
 			return true;
 	}
 
+	return false;
+}
+
+bool	isIPAddress(const std::string& s)
+{
+	struct in_addr	addr;
+	if (inet_pton(AF_INET, s.c_str(), &addr) == 1)
+		return true;
 	return false;
 }
 
