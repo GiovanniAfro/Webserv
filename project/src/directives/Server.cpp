@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/04 16:00:16 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/05 18:51:19 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -470,8 +470,19 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	_servDirs = this->getDirectives();
 	std::string path = "", requestUri = request["uri"];
 
+	std::map<std::string, ADirective*>::iterator locIt = _servDirs.find("location");
+	if (locIt == _servDirs.end()) {
+    // Gestisci l'errore: "location" non trovata
+    	return _responseBuilder(INTERNAL_SERVER_ERROR, "Location directive not found");
+	}
+
+	Location* location = static_cast<Location*>(locIt->second);
+	if (!location) {
+    // Gestisci l'errore: il cast non è andato a buon fine
+    	return _responseBuilder(INTERNAL_SERVER_ERROR, "Failed to cast to Location type");
+	}
+
 	// Check if the request URI matches a location context
-	Location *location = static_cast<Location *>(_servDirs["location"]);
 	for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
 	{
 		if (requestUri.find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
