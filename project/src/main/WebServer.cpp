@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/03 14:56:45 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/05 20:06:49 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ WebServer *WebServer::instance = NULL;
 
 WebServer::WebServer() : _shutdownFlag(false)
 {
+	_listenPorts.insert(80);
 	instance = this;
 	signal(SIGINT, sigintHandler);
 }
@@ -217,6 +218,8 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 		// La funzione recv può essere utilizzata anche per ricevere dati in modo non bloccante, utilizzando la flag MSG_DONTWAIT. Inoltre, la funzione recv può essere utilizzata per ricevere dati da più socket contemporaneamente, utilizzando la funzione select.
 		bytes_read = recv(clientSocketFD, buf, sizeof(buf) - 1, 0);
 
+		std::cout << buf << std::endl;
+
 		if (bytes_read > 0)
 		{
 			// Assicurati che la std::stringa sia terminata correttamente
@@ -304,7 +307,7 @@ void	WebServer::_parseRequest(const std::string &request)
 		if (colonPos != std::string::npos)
 		{
 			std::string headerName = line.substr(0, colonPos);
-			std::string headerValue = line.substr(colonPos + 2);
+			std::string headerValue = strip(line.substr(colonPos + 2));
 			this->_clientRequest.requestHeaders[headerName] = headerValue;
 
 			if (headerName == "Content-Type" && headerValue.find(";"))
@@ -375,10 +378,11 @@ std::map<std::string, std::string>	WebServer::_processRequests()
 	return server->processRequest(static_cast<Http *>(this->getConfigs()[0]), this->_clientRequest);
 }
 
+// ex. example.com	|	example.com:1111	|	127.0.0.1	|	127.0.0.1:80
 Server*	WebServer::_findVirtualServer()
 {
 	std::string					requestHost = this->_clientRequest.requestHeaders["Host"];
-	std::string					requestIpAddress = requestHost;
+	std::string					requestAddress = requestHost;
 	uint16_t					requestPort = 80;
 	std::vector<ADirective *>	matchingServers = this->getServers();
 	Server*						virtualServer = NULL;
@@ -386,16 +390,20 @@ Server*	WebServer::_findVirtualServer()
 
 	if (requestHost.find(":") != std::string::npos)
 	{
-		requestIpAddress = requestHost.substr(0, requestHost.find(":")).c_str();
+		requestAddress = requestHost.substr(0, requestHost.find(":")).c_str();
 		requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	}
 
 	this->_matchingServersPort(matchingServers, requestPort);
 
-	this->_matchingServersIp(matchingServers, requestIpAddress, requestPort);
-
-	if (matchingServers.size() > 1)
-		this->_matchingServersName(matchingServers, requestIpAddress);
+	if (isIPAddress(requestAddress))
+	{
+		this->_matchingServersIp(matchingServers, requestAddress, requestPort);
+		if (matchingServers.size() > 1)
+			this->_matchingServersName(matchingServers, requestAddress);
+	}
+	else
+		this->_matchingServersName(matchingServers, requestAddress);
 
 	if (matchingServers.size() == 0)
 	{
@@ -468,17 +476,6 @@ void	WebServer::_matchingServersName(std::vector<ADirective *>& servers, const s
 {
 	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); )
 	{
-		if ((*itServer)->getDirectives().find("server_name") == (*itServer)->getDirectives().end())
-		{
-			if (requestHost.empty())	// Should not be
-			{
-				++itServer;
-				continue;
-			}
-			itServer = servers.erase(itServer);
-			continue;
-		}
-
 		ServerName*	serverName = static_cast<ServerName*>((*itServer)->getDirectives()["server_name"]);
 		bool		isMatch = false;
 
