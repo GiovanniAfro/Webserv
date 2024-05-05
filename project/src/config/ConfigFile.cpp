@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/03 12:04:31 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/05 18:56:55 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,15 @@ int	ConfigFile::parseConfigFile()
 	}
 
 	this->parserRouter(inputFile, "include", line, HTTP_CONTEXT);
+
+	// Check Servers' directives
+	// for (std::vector<ADirective*>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it)
+	// {
+	// 	if ((*it)->getDirectives().find("listen") == (*it)->getDirectives().end() || 
+	// 		(*it)->getDirectives().find("server_name") == (*it)->getDirectives().end() || 
+	// 		(*it)->getDirectives().find("location") == (*it)->getDirectives().end())
+	// 			return Log::error("ConfigFile : ");
+	// }
 
 	Log::debug("PROVE");
 	Http *con = static_cast<Http *>(this->_webServer->getConfigs()[0]);
@@ -407,7 +416,7 @@ int	ConfigFile::parseListen(const std::string &content)
 			if (port < 0 || port > 65535)
 				return Log::error("listen : invalid port");
 
-			// struct in_addr	addr;	Check "localhost" first?
+			// struct in_addr	addr;	// Check "localhost" first?
 			// if (inet_pton(AF_INET, address.c_str(), &addr) == 1)
 			// {
 			// 	// valid IPv4
