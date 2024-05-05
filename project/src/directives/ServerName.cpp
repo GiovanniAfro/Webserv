@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   ServerName.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 10:48:13 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/05 20:35:25 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerName.hpp"
 
-ServerName::ServerName(const std::string &content) {
+ServerName::ServerName(const std::string &content)
+: ADirective("server_name", SERVER_CONTEXT)
+{
 	std::stringstream	iss(content);
 	std::string			token;
 
@@ -25,13 +27,13 @@ ServerName::ServerName(const std::string &content) {
 	// check _names's content? ...
 }
 
-ServerName::ServerName(const ServerName &copy) : ADirective(copy) {
-	*this = copy;
-}
+ServerName::ServerName(const ServerName &copy) : ADirective(copy)
+{ *this = copy; }
 
 ServerName::~ServerName() {}
 
-ServerName &ServerName::operator=(const ServerName &other) {
+ServerName &ServerName::operator=(const ServerName &other)
+{
 	if (this == &other)
 		return *this;
 
@@ -41,10 +43,8 @@ ServerName &ServerName::operator=(const ServerName &other) {
 	return *this;
 }
 
-ADirective *ServerName::clone() const {
-	return new ServerName(*this);
-}
+ADirective *ServerName::clone() const
+{ return new ServerName(*this); }
 
-std::vector<std::string> &ServerName::getNames() {
-	return _names;
-}
+std::vector<std::string> &ServerName::getNames()
+{ return _names; }

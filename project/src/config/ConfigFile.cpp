@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/05 18:56:55 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/05 20:25:52 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,15 @@ int	ConfigFile::parseConfigFile()
 				std::cout << *it << std::endl;
 			}
 			std::cout << std::endl;
+		}
+
+		Log::debug("SERVER_NAME");
+		if (ser->getDirectives().find("server_name") != ser->getDirectives().end())
+		{
+			ServerName*	servNamBlock = static_cast<ServerName*>(ser->getDirectives()["server_name"]);
+			for (std::vector<std::string>::iterator it = servNamBlock->getNames().begin(); it != servNamBlock->getNames().end(); ++it)
+				std::cout << *it << std::endl;
+
 		}
 
 		Log::debug("INDEX");

@@ -17,8 +17,8 @@ server {
 
 	#client_max_body_size 42;
 
-	# server_name www.webserv.eth;
-	server_name example.com;
+	server_name www.webserv.eth;
+	# server_name example.com;
 
 	rewrite /redirectme /location redirect;
 
