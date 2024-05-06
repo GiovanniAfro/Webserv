@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/06 16:21:55 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/06 17:22:17 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -363,17 +363,16 @@ Server*	WebServer::_findVirtualServer()
 		requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	}
 
+	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	this->_matchingServersPort(matchingServers, requestPort);
 
+	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	if (isIPAddress(requestAddress))
-	{
 		this->_matchingServersIp(matchingServers, requestAddress, requestPort);
-		if (matchingServers.size() > 1)
-			this->_matchingServersName(matchingServers, requestAddress);
-	}
 	else
 		this->_matchingServersName(matchingServers, requestAddress);
 		
+	std::cout << "matchingServers final : " << matchingServers.size() << std::endl;
 	if (matchingServers.size() == 0)
 	{
 		// First default virtual server? -> default Server* in WebServer
@@ -382,6 +381,15 @@ Server*	WebServer::_findVirtualServer()
 	}
 	else //if (matchingServers.size() > 1)
 		virtualServer = static_cast<Server *>(matchingServers[0]);
+
+	for (std::vector<ADirective*>::iterator it = matchingServers.begin(); it != matchingServers.end(); ++it)
+	{
+		ServerName*	name = static_cast<ServerName*>((*it)->getDirectives()["server_name"]);
+		for (std::vector<std::string>::iterator itName = name->getNames().begin(); itName != name->getNames().end(); ++itName)
+		{
+			Log::debug(*itName);
+		}
+	}
 
 	return virtualServer;
 }

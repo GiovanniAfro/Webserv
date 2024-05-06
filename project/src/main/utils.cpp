@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:46 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/06 14:53:31 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/06 17:13:57 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,9 @@ bool isDirective(const std::string &s)
 
 bool	isIPAddress(const std::string& s)
 {
+	// if (s == "localhost")
+	// 	return true;
+
 	struct in_addr	addr;
 	if (inet_pton(AF_INET, s.c_str(), &addr) == 1)
 		return true;

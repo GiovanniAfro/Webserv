@@ -11,7 +11,7 @@ server {
 }
 
 server {
-    listen      192.168.1.2:80;
+    listen      192.168.1.2:8080;
     server_name webserv42.com www.webserv42.com;
 }
 
@@ -21,8 +21,8 @@ server {
 	listen 127.0.0.1:1111;
 	listen 127.0.0.1:1234;
 
-	# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+	root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+	# root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
 	# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
 	#index index.html index.htm index.webserv-debian.html;
@@ -41,8 +41,8 @@ server {
 	location /css/ {
 		limit_except GET {
 		
-		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+		root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+		# root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 
 		rewrite /redirectme style.css redirect;
@@ -53,8 +53,10 @@ server {
 	}
 
 	location /location {
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
-		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
+		# root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
+		# alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
+		root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+		alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 		# alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
@@ -67,15 +69,16 @@ server {
 	location /cgi-bin {
 		# root /home/kichkiro/42/webserv/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
+		# root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
+		root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 
 		# fastcgi_pass self;
 	}
 
 	location /upload {
 		# alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
-		# alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
+		alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+		# alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
 		limit_except POST;
 		autoindex off;
 	}
