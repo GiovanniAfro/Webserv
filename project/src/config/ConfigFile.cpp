@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/05 20:25:52 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/06 14:54:21 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,15 +77,6 @@ int	ConfigFile::parseConfigFile()
 
 	this->parserRouter(inputFile, "include", line, HTTP_CONTEXT);
 
-	// Check Servers' directives
-	// for (std::vector<ADirective*>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it)
-	// {
-	// 	if ((*it)->getDirectives().find("listen") == (*it)->getDirectives().end() || 
-	// 		(*it)->getDirectives().find("server_name") == (*it)->getDirectives().end() || 
-	// 		(*it)->getDirectives().find("location") == (*it)->getDirectives().end())
-	// 			return Log::error("ConfigFile : ");
-	// }
-
 	Log::debug("PROVE");
 	Http *con = static_cast<Http *>(this->_webServer->getConfigs()[0]);
 	std::cout << "Http : " << this->_webServer->getConfigs().size() << std::endl;
@@ -114,7 +105,7 @@ int	ConfigFile::parseConfigFile()
 			}
 			std::cout << std::endl;
 		}
-
+		
 		Log::debug("SERVER_NAME");
 		if (ser->getDirectives().find("server_name") != ser->getDirectives().end())
 		{
@@ -425,7 +416,7 @@ int	ConfigFile::parseListen(const std::string &content)
 			if (port < 0 || port > 65535)
 				return Log::error("listen : invalid port");
 
-			// struct in_addr	addr;	// Check "localhost" first?
+			// struct in_addr	addr;	Check "localhost" first?
 			// if (inet_pton(AF_INET, address.c_str(), &addr) == 1)
 			// {
 			// 	// valid IPv4

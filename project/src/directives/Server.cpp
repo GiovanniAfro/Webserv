@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/05 18:51:19 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/06 14:54:12 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,57 +133,57 @@ std::map<std::string, std::string>	Server::_processGet(const std::string &filePa
 	return _responseBuilder(NOT_FOUND);
 }
 
-std::map<std::string, std::string> Server::_processPost(Request clientRequest, std::string const &filepath) {
-    //Log::debug("PROCESSPOST");
-    std::map<std::string, std::string> request = clientRequest.request;
-    std::map<std::string, std::string> fileHeaders = clientRequest.requestHeaders;
-	
-	// Stampa tutti gli header del file
-	std::cout << "File Headers:" << std::endl;
-	std::cout << clientRequest.requestHeaders["Content-Type"] << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = fileHeaders.begin(); it != fileHeaders.end(); ++it) {
-    	std::cout << it->first << ": " << it->second << std::endl;
-	} 
+std::map<std::string, std::string> Server::_processPost(Request clientRequest, std::string const &filepath)
+{
+    std::map<std::string, std::string> requestHeaders = clientRequest.requestHeaders;
 
+    std::string contentType = requestHeaders["Content-Type"];
 
-    std::string contentType = fileHeaders["Content-Type"];
-    std::string boundary = extractBoundary(contentType);
-	std::cout << ": " << fileHeaders.at("Content-Type") << " ;" << std::endl;
-	std::cout << ": " << contentType << " ;" << std::endl;
-    if (boundary.empty()) {
-        return _responseBuilder(BAD_REQUEST, "Boundary non trovato nel Content-Type.");
-    }
+    // Gestisci i diversi tipi di Content-Type
+    if (contentType.find("multipart/form-data") != std::string::npos) {
+        std::string boundary = extractBoundary(contentType);
+        if (boundary.empty()) {
+            return _responseBuilder(BAD_REQUEST, "Boundary non trovato nel Content-Type.");
+        }
 
-    // Estrai il nome del file dal corpo della richiesta
-    std::string fileName = extractFileName(clientRequest.requestBody, boundary);
-    if (fileName.empty()) {
-        return _responseBuilder(BAD_REQUEST, "Nome del file mancante nel corpo della richiesta.");
-    }
+        std::string fileName = extractFileName(clientRequest.requestBody, boundary);
+        if (fileName.empty()) {
+            return _responseBuilder(BAD_REQUEST, "Nome del file mancante nel corpo della richiesta.");
+        }
 
-    std::string fullPath = filepath + fileName;
+        std::string fullPath = filepath + fileName;
+        std::string fileContent = extractFileContent(clientRequest.requestBody, boundary);
+        if (fileContent.empty()) {
+            return _responseBuilder(BAD_REQUEST, "Contenuto del file mancante.");
+        }
 
-    // Verifica la sicurezza del path del file
-    if (fileName.find("..") != std::string::npos) {
-        return _responseBuilder(BAD_REQUEST, "Percorso del file non valido.");
-    }
+        // Verifica la sicurezza del path del file
+        if (fileName.find("..") != std::string::npos) {
+            return _responseBuilder(BAD_REQUEST, "Percorso del file non valido.");
+        }
 
-    // Apertura del file per la scrittura
-    std::ofstream outFile(fullPath.c_str(), std::ofstream::binary);
-    if (!outFile) {
-        return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
-    }
+        std::ofstream outFile(fullPath.c_str(), std::ofstream::binary);
+        if (!outFile) {
+            return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+        }
 
-    // Estrai il contenuto del file dal corpo della richiesta
-    std::string fileContent = extractFileContent(clientRequest.requestBody, boundary);
-    if (fileContent.empty()) {
+        outFile.write(fileContent.data(), fileContent.size());
         outFile.close();
-        return _responseBuilder(BAD_REQUEST, "Contenuto del file mancante.");
+
+    } else if (contentType.find("text/plain") != std::string::npos) {
+        // Qui puoi gestire il testo semplice, ad esempio salvandolo in un file o facendo qualcos'altro.
+        std::string fullPath = filepath + "some_default_filename.txt";
+        std::ofstream outFile(fullPath.c_str(), std::ofstream::binary);
+        if (!outFile) {
+            return _responseBuilder(INTERNAL_SERVER_ERROR, "Impossibile aprire il file per la scrittura.");
+        }
+        outFile << clientRequest.requestBody;
+        outFile.close();
+    } else {
+        return _responseBuilder(BAD_REQUEST, "Content-Type non supportato.");
     }
 
-    outFile.write(fileContent.data(), fileContent.size());
-    outFile.close();
-
-    return _responseBuilder(OK, "File caricato con successo.");
+    return _responseBuilder(OK, "Richiesta gestita con successo.");
 }
 
 
@@ -469,7 +469,7 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	_httpDirs = http->getDirectives();
 	_servDirs = this->getDirectives();
 	std::string path = "", requestUri = request["uri"];
-
+	
 	std::map<std::string, ADirective*>::iterator locIt = _servDirs.find("location");
 	if (locIt == _servDirs.end()) {
     // Gestisci l'errore: "location" non trovata
