@@ -1,13 +1,28 @@
 client_max_body_size 420000;
 
 server {
-	listen 1111 8585 default_server;
+    listen      192.168.1.1:8080;
+    server_name webserv42.org www.webserv42.org;
+}
+
+server {
+    listen      192.168.1.1:8080;
+    server_name webserv42.net www.webserv42.net;
+}
+
+server {
+    listen      192.168.1.2:80;
+    server_name webserv42.com www.webserv42.com;
+}
+
+server {
+	listen 1111 default_server;
 	listen 42.42.42.42:1111;
 	listen 127.0.0.1:1111;
 	listen 127.0.0.1:1234;
 
-	root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-	# root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+	# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
 	# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
 	#index index.html index.htm index.webserv-debian.html;
@@ -26,8 +41,8 @@ server {
 	location /css/ {
 		limit_except GET {
 		
-		root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		# root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 
 		rewrite /redirectme style.css redirect;
@@ -52,21 +67,23 @@ server {
 	location /cgi-bin {
 		# root /home/kichkiro/42/webserv/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
+		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
 
 		# fastcgi_pass self;
 	}
 
 	location /upload {
 		# alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
-		alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		limit_except POST
+		# alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
+		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
+		limit_except POST;
 		autoindex off;
 	}
 }
 
 server {
-	listen 1111 8585 default_server;
-	listen 127.0.0.1:8585 7777;
+	listen 1111 default_server;
+	listen 127.0.0.1:8585 ;
 
 	server_name _;
 

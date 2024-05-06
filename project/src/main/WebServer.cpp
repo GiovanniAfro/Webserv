@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/06 15:02:20 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/06 16:21:55 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,8 +198,7 @@ void	WebServer::_extractListenPorts()
 		for (std::vector<ADirective *>::iterator itListen = listenBlocks.begin(); itListen != listenBlocks.end(); ++itListen)
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
-			for (std::set<uint16_t>::iterator itPorts = listen->getPorts().begin(); itPorts != listen->getPorts().end(); ++itPorts)
-				_listenPorts.insert(*itPorts);
+			_listenPorts.insert(listen->getPort());
 		}
 	}
 }
@@ -398,13 +397,10 @@ void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 
-			for (std::set<uint16_t>::iterator itPort = listen->getPorts().begin(); itPort != listen->getPorts().end(); ++itPort)
+			if (listen->getPort() == requestPort)
 			{
-				if ((*itPort) == requestPort)
-				{
-					isMatch = true;
-					break;
-				}
+				isMatch = true;
+				break;
 			}
 			if (isMatch == true)
 				break;
@@ -429,7 +425,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 				continue;
 
 			if (listen->getAddress() == requestIpAddress &&
-				listen->getPorts().find(requestPort) != listen->getPorts().end())
+				listen->getPort() != requestPort)
 			{
 				isMatch = true;
 				break;

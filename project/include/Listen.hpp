@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listen.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:34:12 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 15:14:10 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/06 15:55:32 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,19 +27,20 @@ class ADirective;
 	Default:	listen *:80 | *:8000;
 	Context:	server
  */
-class Listen : public ADirective {
+class Listen : public ADirective
+{
 	private:
-		std::pair< std::string, std::set<uint16_t> >	_addressPort;	// In the context of a listen directive, it's more common to have multiple ports per IP address
-		std::string										_ipAddress;		// if ipAddress, addressPort instead of port
-		std::set<uint16_t>								_ports;
-		bool											_isDefaultServer;
+		std::pair< std::string, uint16_t>	_addressPort;	// In the context of a listen directive, it's more common to have multiple ports per IP address
+		std::string							_ipAddress;		// if ipAddress, addressPort instead of port
+		uint16_t							_port;
+		bool								_isDefaultServer;
 
 		Listen();
 
 	public:
-		Listen( const std::pair< std::string, std::set<uint16_t> >& addressPort, 
+		Listen( const std::pair< std::string, uint16_t>& addressPort, 
 				const std::string& ipAddress, 
-				const std::set<uint16_t>&	ports, 
+				uint16_t ports, 
 				bool isDefault );
 		Listen(const Listen &copy);
 		~Listen();
@@ -47,14 +48,9 @@ class Listen : public ADirective {
 
 		ADirective *clone() const;
 
-		void    addAddressPort(std::string &address, uint16_t port);
-		void    addAddress(const std::string &address);
-		void    addPort(uint16_t port);
-		void    setDefaultServer();
-
-		std::pair< std::string, std::set<uint16_t> >&	getAddressPort();
-		std::string&									getAddress();
-		std::set<uint16_t>&								getPorts();
-		bool											isDefaultServer() const;
+		std::pair< std::string, uint16_t>&	getAddressPort();
+		std::string&						getAddress();
+		uint16_t							getPort();
+		bool								isDefaultServer() const;
 
 };

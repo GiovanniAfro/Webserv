@@ -1,5 +1,5 @@
 server {
-	listen 192.168.1.1:1111 3333 8585 default_server;
+	listen 192.168.1.1:3333  default_server;
 	listen 127.0.0.1:4444;
 	listen 127.0.0.1:8585;
 	listen localhost:1111;
