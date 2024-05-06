@@ -162,7 +162,6 @@
             - [x] fastcgi_pass
 
 ## adi-nata
-
 [ ] "If no server_name is defined in a server block then nginx uses the empty name as the server name"
 
 [ ] const and reference all getters and others where possible
