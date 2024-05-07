@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/26 04:12:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 21:12:36 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/07 21:16:14 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,23 +141,23 @@ pair<HTTP_STATUS, string> Cgi::exec(void) {
     pair<HTTP_STATUS, string> out;
 
     if (access(this->_params["FILENAME"].c_str(), F_OK) == -1) {
-        Log::error("CGI: File not exists...");
         this->_free_envp(envp);
         out.first = NOT_FOUND;
         out.second = "CGI: File not exists...";
+        Log::error(out.second);
         return out;
     }
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
-        Log::error("CGI: Error creating pipe");
         out.first = INTERNAL_SERVER_ERROR;
         out.second = "CGI: Error creating pipe";
+        Log::error(out.second);
         return out;
     }
     pid = fork();
     if (pid == -1) {
-        Log::error("CGI: Error forking");
         out.first = INTERNAL_SERVER_ERROR;
         out.second = "CGI: Error forking";
+        Log::error(out.second);
         return out;
     }
     else if (!pid)
