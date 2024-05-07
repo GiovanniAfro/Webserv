@@ -14,23 +14,30 @@
 
 #include "webserv.h"
 
+using std::string;
+using std::map;
+using std::pair;
+using std::cout;
+using std::cerr;
+using std::endl;
+
 // Class ---------------------------------------------------------------------->
 
 class Cgi {
     private:
-        std::map<std::string,std::string> _params;
-        std::string _request_body;
+        map<string, string> _params;
+        string _request_body;
 
         char **_get_envp(void);
         void _free_envp(char **envp);
         void _processing_child(char **envp, int *pipe_in, int *pipe_out);
-        std::string _processing_father(char **envp, pid_t pid, int *pipe_in, int *pipe_out);
+        pair<HTTP_STATUS, string> _processing_father(char **envp, pid_t pid, int *pipe_in, int *pipe_out);
 
     public:
-        Cgi(Request &req, std::string path_info);
+        Cgi(Request &req, string path_info);
 		Cgi(const Cgi &copy);
 		~Cgi();
 		Cgi &operator=(const Cgi &other);
 
-        std::string exec(void);
+        pair<HTTP_STATUS, string> exec(void);
 };

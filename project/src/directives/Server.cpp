@@ -551,7 +551,8 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	if (_locaDirs.find("fastcgi_pass") != _locaDirs.end())
 	{
 		Cgi cgi(clientRequest, filePath);
-		return _responseBuilder(OK, cgi.exec());
+		std::pair<HTTP_STATUS, std::string> cgi_out = cgi.exec();
+		return _responseBuilder(cgi_out.first, cgi_out.second);
 	}
 
 	try {
