@@ -6,7 +6,7 @@
 /*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/06 14:54:12 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/07 15:27:51 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,9 +199,9 @@ std::map<std::string, std::string> Server::_processPost(Request clientRequest, s
 std::map<std::string, std::string>	Server::_processDelete(const std::string &filePath) {
 	if (access(filePath.c_str(), F_OK) != -1) {
 		if (remove(filePath.c_str()) == 0)
-			_responseBuilder(OK);
+			return _responseBuilder(OK);
 		else
-			_responseBuilder(INTERNAL_SERVER_ERROR);
+			return _responseBuilder(INTERNAL_SERVER_ERROR);
 	}
 
 	return _responseBuilder(NOT_FOUND);
