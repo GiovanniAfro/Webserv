@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/06 17:22:17 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/07 17:20:31 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,7 +380,25 @@ Server*	WebServer::_findVirtualServer()
 		Log::error("Matching virtual server not found");
 	}
 	else //if (matchingServers.size() > 1)
+	{
+		// Check default_server, else return first encounter
+		for (std::vector<ADirective*>::iterator itServer = matchingServers.begin(); itServer != matchingServers.end(); ++itServer)
+		{
+			ADirective*	listens = (*itServer)->getDirectives()["listen"];
+
+			for (std::vector<ADirective*>::iterator itListen = listens->getBlocks().begin(); itListen != listens->getBlocks().end(); ++itListen)
+			{
+				Listen*	listen = static_cast<Listen*>(*itListen);
+
+				if (listen->getPort() != requestPort || listen->getAddress() != requestAddress)
+					continue;
+				if (listen->isDefaultServer())
+					return (static_cast<Server*>(*itServer));
+			}
+		}
+
 		virtualServer = static_cast<Server *>(matchingServers[0]);
+	}
 
 	for (std::vector<ADirective*>::iterator it = matchingServers.begin(); it != matchingServers.end(); ++it)
 	{

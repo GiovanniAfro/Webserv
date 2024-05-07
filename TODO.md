@@ -43,9 +43,9 @@
 
 [ ] You must be able to serve a fully static website.
 
-[ ] Clients must be able to upload files.
+[x] Clients must be able to upload files.
 
-[ ] You need at least GET, POST, and DELETE methods.
+[x] You need at least GET, POST, and DELETE methods.
 
 [ ] Stress tests your server. It must stay available at all cost.
 
@@ -163,13 +163,9 @@
 
 ## adi-nata
 
-[ ] "If no server_name is defined in a server block then nginx uses the empty name as the server name"
+[ ] server_name : "If no server_name is defined in a server block then nginx uses the empty name as the server name" || Not handle at all
 
 [ ] const and reference all getters and others where possible
-
-[ ] Handle boundary=------------------------.... in WebServer::_parseRequest
-
-[ ] Parse file headers and save them in clientRequest.requestFileHeaders and file content
 
 ## anvannin
 
@@ -181,6 +177,15 @@
 
 [x] Handle index directive in case URI is a folder
 
+## gcavanna
+
+[x] Handle boundary=------------------------.... in WebServer::_parseRequest
+
+[x] Parse file headers and save them in clientRequest.requestFileHeaders and file content
+
+[x] Checking the value of errno is strictly forbidden after a read or a write
+    operation.
+
 ## Bonus --------------------------------------------------------------------->
 
 [ ] Support cookies and session management (prepare quick examples).
@@ -191,9 +196,6 @@
 
 ## Bugs ---------------------------------------------------------------------->
 
-[ ] il file ".configfile.tmp" non viene eliminato se occorre un eccezione
-    nel frattempo
-
 [x] i commenti all'interno delle righe non vengono individuati
 
 [x] es. 	listen 1111     default_server; se spazi consecutivi => 0
@@ -203,4 +205,4 @@
 
 ## Leaks
 
-[ ] 104 bytes in 1 blocks are still reachable in WebServer::startServers() (WebServer.cpp:101)
+[x] 104 bytes in 1 blocks are still reachable in WebServer::startServers() (WebServer.cpp:101) GGcavanna
