@@ -16,7 +16,7 @@ WebServer *WebServer::instance = NULL;
 
 WebServer::WebServer() : _shutdownFlag(false)
 {
-	_listenPorts.insert(80);
+	// _listenPorts.insert(80);
 	instance = this;
 	signal(SIGINT, sigintHandler);
 }
