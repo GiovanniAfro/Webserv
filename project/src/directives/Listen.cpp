@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listen.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:44:47 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/04/22 14:59:03 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/06 15:56:15 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,66 +16,44 @@ Listen::Listen()
 : ADirective("listen", SERVER_CONTEXT), _isDefaultServer(false)
 {}
 
-Listen::Listen( const std::pair< std::string, std::set<uint16_t> >& addressPort, 
+Listen::Listen( const std::pair< std::string, uint16_t>& addressPort, 
 				const std::string& ipAddress, 
-				const std::set<uint16_t>& ports, 
+				uint16_t port, 
 				bool isDefault )
-: ADirective("listen", SERVER_CONTEXT),_addressPort(addressPort), _ipAddress(ipAddress), _ports(ports), _isDefaultServer(isDefault)
+: ADirective("listen", SERVER_CONTEXT),_addressPort(addressPort), _ipAddress(ipAddress), _port(port), _isDefaultServer(isDefault)
 {}
 
 Listen::Listen(const Listen &copy)
 : ADirective(copy)
-{
-	*this = copy;
-}
+{ *this = copy; }
 
 Listen::~Listen() {}
 
-Listen &Listen::operator=(const Listen &other) {
+Listen &Listen::operator=(const Listen &other)
+{
 	if (this == &other)
 		return *this;
 
 	ADirective::operator=(other);
 	this->_addressPort = other._addressPort;
 	this->_ipAddress = other._ipAddress;
-	this->_ports = other._ports;
+	this->_port = other._port;
 	this->_isDefaultServer = other._isDefaultServer;
 
 	return *this;
 }
 
-ADirective *Listen::clone() const {
-	return new Listen(*this);
-}
+ADirective *Listen::clone() const
+{ return new Listen(*this); }
 
-// void Listen::addAddressPort(std::string &address, uint16_t port) {
-// 	_addressPort[address].insert(port);
-// }
+std::pair< std::string, uint16_t>&	Listen::getAddressPort()
+{ return _addressPort; }
 
-// void Listen::addAddress(const std::string &address) {
-// 	_ipAddress.push_back(address);
-// }
+std::string&	Listen::getAddress()
+{ return _ipAddress; }
 
-void Listen::addPort(uint16_t port) {
-	_ports.insert(port);
-}
+uint16_t	Listen::getPort()
+{ return _port; }
 
-void Listen::setDefaultServer() {
-	_isDefaultServer = true;
-}
-
-std::pair< std::string, std::set<uint16_t> >&	Listen::getAddressPort() {
-	return _addressPort;
-}
-
-std::string&	Listen::getAddress() {
-	return _ipAddress;
-}
-
-std::set<uint16_t>&	Listen::getPorts() {
-	return _ports;
-}
-
-bool Listen::isDefaultServer() const {
-	return _isDefaultServer;
-}
+bool Listen::isDefaultServer() const
+{ return _isDefaultServer; }

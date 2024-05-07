@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:38:32 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/05 20:25:52 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/06 16:58:32 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,14 +77,24 @@ int	ConfigFile::parseConfigFile()
 
 	this->parserRouter(inputFile, "include", line, HTTP_CONTEXT);
 
-	// Check Servers' directives
-	// for (std::vector<ADirective*>::iterator it = this->_webServer->getServers().begin(); it != this->_webServer->getServers().end(); ++it)
-	// {
-	// 	if ((*it)->getDirectives().find("listen") == (*it)->getDirectives().end() || 
-	// 		(*it)->getDirectives().find("server_name") == (*it)->getDirectives().end() || 
-	// 		(*it)->getDirectives().find("location") == (*it)->getDirectives().end())
-	// 			return Log::error("ConfigFile : ");
-	// }
+	for (std::vector<ADirective*>::iterator itServer = this->_webServer->getServers().begin(); itServer != this->_webServer->getServers().end(); ++itServer)
+	{
+		if ((*itServer)->getDirectives().find("listen") == (*itServer)->getDirectives().end())
+			return Log::error("ConfigFile : server directive is incomplete");
+		else
+		{
+			ADirective*	listenBlocks = (*itServer)->getDirectives()["listen"];
+
+			for (std::vector<ADirective*>::iterator itListen = listenBlocks->getBlocks().begin(); itListen != listenBlocks->getBlocks().end(); ++itListen)
+			{
+				uint16_t	port = static_cast<Listen*>(*itListen)->getPort();
+
+				if (port == 80 || port == 42)
+					return Log::error("ConfigFile : invalid ports for 42");
+			}
+		}
+
+	}
 
 	Log::debug("PROVE");
 	Http *con = static_cast<Http *>(this->_webServer->getConfigs()[0]);
@@ -106,15 +116,12 @@ int	ConfigFile::parseConfigFile()
 		for (std::vector<ADirective *>::iterator it = lisBlock->getBlocks().begin(); it != lisBlock->getBlocks().end(); ++it)
 		{
 			std::cout << std::endl;
-			Listen *lis = static_cast<Listen *>(*it);
-			std::set<uint16_t>	ports = lis->getPorts();
-			std::cout << "ports : " << lis->getPorts().size() << std::endl;
-			for (std::set<uint16_t>::iterator it = ports.begin(); it != ports.end(); ++it) {
-				std::cout << *it << std::endl;
-			}
+			Listen*		lis = static_cast<Listen *>(*it);
+			uint16_t	port = lis->getPort();
+			std::cout << "ports : " << port << std::endl;
 			std::cout << std::endl;
 		}
-
+ 
 		Log::debug("SERVER_NAME");
 		if (ser->getDirectives().find("server_name") != ser->getDirectives().end())
 		{
@@ -164,7 +171,7 @@ int	ConfigFile::parseConfigFile()
 		}
 		Log::debug("LOCATIONS");
 		if (ser->getDirectives().find("location") == ser->getDirectives().end())
-			return 0;
+			continue;
 		for (std::vector<ADirective*>::iterator it = ser->getDirectives()["location"]->getBlocks().begin(); it != ser->getDirectives()["location"]->getBlocks().end(); ++it)
 		{
 			// Location*	locBlock = static_cast<Location*>(ser->getDirectives()["location"]->getBlocks().back());
@@ -386,12 +393,12 @@ int	ConfigFile::parserRouter(std::ifstream &inputFile, const std::string &header
 
 int	ConfigFile::parseListen(const std::string &content)
 {
-	std::pair< std::string, std::set<uint16_t> >	addressPort;
-	std::string										ipAddress;
-	std::set<uint16_t>								ports;
-	bool											isDefault = false;
-	std::istringstream	iss(content);
-	std::string			token;
+	std::pair< std::string, uint16_t>	addressPort;
+	std::string							ipAddress;
+	uint16_t							port;
+	bool								isDefault = false, isPortSet = false;
+	std::istringstream					iss(content);
+	std::string							token;
 
 	Log::debug("parseListen");
 
@@ -406,35 +413,34 @@ int	ConfigFile::parseListen(const std::string &content)
 
 		if (isPort)
 		{
-			int	port = atoi(token.c_str());
-			if (port < 0 || port > 65535)
+			if (isPortSet)
+				return Log::error("listen : port is duplicated");
+
+			int	tmpPort = atoi(token.c_str());
+			if (tmpPort < 0 || tmpPort > 65535)
 				return Log::error("listen : invalid port");
-			ports.insert(static_cast<uint16_t>(port));
+			isPortSet = true;
+			port = static_cast<uint16_t>(tmpPort);
 		}
 		else if (std::count(token.begin(), token.end(), ':') == 1)	// addressPort
 		{
+			if (isPortSet)
+				return Log::error("listen : port is duplicated");
 			if (!ipAddress.empty())
 				return Log::error("listen : IP address is duplicated");
 
 			std::string	address = token.substr(0, token.find(":")).c_str();
-			int			port = atoi(token.substr(token.find(":") + 1).c_str());
+			int			tmpPort = atoi(token.substr(token.find(":") + 1).c_str());
 
 			std::cout << address << std::endl;
-			std::cout << port << std::endl;
+			std::cout << tmpPort << std::endl;
 
-			if (port < 0 || port > 65535)
+			if (tmpPort < 0 || tmpPort > 65535)
 				return Log::error("listen : invalid port");
 
-			// struct in_addr	addr;	// Check "localhost" first?
-			// if (inet_pton(AF_INET, address.c_str(), &addr) == 1)
-			// {
-			// 	// valid IPv4
-			// }
-			// else
-			// 	return Log::error("listen : invalid ip address");
-
 			ipAddress = address;
-			ports.insert(static_cast<uint16_t>(port));
+			isPortSet = true;
+			port = static_cast<uint16_t>(tmpPort);
 		}
 		else	// address or default_server
 		{
@@ -457,12 +463,15 @@ int	ConfigFile::parseListen(const std::string &content)
 				return Log::error("listen : invalid ip address");
 		}
 	}
-	addressPort = std::make_pair(ipAddress, ports);
+	if (!isPortSet)
+		return Log::error("listen : no port set");
+
+	addressPort = std::make_pair(ipAddress, port);
 
 	try
 	{
 		Server *server = static_cast<Server *>(this->_webServer->getServers().back());
-		Listen	directive(addressPort, ipAddress, ports, isDefault);
+		Listen	directive(addressPort, ipAddress, port, isDefault);
 		server->addDirective(&directive);
 	}
 	catch (const std::exception &ex)

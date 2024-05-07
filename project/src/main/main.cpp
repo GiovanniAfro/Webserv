@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:48:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/03 12:56:08 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/06 16:44:36 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ int	main(int ac, char **av) {
 		file.setFilePath(av[1]);
 	webServer.setConfigFile(file);
 
-	file.parseConfigFile();
+	if (file.parseConfigFile() == -1)
+		return Log::error("WebServer : parsing failed");
 	webServer.startServers();
 
 	return 0;

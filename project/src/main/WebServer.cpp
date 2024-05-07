@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   WebServer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/05 20:06:49 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/06 17:22:17 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ WebServer *WebServer::instance = NULL;
 
 WebServer::WebServer() : _shutdownFlag(false)
 {
-	// _listenPorts.insert(80);
 	instance = this;
 	signal(SIGINT, sigintHandler);
 }
@@ -199,8 +198,7 @@ void	WebServer::_extractListenPorts()
 		for (std::vector<ADirective *>::iterator itListen = listenBlocks.begin(); itListen != listenBlocks.end(); ++itListen)
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
-			for (std::set<uint16_t>::iterator itPorts = listen->getPorts().begin(); itPorts != listen->getPorts().end(); ++itPorts)
-				_listenPorts.insert(*itPorts);
+			_listenPorts.insert(listen->getPort());
 		}
 	}
 }
@@ -217,8 +215,6 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 	{
 		// La funzione recv può essere utilizzata anche per ricevere dati in modo non bloccante, utilizzando la flag MSG_DONTWAIT. Inoltre, la funzione recv può essere utilizzata per ricevere dati da più socket contemporaneamente, utilizzando la funzione select.
 		bytes_read = recv(clientSocketFD, buf, sizeof(buf) - 1, 0);
-
-		std::cout << buf << std::endl;
 
 		if (bytes_read > 0)
 		{
@@ -283,76 +279,50 @@ std::string	WebServer::_readRequests(int clientSocketFD)
 	// return r2;
 }
 
-void	WebServer::_parseRequest(const std::string &request)
-{
-	std::stringstream	requestStream(request);
-	std::string			line;
-	getline(requestStream, line);
-	std::stringstream	firstLineStream(line);
-	int					contentLength = 0;
+void WebServer::_parseRequest(const std::string &request) {
+    std::istringstream requestStream(request);
+    std::string line;
+    std::getline(requestStream, line);
+    std::istringstream firstLineStream(line);
+    int contentLength = 0;
 
-	// Extract the request method, URI and HTTP version
-	firstLineStream >> this->_clientRequest.request["method"]
-					>> this->_clientRequest.request["uri"]
-					>> this->_clientRequest.request["httpVersion"];
-	this->_clientRequest.requestMethod = Http::_methodToEnum(this->_clientRequest.request["method"]);
+    // Extract the request method, URI, and HTTP version
+    firstLineStream >> this->_clientRequest.request["method"]
+                    >> this->_clientRequest.request["uri"]
+                    >> this->_clientRequest.request["httpVersion"];
+    this->_clientRequest.requestMethod = Http::_methodToEnum(this->_clientRequest.request["method"]);
 
-	// Extract the request headers
-	while (getline(requestStream, line) && !line.empty())
-	{
-		if (line == "\r")
-			break;
+    // Extract the request headers
+    std::string headers;
+    while (std::getline(requestStream, line) && !line.empty() && line != "\r") {
+        std::size_t colonPos = line.find(": ");
+        if (colonPos != std::string::npos) {
+            std::string headerName = line.substr(0, colonPos);
+            std::string headerValue = strip(line.substr(colonPos + 2));
 
-		std::string::size_type colonPos = line.find(": ");
-		if (colonPos != std::string::npos)
-		{
-			std::string headerName = line.substr(0, colonPos);
-			std::string headerValue = strip(line.substr(colonPos + 2));
-			this->_clientRequest.requestHeaders[headerName] = headerValue;
+            this->_clientRequest.requestHeaders[headerName] = headerValue;
 
-			if (headerName == "Content-Type" && headerValue.find(";"))
-			{
-				std::string::size_type semicolonPos = line.find("; ");
-				std::string boundary = line.substr(semicolonPos + 2);
-				this->_clientRequest.requestHeaders["boundary"] = boundary.substr(boundary.find_last_of("=") + 1);
-				// std::cout << "boundray" << " -> " << this->_clientRequest.requestHeaders["boundary"] << std::endl; 
-			}
+            if (headerName == "Content-Type" && headerValue.find("boundary=") != std::string::npos) {
+                size_t boundaryPos = headerValue.find("boundary=") + 9; // 9 is the length of "boundary="
+                this->_clientRequest.requestHeaders["boundary"] = headerValue.substr(boundaryPos);
+            }
 
-			if (headerName == "Content-Length")
-				contentLength = atoi(headerValue.c_str());
+            if (headerName == "Content-Length") {
+                contentLength = std::atoi(headerValue.c_str());
+            }
+        }
+    }
 
-			// std::cout << headerName << " -> " << headerValue << std::endl;
-		}
-	}
-
-	// Extract the request body specified by the Content-Length header
-	this->_clientRequest.requestBody.reserve(static_cast<std::string::size_type>(contentLength));
-	while (contentLength > 0)
-	{
-		getline(requestStream, line);
-		// +1 per il carattere di nuova linea che getline consuma
-		contentLength -= line.length() + 1;
-
-		if (line == this->_clientRequest.requestHeaders["boundary"])
-		{
-			std::cout << "AAAAAAAAAAAAAAAAAAAAAAAa" << std::endl;
-			std::string::size_type colonPos = line.find(": ");
-			if (colonPos != std::string::npos)
-			{
-				std::string headerName = line.substr(0, colonPos);
-				std::string headerValue = line.substr(colonPos + 2);
-				this->_clientRequest.requestFileHeaders[headerName] = headerValue;
-				std::cout << "File Headers" << std::endl;
-				std::cout << headerName << " -> " << headerValue << std::endl;	
-			}
-
-		}
-		else if (contentLength < 0)
-			this->_clientRequest.requestBody += line;
-		else
-			this->_clientRequest.requestBody += line + "\n";
-	}
+    // Extract the request body specified by the Content-Length header
+    if (contentLength > 0) {
+        this->_clientRequest.requestBody.reserve(contentLength);
+        char buffer[contentLength + 1]; // +1 to ensure null termination
+        requestStream.read(buffer, contentLength);
+        buffer[contentLength] = '\0'; // Ensure null termination
+        this->_clientRequest.requestBody.assign(buffer, contentLength);
+    }
 }
+
 
 /*!
  * @brief
@@ -378,7 +348,6 @@ std::map<std::string, std::string>	WebServer::_processRequests()
 	return server->processRequest(static_cast<Http *>(this->getConfigs()[0]), this->_clientRequest);
 }
 
-// ex. example.com	|	example.com:1111	|	127.0.0.1	|	127.0.0.1:80
 Server*	WebServer::_findVirtualServer()
 {
 	std::string					requestHost = this->_clientRequest.requestHeaders["Host"];
@@ -394,17 +363,16 @@ Server*	WebServer::_findVirtualServer()
 		requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	}
 
+	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	this->_matchingServersPort(matchingServers, requestPort);
 
+	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	if (isIPAddress(requestAddress))
-	{
 		this->_matchingServersIp(matchingServers, requestAddress, requestPort);
-		if (matchingServers.size() > 1)
-			this->_matchingServersName(matchingServers, requestAddress);
-	}
 	else
 		this->_matchingServersName(matchingServers, requestAddress);
-
+		
+	std::cout << "matchingServers final : " << matchingServers.size() << std::endl;
 	if (matchingServers.size() == 0)
 	{
 		// First default virtual server? -> default Server* in WebServer
@@ -413,6 +381,15 @@ Server*	WebServer::_findVirtualServer()
 	}
 	else //if (matchingServers.size() > 1)
 		virtualServer = static_cast<Server *>(matchingServers[0]);
+
+	for (std::vector<ADirective*>::iterator it = matchingServers.begin(); it != matchingServers.end(); ++it)
+	{
+		ServerName*	name = static_cast<ServerName*>((*it)->getDirectives()["server_name"]);
+		for (std::vector<std::string>::iterator itName = name->getNames().begin(); itName != name->getNames().end(); ++itName)
+		{
+			Log::debug(*itName);
+		}
+	}
 
 	return virtualServer;
 }
@@ -428,13 +405,10 @@ void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 
-			for (std::set<uint16_t>::iterator itPort = listen->getPorts().begin(); itPort != listen->getPorts().end(); ++itPort)
+			if (listen->getPort() == requestPort)
 			{
-				if ((*itPort) == requestPort)
-				{
-					isMatch = true;
-					break;
-				}
+				isMatch = true;
+				break;
 			}
 			if (isMatch == true)
 				break;
@@ -459,7 +433,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 				continue;
 
 			if (listen->getAddress() == requestIpAddress &&
-				listen->getPorts().find(requestPort) != listen->getPorts().end())
+				listen->getPort() != requestPort)
 			{
 				isMatch = true;
 				break;
