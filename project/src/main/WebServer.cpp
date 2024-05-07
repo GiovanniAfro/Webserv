@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 19:48:59 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/07 21:13:25 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -452,7 +452,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
 		bool		isMatch = false;
 
-		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end();)
+		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen)
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 
