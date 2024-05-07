@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 15:27:51 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/07 19:11:47 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,6 +275,7 @@ std::map<std::string, std::string>	Server::_responseBuilder(HTTP_STATUS status, 
 			break;
 	}
 	response["Content-Type"] = contentType;
+	this->_clearRequest();
 	return response;
 }
 
@@ -460,6 +461,15 @@ std::string Server::_getRewrite(std::string const &requestUri) {
 	}
 	return requestUri;
 }
+
+void	Server::_clearRequest()
+{
+	this->_httpDirs.clear();
+	this->_servDirs.clear();
+	this->_locaDirs.clear();
+	this->_root.clear();
+}
+
 
 std::map<std::string, std::string>	Server::processRequest(Http *http, Request clientRequest)
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:37:25 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/04 14:31:42 by gcavanna         ###   ########.fr       */
+/*   Updated: 2024/05/07 19:11:47 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,8 @@ class Server : public ADirective {
 		std::string _getRoot();
 		bool	_isBodySizeExceeded(std::map<std::string, std::string> request, std::map<std::string, std::string> requestHeaders);
 		std::string _getRewrite(std::string const &requestUri);
+
+		void	_clearRequest();
 
 	public:
 		Server();
