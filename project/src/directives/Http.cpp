@@ -36,6 +36,7 @@ void initializeHttpVectors()
 	allHttpStatus.push_back(PAYLOAD_TOO_LARGE);
 	allHttpStatus.push_back(REQUEST_HEADER_FIELDS_TOO_LARGE);
 	allHttpStatus.push_back(INTERNAL_SERVER_ERROR);
+	allHttpStatus.push_back(BAD_GATEWAY);
 }
 
 Http::Http() : ADirective("http", GLOBAL_CONTEXT)
@@ -91,6 +92,8 @@ enum HTTP_STATUS	Http::_statusToEnum(const std::string &status)
 		return PAYLOAD_TOO_LARGE;
 	else if (status == "431")
 		return REQUEST_HEADER_FIELDS_TOO_LARGE;
+	else if (status == "502")
+		return BAD_GATEWAY;
 	else
 		return INTERNAL_SERVER_ERROR;
 }
