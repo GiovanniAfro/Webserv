@@ -163,6 +163,14 @@
 
 ## adi-nata
 
+[ ] limit_except multicontent
+
+[ ] _findVirtualServer logic
+
+[ ] localhost => 127.0.0.1
+
+Bonus:
+
 [ ] server_name : "If no server_name is defined in a server block then nginx uses the empty name as the server name" || Not handle at all
 
 [ ] const and reference all getters and others where possible

@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 17:20:31 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/07 19:48:59 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,6 +340,9 @@ std::map<std::string, std::string>	WebServer::_processRequests()
 		return std::map<std::string, std::string>();
 	}
 
+	Log::info("Matching Server:");
+	Log::info(static_cast<ServerName*>(server->getDirectives()["server_name"])->getNames()[0]);
+
 	// for (std::map<std::string, ADirective*>::iterator it = server->getDirectives().begin();it != server->getDirectives().end(); ++it)
 	// {
 	// 	Log::debug((*it).first);
@@ -365,12 +368,18 @@ Server*	WebServer::_findVirtualServer()
 
 	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	this->_matchingServersPort(matchingServers, requestPort);
+	std::cout << "_matchingServersPort : " << matchingServers.size() << std::endl;
 
-	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	if (isIPAddress(requestAddress))
+	{
+
 		this->_matchingServersIp(matchingServers, requestAddress, requestPort);
+	}
 	else
+	{
+
 		this->_matchingServersName(matchingServers, requestAddress);
+	}
 		
 	std::cout << "matchingServers final : " << matchingServers.size() << std::endl;
 	if (matchingServers.size() == 0)
@@ -414,7 +423,7 @@ Server*	WebServer::_findVirtualServer()
 
 void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort)
 {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); ++itServer)
+	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end();)
 	{
 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
 		bool		isMatch = false;
@@ -428,11 +437,11 @@ void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_
 				isMatch = true;
 				break;
 			}
-			if (isMatch == true)
-				break;
 		}
 		if (isMatch == false)
 			itServer = servers.erase(itServer);
+		else
+			++itServer;
 	}
 }
 
@@ -443,7 +452,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
 		bool		isMatch = false;
 
-		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end(); ++itListen)
+		for (std::vector<ADirective *>::iterator itListen = listenDiretives->getBlocks().begin(); itListen != listenDiretives->getBlocks().end();)
 		{
 			Listen *listen = static_cast<Listen *>(*itListen);
 
@@ -466,7 +475,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 
 void	WebServer::_matchingServersName(std::vector<ADirective *>& servers, const std::string& requestHost)
 {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); )
+	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end();)
 	{
 		ServerName*	serverName = static_cast<ServerName*>((*itServer)->getDirectives()["server_name"]);
 		bool		isMatch = false;

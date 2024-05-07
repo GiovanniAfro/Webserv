@@ -1,17 +1,17 @@
 client_max_body_size 420000;
 
 server {
-    listen      192.168.1.1:80;
+    listen      127.0.0.1:8080;
     server_name webserv42.org www.webserv42.org;
 }
 
 server {
-    listen      192.168.1.1:8080;
+    listen      127.0.0.1:8080;
     server_name webserv42.net www.webserv42.net;
 }
 
 server {
-    listen      192.168.1.2:8080;
+    listen      127.0.0.2:8080;
     server_name webserv42.com www.webserv42.com;
 }
 
@@ -63,13 +63,13 @@ server {
 		# error_page 404 /50x.html;
 
 		# index index2.html;
-		# autoindex on;
+		autoindex on;
 	}
 
 	location /cgi-bin {
-		root /home/sysadmin/github/webserv2/project/var/www;
+		# root /home/sysadmin/github/webserv2/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
+		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 
 		fastcgi_pass self;
