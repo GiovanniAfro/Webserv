@@ -67,7 +67,11 @@ server {
 	}
 
 	location /cgi-bin {
+<<<<<<< HEAD
 		# root /home/sysadmin/github/webserv2/project/var/www;
+=======
+		root /home/kichkiro/42/webserv/project/var/www;
+>>>>>>> origin/kichkiro
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;

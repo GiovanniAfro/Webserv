@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 10:25:02 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/01 18:42:46 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/07 21:03:37 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ using std::endl;
 class Cgi {
     private:
         map<string, string> _params;
-        string _request_body;
+        string              _request_body;
+        // unsigned int        _timeout;
 
         char **_get_envp(void);
         void _free_envp(char **envp);

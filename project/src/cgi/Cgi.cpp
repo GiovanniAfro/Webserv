@@ -6,7 +6,7 @@
 /*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/26 04:12:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/01 18:44:30 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/07 21:16:14 by kichkiro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ Cgi::Cgi(Request &req, string path_info) {
         this->_request_body = req.requestBody;
     else
         this->_request_body = "";
+    // this->_timeout = 5;
 }
 
 Cgi::~Cgi(void) {}
@@ -63,7 +64,7 @@ void Cgi::_processing_child(char **envp, int *pipe_in, int *pipe_out) {
         exit(EXIT_FAILURE);
     }
     if (dup2(pipe_in[0], STDIN_FILENO) == -1 ||
-        dup2(pipe_out[1], STDOUT_FILENO) == -1 || 
+        dup2(pipe_out[1], STDOUT_FILENO) == -1 ||
         dup2(pipe_out[1], STDERR_FILENO) == -1) {
         Log::error("CGI: Error dup2()");
         exit(EXIT_FAILURE);
@@ -73,9 +74,9 @@ void Cgi::_processing_child(char **envp, int *pipe_in, int *pipe_out) {
         exit(EXIT_FAILURE);
     }
     if (chdir(this->_params["DOCUMENT_ROOT"].c_str()) == -1) {
-            Log::error("CGI: Error chdir()");
-            exit(EXIT_FAILURE);
-        }
+        Log::error("CGI: Error chdir()");
+        exit(EXIT_FAILURE);
+    }
     if (execve(this->_params["SCRIPT_FILENAME"].c_str(), argv, envp) == -1)
         exit(EXIT_FAILURE);
 }
@@ -93,7 +94,7 @@ pair<HTTP_STATUS, string> Cgi::_processing_father(char **envp, pid_t pid, int *p
         Log::error(out.second);
         return out;
     }
-    if (write(pipe_in[1], this->_request_body.c_str(), 
+    if (write(pipe_in[1], this->_request_body.c_str(),
               this->_request_body.length()) == -1) {
         out.first = INTERNAL_SERVER_ERROR;
         out.second = "CGI: Error write()";
@@ -139,23 +140,29 @@ pair<HTTP_STATUS, string> Cgi::exec(void) {
     char **envp = this->_get_envp();
     pair<HTTP_STATUS, string> out;
 
+    if (access(this->_params["FILENAME"].c_str(), F_OK) == -1) {
+        this->_free_envp(envp);
+        out.first = NOT_FOUND;
+        out.second = "CGI: File not exists...";
+        Log::error(out.second);
+        return out;
+    }
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1) {
-        Log::error("CGI: Error creating pipe");
         out.first = INTERNAL_SERVER_ERROR;
         out.second = "CGI: Error creating pipe";
+        Log::error(out.second);
         return out;
     }
     pid = fork();
     if (pid == -1) {
-        Log::error("CGI: Error forking");
         out.first = INTERNAL_SERVER_ERROR;
         out.second = "CGI: Error forking";
+        Log::error(out.second);
         return out;
     }
     else if (!pid)
         this->_processing_child(envp, pipe_in, pipe_out);
     else
         out = this->_processing_father(envp, pid, pipe_in, pipe_out);
-    // cout << "STATUS_CODE: " << out.first << endl << "OUTPUT: " << out.second << endl; 
     return out;
 }
