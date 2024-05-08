@@ -1,8 +1,0 @@
-{  
-   Memcheck:Leak
-   ...
-   ...
-   fun:ConfigFile::parseRouter
-   fun:ConfigFile::parseConfigFile
-   fun:main
-}
