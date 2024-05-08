@@ -2,11 +2,12 @@ server {
 	listen 192.168.1.1:3333  default_server;
 	listen 127.0.0.1:4444;
 	listen 127.0.0.1:8585;
-	listen localhost:1111;
+	# listen localhost:1111;
 
-	root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
+	# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
+	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
 
-	# index index.html index.htm index.nginx-debian.html;
+	index index.html index.htm index.webserv-debian.html;
 
 	server_name localhost;
 

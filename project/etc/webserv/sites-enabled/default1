@@ -1,0 +1,15 @@
+server {
+    listen      127.0.0.1:8080;
+    server_name webserv42.org www.webserv42.org;
+}
+
+server {
+    # listen      127.0.0.1:8080 default_server;
+    listen      127.0.0.1:8080;
+    server_name webserv42.net www.webserv42.net;
+}
+
+server {
+    listen      127.0.0.2:8080;
+    server_name webserv42.com www.webserv42.com;
+}

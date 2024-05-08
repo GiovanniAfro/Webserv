@@ -1,34 +1,21 @@
 client_max_body_size 420000;
 
 server {
-    listen      127.0.0.1:8080;
-    server_name webserv42.org www.webserv42.org;
-}
-
-server {
-    listen      127.0.0.1:8080;
-    server_name webserv42.net www.webserv42.net;
-}
-
-server {
-    listen      127.0.0.2:8080;
-    server_name webserv42.com www.webserv42.com;
-}
-
-server {
 	listen 1111 default_server;
-	listen 42.42.42.42:1111;
+	# listen 42.42.42.42:1111;
 	listen 127.0.0.1:1111;
 	listen 127.0.0.1:1234;
+	listen 1234;
+	listen 1234;
 
 	# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
 	# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
 	#index index.html index.htm index.webserv-debian.html;
 	#autoindex on;
 
-	#client_max_body_size 42;
+	# client_max_body_size 2;
 
 	server_name www.webserv.eth;
 
@@ -38,7 +25,7 @@ server {
 	error_page 403 405 408 413 431 /40x.html;
 	error_page 500 /50x.html;
 
-	location /css/ {
+	location /css {
 		limit_except GET {
 		
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
@@ -55,6 +42,7 @@ server {
 	location /location {
 		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
 		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
+
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 		# alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 
@@ -62,7 +50,7 @@ server {
 		# alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 		# error_page 404 /50x.html;
 
-		# index index2.html;
+		 index index2.html;
 		autoindex on;
 	}
 
@@ -78,8 +66,8 @@ server {
 	location /upload {
 		# alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 		# alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		# alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
-		limit_except POST;
+		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/upload;
+		# limit_except POST;
 		autoindex off;
 	}
 }

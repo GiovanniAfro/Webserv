@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 19:11:47 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/08 19:12:34 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,12 @@ std::map<std::string, std::string> Server::_processPost(Request clientRequest, s
             return _responseBuilder(BAD_REQUEST, "Nome del file mancante nel corpo della richiesta.");
         }
 
-        std::string fullPath = filepath + fileName;
+        std::string fullPath = filepath;
+		if (filepath[filepath.size() - 1] == '/')
+			fullPath += fileName;
+		else
+			fullPath = fullPath + "/" + fileName;
+
         std::string fileContent = extractFileContent(clientRequest.requestBody, boundary);
         if (fileContent.empty()) {
             return _responseBuilder(BAD_REQUEST, "Contenuto del file mancante.");
@@ -443,6 +448,13 @@ bool Server::_isBodySizeExceeded(std::map<std::string, std::string> request, std
 			- If none of the above, return the request URI
 */
 std::string Server::_getRewrite(std::string const &requestUri) {
+	if (requestUri.empty())
+		return requestUri;
+
+	std::map<std::string, ADirective*>::iterator rew = _servDirs.find("rewrite");
+	if (rew == _servDirs.end())
+		return requestUri;
+
 	Rewrite *rewrite = static_cast<Rewrite *>(_servDirs["rewrite"]);
 	if (_locaDirs.find("rewrite") != _locaDirs.end())
 		rewrite = static_cast<Rewrite *>(_locaDirs["rewrite"]);
@@ -475,31 +487,29 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 {
 	std::map<std::string, std::string> request = clientRequest.request;
 	std::map<std::string, std::string> requestHeaders = clientRequest.requestHeaders;
+	Location *location = NULL;
 
 	_httpDirs = http->getDirectives();
 	_servDirs = this->getDirectives();
 	std::string path = "", requestUri = request["uri"];
 	
 	std::map<std::string, ADirective*>::iterator locIt = _servDirs.find("location");
-	if (locIt == _servDirs.end()) {
-    // Gestisci l'errore: "location" non trovata
-    	return _responseBuilder(INTERNAL_SERVER_ERROR, "Location directive not found");
-	}
-
-	Location* location = static_cast<Location*>(locIt->second);
-	if (!location) {
-    // Gestisci l'errore: il cast non è andato a buon fine
-    	return _responseBuilder(INTERNAL_SERVER_ERROR, "Failed to cast to Location type");
-	}
-
-	// Check if the request URI matches a location context
-	for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
+	if (locIt != _servDirs.end())
 	{
-		if (requestUri.find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
+		// Check if the request URI matches a location context
+		location = static_cast<Location *>(_servDirs["location"]);
+		if (!location) {
+		// Gestisci l'errore: il cast non è andato a buon fine
+			return _responseBuilder(INTERNAL_SERVER_ERROR, "Failed to cast to Location type");
+		}
+		for (std::vector<ADirective *>::iterator it = location->getBlocks().begin(); it != location->getBlocks().end(); ++it)
 		{
-			_locaDirs = static_cast<Location *>(*it)->getDirectives();
-			location = static_cast<Location *>(*it);
-			break;
+			if (requestUri.find(static_cast<Location *>(*it)->getUri()) != std::string::npos)
+			{
+				_locaDirs = static_cast<Location *>(*it)->getDirectives();
+				location = static_cast<Location *>(*it);
+				break;
+			}
 		}
 	}
 
@@ -510,19 +520,19 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 	// If the alias directive is defined, use the alias path
 	// and append the request URI, minus the location URI to the path
 	if (_locaDirs.find("alias") != _locaDirs.end())
-	{
 		_root = static_cast<Alias *>(_locaDirs["alias"])->getPath();
-		requestUri = requestUri.substr(location->getUri().size());
-	}
 	else
 		_root = _getRoot();
 	if (_root.empty())
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 
 	// Check if the request URI matches a rewrite directive
-	requestUri = _getRewrite(request["uri"]);
+	requestUri = _getRewrite(requestUri);
 	if (requestUri != request["uri"])
 		return _responseBuilder(FOUND, requestUri);
+
+	if (_locaDirs.find("alias") != _locaDirs.end() && location)
+		requestUri = requestUri.substr(location->getUri().size());
 
 	// Get the path to the file
 	std::string	filePath = _root + requestUri;
@@ -530,8 +540,6 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 		filePath += "/";
 	else if (filePath[filePath.size() - 1] == '/')
 		filePath = filePath.substr(0, filePath.size() - 1);
-
-
 
 	// If the path is a folder, check for the index file and autoindex directive
 	if (isFolder(filePath) && request["method"] == "GET")
@@ -553,11 +561,6 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 		return _responseBuilder(METHOD_NOT_ALLOWED);
 	}
 
-	// CGI -------------------------------------------------------------------->
-	// for (std::map<std::string, ADirective *>::iterator it = _locaDirs.begin(); it != _locaDirs.end(); ++it)
-	// 	std::cout << "Location directive: " << it->first << std::endl;
-
-	// std::cout << "here ------------------------------------------" << std::endl;
 	if (_locaDirs.find("fastcgi_pass") != _locaDirs.end())
 	{
 		Cgi cgi(clientRequest, filePath);
@@ -565,7 +568,8 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 		return _responseBuilder(cgi_out.first, cgi_out.second);
 	}
 
-	try {
+	try
+	{
 		if (request.at("method") == "GET")
 			return _processGet(filePath);
 		else if (request.at("method") == "POST")
@@ -575,7 +579,8 @@ std::map<std::string, std::string>	Server::processRequest(Http *http, Request cl
 		else
 			return _responseBuilder(BAD_REQUEST);
 	}
-	catch (const std::exception &ex) {
+	catch (const std::exception &ex)
+	{
 		return _responseBuilder(INTERNAL_SERVER_ERROR);
 	}
 }

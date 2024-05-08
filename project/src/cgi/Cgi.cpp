@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kichkiro <kichkiro@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/26 04:12:07 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 21:16:14 by kichkiro         ###   ########.fr       */
+/*   Updated: 2024/05/08 17:33:07 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,9 @@ pair<HTTP_STATUS, string> Cgi::exec(void) {
     char **envp = this->_get_envp();
     pair<HTTP_STATUS, string> out;
 
-    if (access(this->_params["FILENAME"].c_str(), F_OK) == -1) {
+	std::cout << this->_params["SCRIPT_FILENAME"] << std::endl;
+    if (access(this->_params["SCRIPT_FILENAME"].c_str(), F_OK) == -1) {
+
         this->_free_envp(envp);
         out.first = NOT_FOUND;
         out.second = "CGI: File not exists...";

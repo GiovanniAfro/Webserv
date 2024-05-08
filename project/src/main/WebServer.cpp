@@ -6,7 +6,7 @@
 /*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:49:22 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/07 21:13:25 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/08 18:20:36 by adi-nata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -366,6 +366,9 @@ Server*	WebServer::_findVirtualServer()
 		requestPort = static_cast<uint16_t>(atoi(requestHost.substr(requestHost.find(":") + 1).c_str()));
 	}
 
+	if (requestAddress == "localhost")
+		requestAddress = "127.0.0.1";
+
 	std::cout << "matchingServers : " << matchingServers.size() << std::endl;
 	this->_matchingServersPort(matchingServers, requestPort);
 	std::cout << "_matchingServersPort : " << matchingServers.size() << std::endl;
@@ -423,7 +426,7 @@ Server*	WebServer::_findVirtualServer()
 
 void	WebServer::_matchingServersPort(std::vector<ADirective *> &servers, uint16_t requestPort)
 {
-	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end();)
+	for (std::vector<ADirective *>::iterator itServer = servers.begin(); itServer != servers.end(); )
 	{
 		ADirective *listenDiretives = (*itServer)->getDirectives()["listen"];
 		bool		isMatch = false;
@@ -460,7 +463,7 @@ void	WebServer::_matchingServersIp(std::vector<ADirective *> &servers, const std
 				continue;
 
 			if (listen->getAddress() == requestIpAddress &&
-				listen->getPort() != requestPort)
+				listen->getPort() == requestPort)
 			{
 				isMatch = true;
 				break;
