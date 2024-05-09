@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: adi-nata <adi-nata@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: gcavanna <gcavanna@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 10:47:35 by kichkiro          #+#    #+#             */
-/*   Updated: 2024/05/08 19:12:34 by adi-nata         ###   ########.fr       */
+/*   Updated: 2024/05/09 13:43:13 by gcavanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ std::map<std::string, std::string> Server::_processPost(Request clientRequest, s
         outFile.write(fileContent.data(), fileContent.size());
         outFile.close();
 
-    } else if (contentType.find("text/plain") != std::string::npos) {
+    } else if (contentType.find("plain/text") != std::string::npos) {
         // Qui puoi gestire il testo semplice, ad esempio salvandolo in un file o facendo qualcos'altro.
         std::string fullPath = filepath + "some_default_filename.txt";
         std::ofstream outFile(fullPath.c_str(), std::ofstream::binary);

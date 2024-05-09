@@ -9,7 +9,7 @@ server {
 	listen 1234;
 
 	# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
+	root /nfs/homes/gcavanna/Desktop/web5/project/var/www/html;
 	# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
 
 	#index index.html index.htm index.webserv-debian.html;
@@ -29,7 +29,7 @@ server {
 		limit_except GET {
 		
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+		root /nfs/homes/gcavanna/Desktop/web5/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 
 		rewrite /redirectme style.css redirect;
@@ -40,8 +40,8 @@ server {
 	}
 
 	location /location {
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
-		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/location;
+		root /nfs/homes/gcavanna/Desktop/web5/project/var/www/html;
+		alias /nfs/homes/gcavanna/Desktop/web5/project/var/www/location;
 
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 		# alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
@@ -57,7 +57,7 @@ server {
 	location /cgi-bin {
 		# root /home/sysadmin/github/webserv2/project/var/www;
 		# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
-		root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www;
+		root /nfs/homes/gcavanna/Desktop/web5/project/var/www;
 		# root /nfs/homes/gcavanna/Desktop/web3/project/var/www;
 
 		fastcgi_pass self;
@@ -66,7 +66,7 @@ server {
 	location /upload {
 		# alias /nfs/homes/anvannin/42Cursus/webserv/project/var/www;
 		# alias /nfs/homes/gcavanna/Desktop/web3/project/var/www;
-		alias /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/upload;
+		alias /nfs/homes/gcavanna/Desktop/web5/project/var/www/upload;
 		# limit_except POST;
 		autoindex off;
 	}

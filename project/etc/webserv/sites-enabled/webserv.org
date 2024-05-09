@@ -5,7 +5,7 @@ server {
 	# listen localhost:1111;
 
 	# root /nfs/homes/anvannin/42Cursus/webserv/project/var/www/html;
-	root /nfs/homes/adi-nata/Documents/GitHub/webserv/project/var/www/html;
+	root /nfs/homes/gcavanna/Desktop/web5/project/var/www/html;
 
 	index index.html index.htm index.webserv-debian.html;
 
